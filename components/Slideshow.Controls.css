@@ -1,0 +1,40 @@
+:root {
+	--Slideshow-Controls-marginTop: var(--Slideshow-Control-margin);
+}
+
+/* This class name is only used in `isButton()` function. */
+.Slideshow-Controls {}
+
+.Slideshow-ControlGroup--center {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	/*display: inline-block;*/
+	/*padding: 0;*/
+	/*margin: 0;*/
+}
+
+.Slideshow-ControlGroup--top {
+	top: var(--Slideshow-Controls-marginTop);
+}
+
+.Slideshow-ControlGroup--bottom {
+	bottom: var(--Slideshow-Controls-marginTop);
+}
+
+.Slideshow-Previous,
+.Slideshow-Next {
+	position: absolute;
+	top: 50%;
+	margin-left: var(--Slideshow-Control-margin);
+	margin-right: var(--Slideshow-Control-margin);
+	transform: translateY(-50%);
+}
+
+.Slideshow-Previous {
+	left: 0;
+}
+
+.Slideshow-Next {
+	right: 0;
+}

@@ -1,0 +1,35 @@
+.PostPicture {
+	margin-top: var(--PostContent-marginTop);
+}
+
+.PostPicture--alignLeft {
+	/* By default, CSS aligns content to the left.
+	   (at least on non-Arabic OS-es). */
+	/*
+	.PostAttachmentThumbnail {
+		margin-right: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: left;
+	}
+	*/
+}
+
+.PostPicture--alignCenter {
+	.PostAttachmentThumbnail {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: center;
+	}
+}
+
+.PostPicture--alignRight {
+	.PostAttachmentThumbnail {
+		margin-left: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: right;
+	}
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 139 139">
+	<polygon fill="none" stroke="currentColor" stroke-width="6" points="68.6,4 124.2,35.9 124.2,103.4 68.6,135.3 13.2,103.4 13.2,35.9 "/>
+	<polyline fill="none" stroke="currentColor" stroke-width="6" points="13.2,35.9 69.5,67.7 125.8,35.9 "/>
+	<line stroke="currentColor" stroke-width="6" x1="94.3" y1="18" x2="41.3" y2="51.8"/>
+	<line stroke="currentColor" stroke-width="6" x1="69.5" y1="67.7" x2="69.5" y2="135.3"/>
+</svg>

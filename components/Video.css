@@ -1,0 +1,57 @@
+.Video {
+	display: block;
+}
+
+.Video--border {
+	--Video-borderColor: var(--Picture-borderColor);
+	/* Without `background-clip: padding-box` the border wouldn't blend with background. */
+	/* https://stackoverflow.com/questions/4062001/can-you-set-a-border-opacity-in-css */
+  background-clip: padding-box;
+}
+
+.Video--border:focus {
+	--Video-borderColor: var(--Picture-borderColor--focus);
+}
+
+.Video--border:not(.Video--preview) {
+	border: 1px solid var(--Video-borderColor);
+}
+
+/*.Video--border {
+	box-shadow: 0 0 0 1px var(--Picture-borderColor);
+}*/
+
+.Video--preview:focus {
+	/*&.Picture {
+		box-shadow: 0 0 0 1px var(--Video-borderColor--focus);
+	}*/
+	.VideoPlayIcon-border,
+	.VideoPlayIcon-triangle {
+		fill: var(--base-color-400);
+	}
+}
+
+/*.Video--aspect-ratio {
+	height: 0;
+}*/
+
+/*.Video-button {
+	display: block;
+	width: 100%;
+}*/
+
+/*.Video--preview {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+}*/
+
+.Video-playerContainerInner {
+	/* The role of `.Video-playerContainerInner` is to receive focus
+		 when focusing the `<Video/>`: some video players render in an `<iframe/>`
+		 (for example, YouTube video player), and so they themselves aren't focuseable.
+	   In those cases, `.Video-playerContainerInner` receives focus and listens for keyboard events. */
+	outline: none;
+}

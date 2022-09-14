@@ -1,0 +1,40 @@
+/* Reset the default `<button/>` styles */
+.Button {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+	appearance: none;
+	border: none;
+	background: none;
+	color: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	font-weight: inherit;
+	font-style: inherit;
+	user-select: none;
+	/* box-sizing: border-box; */
+}
+
+/* This CSS class can be used on its own in applications. */
+/* Because of that, `outline: none` is added here too. */
+/* Developers should define `:focus` styles for buttons. */
+/* Didn't add `:focus` specifier for lesser CSS rule priority. */
+.Button:not(.Outline--default) {
+	outline: none;
+}
+
+.Button:not([disabled]) {
+	cursor: pointer;
+}
+
+.Button {
+	/* Remove the `line-height`-induced vertical space. */
+	display: flex;
+	/* Center content. */
+	align-items: center;
+	justify-content: center;
+}
+
+.Button--wait {
+	cursor: wait;
+}

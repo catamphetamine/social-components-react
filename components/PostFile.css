@@ -1,0 +1,23 @@
+.PostFile {
+	display: flex;
+	align-items: center;
+	margin-top: var(--PostContent-marginTop);
+}
+
+.PostFile-icon {
+	width: 0.95em;
+	height: 0.95em;
+	/* Links with really long filenames could result in the file icon shrinking.
+	   Added `min-width` and `min-height` to work around that. */
+	min-width: 0.95em;
+	min-height: 0.95em;
+	margin-right: 0.25em;
+}
+
+.PostFile-size {
+	margin-left: 0.4em;
+	color: var(--gray-color-400);
+	font-weight: 300;
+	/* Links with really long filenames may wrap. */
+	white-space: nowrap;
+}

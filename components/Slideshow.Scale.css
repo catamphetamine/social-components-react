@@ -1,0 +1,27 @@
+/* https://daneden.github.io/animate.css/ */
+/* https://github.com/daneden/animate.css/blob/master/source/bouncing_entrances/bounceIn.css */
+@keyframes SlideshowSlideBounce {
+	from, 25%, 47%, 72%, to {
+		animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+	}
+	0% {
+		transform: scale3d(1, 1, 1);
+	}
+	25% {
+		transform: scale3d(.99, .99, .99);
+	}
+	47% {
+		transform: scale3d(1.01, 1.01, 1.01);
+	}
+	72% {
+		transform: scale3d(0.995, 0.995, 0.995);
+	}
+	to {
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+.Slideshow-Slide--bounce {
+	animation: SlideshowSlideBounce 0.6s;
+	/*transform: translate3d(0, 0, 0);*/
+}

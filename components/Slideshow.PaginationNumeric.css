@@ -1,0 +1,48 @@
+:root {
+	--Slideshow-PaginationNumeric-height: 1.65em;
+	--Slideshow-PaginationNumeric-paddingLeft: 0.6em;
+	--Slideshow-Pagination-height--numeric: var(--Slideshow-PaginationNumeric-height);
+}
+
+.Slideshow-PaginationNumeric {
+	display: flex;
+	align-items: center;
+	height: var(--Slideshow-PaginationNumeric-height);
+	border-radius: 1em;
+	padding-left: var(--Slideshow-PaginationNumeric-paddingLeft);
+	padding-right: var(--Slideshow-PaginationNumeric-paddingLeft);
+	background-color: rgba(0, 0, 0, 0.7);
+	color: var(--white-color);
+	font-weight: 300;
+	&:focus, &:hover {
+		color: var(--SocialComponentsClickable-color--active);
+	}
+	&:active {
+		color: var(--white-color);
+		background-color: var(--SocialComponentsClickable-color--active);
+		.Slideshow-PaginationNumericCurrent {
+			opacity: 1;
+		}
+		.Slideshow-PaginationNumericDivider {
+			opacity: 0.6;
+		}
+		.Slideshow-PaginationNumericTotal {
+			opacity: 0.75;
+		}
+	}
+}
+
+.Slideshow-PaginationNumericCurrent {
+	opacity: 0.75;
+}
+
+.Slideshow-PaginationNumericDivider {
+	margin-left: 0.35em;
+	margin-right: 0.35em;
+	opacity: 0.35;
+	transform: scale(1.3);
+}
+
+.Slideshow-PaginationNumericTotal {
+	opacity: 0.5;
+}

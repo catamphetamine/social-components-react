@@ -1,0 +1,33 @@
+.VideoPlayIcon-border {
+	fill: rgba(255, 255, 255, 0.7);
+}
+
+.VideoPlayIcon-background {
+	fill: rgba(0, 0, 0, 0.6);
+	transition: fill 120ms;
+}
+
+.VideoPlayIcon-triangle {
+	fill: rgba(255, 255, 255, 1);
+}
+
+.VideoPlayIcon--center,
+.VideoPlayIcon--bottom-right {
+	--rrui-video-play-icon-size: 30%;
+	width  : var(--rrui-video-play-icon-size);
+	height : var(--rrui-video-play-icon-size);
+	position : absolute;
+	pointer-events : none;
+}
+
+.VideoPlayIcon--center {
+	top  : 50%;
+	left : 50%;
+	transform : translateX(-50%) translateY(-50%);
+}
+
+.VideoPlayIcon--bottom-right {
+	right  : 0;
+	bottom : 0;
+	transform : translateX(-25%) translateY(-25%);
+}

@@ -1,0 +1,16 @@
+.PostTitle {
+	margin-top: 0;
+	/*margin-top: var(--PostTitle-marginTop);*/
+	/* `padding-bottom` should be used instead of `margin-bottom` here
+	   so that `margin-bottom` doesn't collapse with `margin-top`
+	   of the first paragraph of `post.content`, because when
+	   `<Post stretch/>` property is used `.Post` becomes `display: flex`
+	   and margins no longer collapse. */
+	margin-bottom: var(--PostTitle-marginBottom);
+	font-size: var(--PostTitle-fontSize);
+	font-weight: var(--PostTitle-fontWeight);
+}
+
+.PostTitle--compact {
+	--PostTitle-marginBottom: var(--PostContent-marginTop--compact);
+}

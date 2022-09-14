@@ -1,0 +1,49 @@
+.PostContent {
+	/*margin-bottom: calc(-1 * var(--PostContent-marginTop));*/
+	font-family: var(--SocialComponents-fontFamily--text);
+
+	/* Long hyperlinks can overflow post on small screens.
+	   (for example, on mobile devices)
+	   `overflow-wrap` in combination with `word-break` fixes that
+	   by forcing word breaks on overflow.
+	   https://stackoverflow.com/questions/17259916/difference-between-overflow-wrap-and-word-break
+	   https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap
+	   https://developer.mozilla.org/en-US/docs/Web/CSS/word-break */
+	overflow-wrap: break-word;
+	word-break: break-word;
+
+	/* Without `max-width: 100%` a comment could become overflown
+	   by a `<pre/>` code block. */
+	max-width: 100%;
+
+	/* When selecting text <br/>s also get selected
+	   which results in a bit of a visual clutter.
+	   (for example, in the end of `<PostInlineQuote/>`
+	   when a `<Post/>` has `.content-section` CSS class).
+	   `font-size: 0` doesn't affect the height of `<br/>`
+	   but it removes the visual selection from it. */
+	br {
+		font-size: 0;
+	}
+}
+
+.PostContent--compact {
+	--PostContent-marginTop: var(--PostContent-marginTop--compact);
+	--PostContentBlock-marginTop: var(--PostContentBlock-marginTop--compact);
+}
+
+.PostContent {
+	> *:first-child {
+		/* Reverts the effect of `margin-top` on the first post block. */
+		margin-top: 0;
+	}
+	> *:last-child {
+		/* Reverts the effect of `margin-bottom` on the last post block. */
+		margin-bottom: 0;
+	}
+}
+
+/*.PostContent--starts-with-text {*/
+	/* Reverts the effect of `margin-top` on the first paragraph. */
+	/*margin-top: calc(-1 * var(--PostParagraph-marginTop));*/
+/*}*/

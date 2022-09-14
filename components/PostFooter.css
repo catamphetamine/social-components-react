@@ -1,0 +1,78 @@
+.PostFooter {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 0.8em;
+	font-weight: lighter;
+	color: var(--Post-color--secondary);
+
+	--PostFooterBadge-margin: calc(var(--unit) * 1.5);
+}
+
+.Post--compact {
+	.PostFooter {
+		margin-top: 0.4em;
+	}
+}
+
+/*
+.Post.content-section {
+	.PostFooter {
+		margin-bottom: calc(-1 * 0.2em);
+	}
+}
+*/
+
+/*
+.Post--compact.content-section {
+	.PostFooter {
+		margin-bottom: calc(-1 * 0.4em);
+	}
+}
+*/
+
+.PostFooter-badges {
+	display: flex;
+	margin-right: var(--unit);
+	/* Fallback for really small screens. */
+	flex-wrap: wrap;
+	/* `cursor: default` overrides <Clickable/>'s `cursor: pointer`. */
+	/* cursor: default; */
+	user-select: none;
+}
+
+.PostFooter-badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: var(--PostFooterBadge-margin);
+	&:last-child {
+		margin-right: 0;
+	}
+}
+
+.PostFooter-badgeIcon {
+	width: 1em;
+	height: 1em;
+	margin-right: 0.35em;
+}
+
+/*
+.PostBadgeButton {
+	display: flex;
+	align-items: center;
+	color: inherit;
+}
+
+.PostFooter {
+	.PostBadgeButton {
+		margin-top: calc(-1 * var(--PostFooterBadge-margin) / 12);
+		margin-bottom: calc(-1 * var(--PostFooterBadge-margin) / 12);
+		margin-left: calc(-1 * var(--PostFooterBadge-margin) / 3);
+		margin-right: calc(-1 * var(--PostFooterBadge-margin) / 3.5);
+		padding-top: calc(var(--PostFooterBadge-margin) / 12);
+		padding-bottom: calc(var(--PostFooterBadge-margin) / 12);
+		padding-left: calc(var(--PostFooterBadge-margin) / 3);
+		padding-right: calc(var(--PostFooterBadge-margin) / 3.5);
+	}
+}
+*/

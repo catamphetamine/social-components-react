@@ -1,0 +1,18 @@
+.PostQuote
+{
+	padding-left : 1em;
+	border-left  : 0.1em solid var(--gray-color-100);
+}
+
+.PostQuote-text
+{
+	margin-left   : 0;
+	margin-bottom : 0;
+	font-size     : 115%;
+	line-height   : var(--SocialComponents-lineHeight);
+}
+
+.PostQuote-source
+{
+	margin-top : 1em;
+}

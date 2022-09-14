@@ -1,0 +1,93 @@
+.PostAttachmentThumbnail {
+	/* `<button/>`s are `display: inline` by default. */
+	display: block;
+}
+
+/* Only apply border to attachment thumbnails having non-transparent background. */
+.PostAttachmentThumbnail.Picture--nonTransparentBackground {
+	/* Material Design Card elevation shadow. */
+	/* https://codepen.io/sdthornton/pen/wBZdXq */
+	/*transition: box-shadow 160ms cubic-bezier(.25,.8,.25,1);*/
+	/*&:hover {
+		box-shadow: var(--PostAttachment-shadow--hover);
+	}*/
+	/*&:focus {
+		box-shadow: var(--PostAttachment-shadow--focus);
+	}*/
+	/*
+	&:focus {
+		box-shadow: 0 0 0 var(--PostAttachment-focusOutlineWidth) var(--Picture-borderColor);
+	}
+	*/
+}
+
+/* Blur radius depends on the actual image dimensions. */
+/*
+.PostAttachmentThumbnail--spoiler {
+	.Picture-image {
+		filter: blur(14px);
+	}
+}
+*/
+
+.PostAttachmentThumbnail__loading {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	background-color: rgba(0, 0, 0, 0.2);
+	z-index: 1;
+}
+
+.PostAttachmentThumbnail__loading-indicator {
+	width  : calc(var(--unit) * 2);
+	height : calc(var(--unit) * 2);
+	color  : var(--white-color);
+	/* <ActivityIndicator/> uses `em`s by default. */
+	font-size : 12px;
+}
+
+.PostAttachmentThumbnail__more-count {
+	position : absolute;
+	top      : 0;
+	left     : 0;
+	width    : 100%;
+	height   : 100%;
+
+	display         : flex;
+	align-items     : center;
+	justify-content : center;
+
+	color            : var(--white-color);
+	background-color : rgba(0,0,0,0.4);
+	opacity          : 0.8;
+
+	overflow : hidden;
+	pointer-events : none;
+
+	font-size : 3rem;
+}
+
+.PostAttachmentThumbnail-spoiler {
+	position: absolute;
+	width: 100%;
+	left: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	padding-bottom: 0.15em;
+	padding-top: 0.15em;
+	background: var(--SocialComponents-backgroundColor);
+	color: var(--SocialComponents-color-900);
+	font-family: var(--SocialComponents-fontFamily);
+	font-weight: 300;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	opacity: 0.75;
+}

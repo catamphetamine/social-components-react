@@ -1,0 +1,6 @@
+.Tweet {
+	.twitter-tweet {
+		/* Twitter sets inline style margins for some reason. */
+		margin: 0 !important;
+	}
+}

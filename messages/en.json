@@ -1,0 +1,44 @@
+{
+	"post": {
+		"verified": "Identity verified",
+		"removed": "This comment has been removed",
+		"banned": "The author of this comment was banned",
+		"bannedReason": ". Reason: \"{0}\".",
+		"sticky": "Sticky thread",
+		"closed": "Closed thread",
+		"commentsCount": "Comments",
+		"repliesCount": "Replies",
+		"readMore": "Show\u00a0more",
+		"moreActions": {
+			"title": "More actions"
+		},
+		"upvote": "Like",
+		"downvote": "Dislike",
+		"alreadyVoted": "You have already voted",
+		"reply": "Reply",
+		"spoiler": "Spoiler",
+		"expandAttachments": "Expand attachments",
+		"collapseAttachments": "Collapse attachments",
+		"viewAttachments": "View attachments",
+		"videoNotFound": "Video not found",
+		"linkTo": "Link to {0}"
+	},
+	"slideshow": {
+		"actions": {
+			"previous": "Previous",
+			"next": "Next",
+			"download": "Download",
+			"close": "Close",
+			"scaleUp": "Scale Up",
+			"scaleDown": "Scale Down",
+			"scaleReset": "Initial size",
+			"searchInGoogle": "Search in Google",
+			"showControls": "Show controls",
+			"hideControls": "Hide controls",
+			"openExternalLink": "Open external link",
+			"exitDragAndScaleMode": "Exit Drag and Scale mode"
+		},
+		"scaleValueBefore": "Scale",
+		"scaleValueAfter": null
+	}
+}

@@ -1,0 +1,58 @@
+.PictureStack {
+	--PictureStack-borderColor: var(--SocialComponents-color-400);
+	--PictureStack-backgroundColor: var(--SocialComponents-backgroundColor);
+	/* Makes non-stacked picture have the same border color as stacked ones. */
+	/*--Picture-borderColor: var(--PictureStack-borderColor);*/
+	display: block;
+	position: relative;
+}
+
+.PictureStack--inline {
+	/* Sometimes it can't be `display: block`, for example,
+	   because it's inside a `<p/>` or a `<button/>`. */
+	display: inline-block;
+}
+
+.PictureStack--stack {
+  --Picture-borderColor: var(--PictureStack-borderColor);
+  --Picture-borderColor--focus: var(--PictureStack-borderColor);
+	/* Stacked pictures border is re-drawn as a child element. */
+	/*--Picture-borderColor: transparent;*/
+	/* Show stacked pictures underneath. */
+  overflow: visible;
+}
+
+.PictureStackBorder,
+.PictureStackUnder {
+	/* Sometimes it can't be `display: block`, for example,
+	   because it's inside a `<p/>` or a `<button/>`. */
+	display: inline-block;
+	position: absolute;
+	/*width: calc(100% + 2 * 1px);*/
+	/*height: calc(100% + 2 * 1px);*/
+	width: 100%;
+	height: 100%;
+	border: 1px solid var(--PictureStack-borderColor);
+	background-color: var(--PictureStack-backgroundColor);
+}
+
+.PictureStackBorder {
+	left: calc(-1 * 1px);
+	top: calc(-1 * 1px);
+	border: 1px solid var(--PictureStack-borderColor);
+}
+
+.PictureStackUnder--2-of-2 {
+	left: calc(1px + 4px - 2 * 1px);
+	top: calc(1px + 4px - 2 * 1px);
+}
+
+.PictureStackUnder--2-of-3 {
+	left: calc(1px + 3px - 2 * 1px);
+	top: calc(1px + 3px - 2 * 1px);
+}
+
+.PictureStackUnder--3-of-3 {
+	left: calc(1px + 5px - 2 * 1px);
+	top: calc(1px + 5px - 2 * 1px);
+}

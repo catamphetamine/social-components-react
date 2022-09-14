@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- For some weird reason, in iOS the right border is clipped a bit when `viewBox="-1 -1 102 102"`. -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 108 108">
+	<path fill="none" stroke="currentColor" stroke-width="4" stroke-miterlimit="10" d="M90.5,81.7h-13v15c0,1.5-1.7,2.2-2.8,1.2L57.8,81.7H9.6c-4.4,0-8-3.6-8-8V9.6c0-4.4,3.6-8,8-8h80.8
+	c4.4,0,8,3.6,8,8v64.1C98.5,78.1,94.9,81.7,90.5,81.7z"/>
+</svg>

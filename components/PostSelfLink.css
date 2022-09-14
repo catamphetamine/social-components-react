@@ -1,0 +1,7 @@
+.PostSelfLink {
+	--Padding-paddingLeft: var(--PostButton-paddingLeft);
+	--Padding-paddingTop: var(--PostButton-paddingTop);
+	display: block;
+	color: inherit;
+	outline: none;
+}

@@ -1,0 +1,42 @@
+.PostAudio-title {
+	margin-top: 0.4em;
+	margin-bottom: 0;
+	font-weight: normal;
+}
+
+.PostAudio-audio:focus {
+	outline: none;
+	box-shadow: 0 0 0 1px var(--base-color-700);
+}
+
+.PostAudio--alignLeft {
+	/* By default, CSS aligns content to the left.
+	   (at least on non-Arabic OS-es). */
+	/*
+	.PostAudio-audio {
+		margin-right: auto;
+	}
+	.PostAudio-title {
+		text-align: left;
+	}
+	*/
+}
+
+.PostAudio--alignCenter {
+	.PostAudio-audio {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.PostAudio-title {
+		text-align: center;
+	}
+}
+
+.PostAudio--alignRight {
+	.PostAudio-audio {
+		margin-left: auto;
+	}
+	.PostAudio-title {
+		text-align: right;
+	}
+}

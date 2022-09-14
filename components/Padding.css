@@ -1,0 +1,10 @@
+.Padding {
+	margin-top: calc(-1 * var(--Padding-paddingTop));
+	margin-bottom: calc(-1 * var(--Padding-paddingTop));
+	margin-left: calc(-1 * var(--Padding-paddingLeft));
+	margin-right: calc(-1 * var(--Padding-paddingLeft));
+	padding-top: var(--Padding-paddingTop);
+	padding-bottom: var(--Padding-paddingTop);
+	padding-left: var(--Padding-paddingLeft);
+	padding-right: var(--Padding-paddingLeft);
+}

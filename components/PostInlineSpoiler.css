@@ -1,0 +1,38 @@
+/*
+.PostInlineSpoiler,
+.PostInlineSpoiler-contents {
+  transition-duration: 60ms;
+}
+*/
+
+.PostInlineSpoiler--hidden {
+	background-color: var(--PostInlineSpoiler-color);
+	opacity: var(--PostInlineSpoiler-opacity);
+	border-radius: 0.2em;
+}
+
+.PostInlineSpoiler--censored {
+	&.PostInlineSpoiler--hidden {
+		--PostInlineSpoiler-color: var(--PostInlineSpoiler-color--censored);
+		--PostInlineSpoiler-opacity: var(--PostInlineSpoiler-opacity--censored);
+		cursor: not-allowed;
+	}
+}
+
+.PostInlineSpoiler--hidden {
+	/* A "censored" spoiler may be placed inside a regular "spoiler".
+	   Hence using the ">" selector. */
+	> .PostInlineSpoiler-contents {
+		opacity: 0;
+	}
+}
+
+.PostInlineSpoiler--hidden:not(.PostInlineSpoiler--censored):hover {
+	background-color: transparent;
+	opacity: initial;
+	/* A "censored" spoiler may be placed inside a regular "spoiler".
+	   Hence using the ">" selector. */
+	> .PostInlineSpoiler-contents {
+		opacity: 1;
+	}
+}

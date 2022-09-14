@@ -1,0 +1,45 @@
+{
+
+	"post": {
+		"verified": "Личность подтверждена",
+		"removed": "Этот комментарий был удалён",
+		"banned": "Автор этого комментария был забанен",
+		"bannedReason": ". Причина: \"{0}\".",
+		"sticky": "Закреплённый тред",
+		"closed": "Тред закрыт",
+		"commentsCount": "Комментарии",
+		"repliesCount": "Ответы",
+		"readMore": "Показать\u00a0полностью",
+		"moreActions": {
+			"title": "Действия"
+		},
+		"upvote": "Нравится",
+		"downvote": "Не нравится",
+		"alreadyVoted": "Вы уже голосовали",
+		"reply": "Ответить",
+		"spoiler": "Спойлер",
+		"expandAttachments": "Раскрыть картинки",
+		"collapseAttachments": "Свернуть картинки",
+		"viewAttachments": "Посмотреть вложения",
+		"videoNotFound": "Видео не найдено",
+		"linkTo": "Ссылка на {0}"
+	},
+	"slideshow": {
+		"actions": {
+			"previous": "Предыдущий",
+			"next": "Следующий",
+			"download": "Скачать",
+			"close": "Закрыть",
+			"scaleUp": "Увеличить",
+			"scaleDown": "Уменьшить",
+			"scaleReset": "Исходный размер",
+			"searchInGoogle": "Поискать в Гугле",
+			"showControls": "Показать действия",
+			"hideControls": "Скрыть действия",
+			"openExternalLink": "Открыть оригинал",
+			"exitDragAndScaleMode": "Выйти из режима перетаскивания и увеличения"
+		},
+		"scaleValueBefore": "Масштаб",
+		"scaleValueAfter": null
+	}
+}

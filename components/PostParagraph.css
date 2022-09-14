@@ -1,0 +1,32 @@
+.PostParagraph {
+	/* PostParagraph. */
+	/* These CSS variables are placed here, because `--PostContent-marginTop`
+	   gets redefined at `.Post--compact` level, so in order for `--PostParagraph-marginTop`
+	   to "pick up" the updated `--PostContent-marginTop` CSS variable value,
+	   it's placed not at the `:root` level but at a level equal to or below `.Post--compact`. */
+	/* Textual content has some inherent bottom spacing due to line height.
+   Other content (attachment thumbnails, embedded pictures and videos)
+   doesn't have such extra visual spacing. Therefore reduce it for text. */
+	--PostParagraph-marginTop: calc(var(--PostContent-marginTop) - var(--Post-textLineHeightBlankSpace));
+	--PostParagraph-marginBottom: calc(-1 * var(--Post-textLineHeightBlankSpace));
+
+	/* Textual content has some inherent bottom spacing due to line height.
+	   Other content (attachment thumbnails, embedded pictures and videos)
+	   doesn't have such extra visual spacing. Therefore, vertical margin
+	   is slightly reduced for text in order for it to be visually similar
+	   to the vertical spacing of other content like embedded pictures/videos. */
+	margin-top: var(--PostParagraph-marginTop);
+	margin-bottom: var(--PostParagraph-marginBottom);
+}
+
+/* Even though there's
+
+/* Instead, "negative" `margin-top` is added to `.PostContent`. */
+/*.PostParagraph--first {
+	margin-top: 0;
+}*/
+
+.PostParagraph + .PostParagraph {
+	/* Add extra vertical spacing between text paragraphs. */
+	margin-top: var(--PostContent-marginTop);
+}

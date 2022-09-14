@@ -1,0 +1,53 @@
+.Slideshow-DragAndScaleModeControls {
+	position: absolute;
+	left: 50%;
+	bottom: calc(var(--Slideshow-Controls-marginTop) + var(--Slideshow-VerticalPaginationSpace) + var(--Slideshow-DragAndScaleModeButton-marginBottom));
+	transform: translateX(-50%);
+}
+
+.Slideshow {
+	--Slideshow-VerticalPaginationSpace: 0px;
+}
+
+.Slideshow--showPagination {
+	--Slideshow-VerticalPaginationSpace: calc(var(--Slideshow-Pagination-height) + var(--Slideshow-Controls-marginTop));
+}
+
+.Slideshow-DragAndScaleModeButton {
+	background-color: var(--Slideshow-Control-backgroundColor);
+	color: var(--Slideshow-Control-color);
+	font-weight: var(--Slideshow-Control-fontWeight);
+	outline: none;
+	height: var(--Slideshow-DragAndScaleModeButton-height);
+	border-radius: calc(var(--Slideshow-DragAndScaleModeButton-height) / 2);
+	padding-left: var(--Slideshow-Control-paddingLeft);
+	padding-right: var(--Slideshow-Control-paddingLeft);
+
+	&:hover,
+	&:focus {
+		color: var(--Slideshow-Control-color--focus);
+	}
+
+	&:active {
+		color: var(--Slideshow-Control-color--active);
+		background-color: var(--Slideshow-Control-backgroundColor--active);
+	}
+}
+
+.Slideshow-DragAndScaleModeButton--hidden {
+	/*visibility: hidden;*/
+	display: none;
+}
+
+.Slideshow-DragAndScaleModeButtonText--beforeScaleValue {
+	margin-right: 0.45em;
+}
+
+.Slideshow-DragAndScaleModeButtonText--afterScaleValue {
+	margin-left: 0.45em;
+}
+
+.Slideshow-DragAndScaleModeButtonText {
+	opacity: 0.65;
+	white-space: pre-wrap;
+}

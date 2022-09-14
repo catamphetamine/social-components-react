@@ -1,0 +1,18 @@
+.Slideshow--panning {
+	cursor: grabbing;
+}
+
+/* Overrides "cursor: pointer" on a picture slide. */
+.Slideshow--panning .Slideshow-Picture {
+	cursor: grabbing;
+}
+
+.Slideshow-Slides--dragging {
+	transition-duration: 0s;
+	transform: translateX(-600px);
+}
+
+.Slideshow-Slides--released {
+	transition-duration: 0.01234s;
+	transform: translateX(-789px);
+}

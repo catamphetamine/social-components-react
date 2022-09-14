@@ -1,0 +1,55 @@
+:root {
+	--Slideshow-PaginationDots-marginBottom: calc(var(--unit) / 2);
+	--Slideshow-PaginationDots-padding: var(--Slideshow-PaginationDot-width);
+	--Slideshow-PaginationDot-width: calc(var(--unit) / 2);
+	--Slideshow-PaginationDot-marginLeft: calc(var(--unit) / 4);
+	--Slideshow-Pagination-height--dots: calc(var(--Slideshow-PaginationDots-marginBottom) + var(--Slideshow-PaginationDot-width));
+}
+
+.Slideshow-PaginationDots {
+	display: flex;
+	padding-left: var(--Slideshow-PaginationDots-padding);
+	padding-right: var(--Slideshow-PaginationDots-padding);
+	margin-top: calc(-1 * var(--Slideshow-PaginationDots-padding));
+	margin-bottom: calc(-1 * var(--Slideshow-PaginationDots-padding) + var(--Slideshow-PaginationDots-marginBottom));
+	opacity: var(--Slideshow-PaginationDot-opacity);
+}
+
+/*.Slideshow-PaginationDots:focus {
+	background-color: rgba(0, 0, 0, 0.5);
+	box-shadow: 0 0 0 1px var(--SocialComponentsClickable-color);
+	border-radius: var(--Slideshow-PaginationDot-width);
+}*/
+
+/*.Slideshow-PaginationDots:active {
+	background-color: var(--SocialComponentsClickable-color--active);
+	--Slideshow-PaginationDot-backgroundColor: transparent;
+	--Slideshow-PaginationDot-backgroundColor--selected: var(--white-color);
+}
+*/
+.Slideshow-PaginationDot {
+	width: var(--Slideshow-PaginationDot-width);
+	height: var(--Slideshow-PaginationDot-width);
+	margin-left: var(--Slideshow-PaginationDot-marginLeft);
+	margin-right: var(--Slideshow-PaginationDot-marginLeft);
+	margin-top: var(--Slideshow-PaginationDots-padding);
+	margin-bottom: var(--Slideshow-PaginationDots-padding);
+	background-color: var(--Slideshow-PaginationDot-backgroundColor);
+	box-shadow: 0 0 0 var(--Slideshow-PaginationDot-borderWidth) var(--Slideshow-PaginationDot-borderColor);
+	border-radius: 50%;
+}
+
+.Slideshow-PaginationDot--selected {
+	background-color: var(--Slideshow-PaginationDot-backgroundColor--selected);
+}
+
+.Slideshow-PaginationDots--highContrast {
+	--Slideshow-PaginationDot-opacity: 1;
+}
+
+.Slideshow-PaginationDot--highContrast {
+	margin-left: calc(var(--unit) / 3);
+	margin-right: calc(var(--unit) / 3);
+	--Slideshow-PaginationDot-borderWidth: var(--Slideshow-PaginationDot-borderWidth--highContrast);
+	--Slideshow-PaginationDot-borderColor: var(--Slideshow-PaginationDot-borderColor--highContrast);
+}

@@ -1,0 +1,128 @@
+import React from 'react'
+import classNames from 'classnames'
+
+import { getAspectRatio } from './Picture.js'
+import Video, { getMaxSize, getUrl } from './Video.js'
+
+import { isKeyCombination } from 'web-browser-input'
+
+export default {
+	minInitialScale: 0.65,
+	// showCloseButtonForSingleSlide: true,
+	getMaxSize(slide) {
+		return getMaxSize(slide.video)
+	},
+	getAspectRatio(slide) {
+		if (slide.video.aspectRatio) {
+			return slide.video.aspectRatio
+		}
+		return getAspectRatio(slide.video.picture)
+	},
+	// isScaleDownAllowed(slide) {
+	// 	return false
+	// },
+	// capturesArrowKeys(slide) {
+	// 	return true
+	// },
+	canSwipe(slide) {
+		switch (slide.video.provider) {
+			// iOS Safari has a bug when YouTube video is played in fullscreen slideshow:
+			// touch scroll goes through it and it doesn't respond to swiping.
+			// I guess Vimeo could have the same bug (didn't test).
+			// On desktop mouse users are unable to swipe the video <iframe/> too.
+			case 'YouTube':
+			case 'Vimeo':
+				return false
+			default:
+				return true
+		}
+	},
+	// hasCloseButtonClickingIssues(slide) {
+	// 	switch (slide.video.provider) {
+	// 		// (Experienced both in iOS Safari and in desktop Chrome)
+	// 		// Even though slideshow actions are shown above a YouTube video <iframe/>
+	// 		// clicks are being captured by that video <iframe/> for some reason.
+	// 		// I guess Vimeo could have the same bug (didn't test).
+	// 		case 'YouTube':
+	// 		case 'Vimeo':
+	// 			return true
+	// 		default:
+	// 			return false
+	// 	}
+	// },
+	onKeyDown(event) {
+		// Capture Spacebar (Play/Pause).
+		if (isKeyCombination(event, ['Space'])) {
+			// Spacebar is always handled by the `<Video/>` which is focused.
+			return true
+		}
+	},
+	canOpenExternalLink(slide) {
+		return true
+	},
+	getExternalLink(slide) {
+		return getUrl(slide.video)
+	},
+	// canDownload(slide) {
+	// 	switch (slide.video.provider) {
+	// 		case undefined:
+	// 			return true
+	// 		default:
+	// 			return false
+	// 	}
+	// },
+	// getDownloadLink(slide) {
+	// 	switch (slide.video.provider) {
+	// 		case undefined:
+	// 			return slide.video.url
+	// 	}
+	// },
+	canRender(slide) {
+		return slide.type === 'video'
+	},
+	// onShowSlide(slide, ref, props) {
+	// 	if (_autoPlay) {
+	// 		ref.showVideo(() => ref.play())
+	// 	}
+	// },
+	render({
+		ref,
+		slide,
+		isCurrentSlide,
+		autoPlay,
+		onClick,
+		width,
+		height,
+		// maxWidth,
+		// maxHeight,
+		dragAndScaleMode,
+		tabIndex,
+		style,
+		className
+	}) {
+		// maxWidth={maxWidth}
+		// maxHeight={maxHeight}
+		// Disables video seeking on Left/Right arrow keys.
+		// seekOnArrowKeys={_seekOnArrowKeys}
+		return (
+			<Video
+				ref={ref}
+				video={slide.video}
+				onClick={onClick}
+				playable={isCurrentSlide}
+				autoPlay={autoPlay}
+				stopVideoOnStopPlaying
+				showPlayIcon
+				width={width}
+				height={height}
+				fit="scale-down"
+				tabIndex={tabIndex}
+				preview={autoPlay ? false : undefined}
+				seekOnArrowKeysAtBorders={false}
+				seekOnArrowKeys={dragAndScaleMode ? false : undefined}
+				changeVolumeOnArrowKeys={dragAndScaleMode ? false : undefined}
+				style={style}
+				className={classNames('Slideshow-Video', className)}/>
+		)
+	}
+}

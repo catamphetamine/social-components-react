@@ -1,0 +1,18 @@
+.Slideshow-Video {
+	background-color: black;
+	/* Sometimes `video.width` and `video.height` are incorrect
+	   which would result in a wrong placement on screen.
+	   Centering such videos works around such bugs. */
+	display: flex;
+	align-items: center;
+}
+
+.Slideshow-Video .VideoPlayIcon {
+	--rrui-video-play-icon-size: 20%;
+}
+
+.Slideshow-Slide--card {
+	&.Slideshow-Video {
+		background-color: var(--Slideshow-Slide-backgroundColor--video);
+	}
+}

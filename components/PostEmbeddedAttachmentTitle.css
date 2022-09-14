@@ -1,0 +1,15 @@
+.PostEmbeddedAttachmentTitle {
+	margin-top: 0.4em;
+	margin-bottom: 0;
+	font-weight: normal;
+	line-height: 1.35em;
+}
+
+.PostPicture,
+.PostVideo {
+	&:last-child {
+		.PostEmbeddedAttachmentTitle {
+			margin-bottom: calc(-1 * var(--Post-textLineHeightBlankSpace));
+		}
+	}
+}

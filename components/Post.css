@@ -1,0 +1,18 @@
+.Post {
+	padding-top: var(--Post-paddingTop);
+	padding-bottom: var(--Post-paddingBottom);
+	padding-left: var(--Post-paddingLeft);
+	padding-right: var(--Post-paddingRight);
+}
+
+.Post--compact {
+	--Post-paddingTop: var(--Post-paddingTop--compact);
+	--Post-paddingBottom: var(--Post-paddingBottom--compact);
+}
+
+/*
+.Post--stretch {
+	display: flex;
+	flex-direction: column;
+}
+*/

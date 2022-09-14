@@ -1,0 +1,49 @@
+/*
+.PostInlineQuote {
+	color: #789922;
+}
+
+.PostInlineQuote:before {
+	content: '> ';
+	color: #789922;
+}
+
+.PostInlineQuote:after {
+	content: '';
+}
+*/
+
+.PostInlineQuote:before {
+	content: var(--Quote--before);
+}
+
+.PostInlineQuote:after {
+	content: var(--Quote--after);
+}
+
+/* Regular "inline quotes" are delimited with `<br/>`s so they're rendered as
+   `inline-block`s so that there're no additional "new lines" around them.
+   At the same time there're `post-link`s having `quotes` that are rendered as
+   `block`s because they don't have additional "new lines" around them. */
+/*
+.PostInlineQuote {
+	display: inline-block;
+	width: 100%;
+}
+*/
+
+.PostInlineQuote {
+	color: var(--PostQuoteBlock-color);
+	background-color: var(--PostQuoteBlock-backgroundColor);
+	padding-left: var(--PostInlineQuote-paddingLeft);
+	padding-right: var(--PostInlineQuote-paddingLeft);
+	/*margin-left: calc(-1 * var(--PostInlineQuote-paddingLeft));*/
+	/*margin-right: calc(-1 * var(--PostInlineQuote-paddingLeft));*/
+	box-shadow: 0 0 0 var(--PostQuoteBlock-borderWidth) var(--PostQuoteBlock-borderColor);
+}
+
+.PostInlineQuote--generated {
+	--PostQuoteBlock-color: var(--PostQuoteBlock-color--generated);
+	--PostQuoteBlock-backgroundColor: var(--PostQuoteBlock-backgroundColor--generated);
+	--PostQuoteBlock-borderColor: var(--PostQuoteBlock-borderColor--generated);
+}

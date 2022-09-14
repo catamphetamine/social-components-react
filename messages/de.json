@@ -1,0 +1,44 @@
+{
+	"post": {
+		"verified": "Identität verifiziert",
+		"removed": "Dieser Kommentar wurde entfernt",
+		"banned": "Der Autor dieses Kommentars wurde gesperrt",
+		"bannedReason": ". Grund: \"{0}\".",
+		"sticky": "klebriger Thema",
+		"closed": "geschlossene Thema",
+		"commentsCount": "Kommentar",
+		"repliesCount": "Antworten",
+		"readMore": "Zeig\u00a0mehr",
+		"moreActions": {
+			"title": "Mehr Aktionen"
+		},
+		"upvote": "Like",
+		"downvote": "Dislike",
+		"alreadyVoted": "Sie haben bereits abgestimmt",
+		"reply": "Antworten",
+		"spoiler": "Spoiler",
+		"expandAttachments": "Erweitern Sie Anhänge",
+		"collapseAttachments": "Anhänge reduzieren",
+		"viewAttachments": "Anhänge anzeigen",
+		"videoNotFound": "Video nicht gefunden",
+		"linkTo": "Link zu {0}"
+	},
+	"slideshow": {
+		"actions": {
+			"previous": "Bisherige",
+			"next": "Nächster",
+			"download": "Herunterladen",
+			"close": "Schließen",
+			"scaleUp": "Vergrößern",
+			"scaleDown": "Verkleinern",
+			"scaleReset": "Ursprüngliche Größe",
+			"searchInGoogle": "Suche in google",
+			"showControls": "Steuerelemente anzeigen",
+			"hideControls": "Steuerelemente ausblenden",
+			"openExternalLink": "Externen Link öffnen",
+			"exitDragAndScaleMode": "Beenden Sie den Drag & Scale-Modus"
+		},
+		"scaleValueBefore": "Ausmaß",
+		"scaleValueAfter": null
+	}
+}

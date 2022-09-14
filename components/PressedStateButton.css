@@ -1,0 +1,52 @@
+.PressedStateButton {
+	color: inherit;
+	border-radius: var(--PressedStateButton-borderRadius);
+}
+
+.PressedStateButton--pressed,
+.PressedStateButton:hover,
+.PressedStateButton:focus,
+.PressedStateButton--link:focus {
+	&:not([disabled]) {
+		color: var(--PressedStateButton-color);
+		background-color: var(--PressedStateButton-backgroundColor);
+		box-shadow: 0 0 0 1px var(--PressedStateButton-borderColor);
+	}
+}
+
+/* Added `.PressedStateButton` for CSS selector specificity
+   to override `:hover` and `:focus` styles
+   because those have higher priority than CSS classes. */
+.PressedStateButton.PressedStateButton--pressed {
+	--PressedStateButton-color: var(--PressedStateButton-color--pressed);
+	--PressedStateButton-backgroundColor: var(--PressedStateButton-backgroundColor--pressed);
+}
+
+.PressedStateButton--pressed {
+	--PressedStateButton-borderColor: var(--PressedStateButton-borderColor--pressed);
+}
+
+.PressedStateButton--pressed:hover,
+.PressedStateButton--pressed:focus {
+	--PressedStateButton-borderColor: var(--PressedStateButton-borderColor--pressedFocus);
+}
+
+.PressedStateButton:active,
+.PressedStateButton--link:active {
+	--PressedStateButton-backgroundColor: var(--PressedStateButton-backgroundColor--active);
+}
+
+.PressedStateButton--pressed:active {
+	--PressedStateButton-backgroundColor: var(--PressedStateButton-backgroundColor--pressedActive);
+}
+
+.PressedStateButton:active,
+.PressedStateButton--link:active {
+	--PressedStateButton-color: var(--PressedStateButton-color--active);
+	--PressedStateButton-borderColor: var(--PressedStateButton-borderColor--active);
+}
+
+.PressedStateButton--pressed:active {
+	--PressedStateButton-color: var(--PressedStateButton-color--pressedActive);
+	--PressedStateButton-borderColor: var(--PressedStateButton-borderColor--pressedActive);
+}

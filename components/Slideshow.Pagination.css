@@ -1,0 +1,7 @@
+.Slideshow {
+	--Slideshow-Pagination-height: var(--Slideshow-Pagination-height--dots);
+}
+
+.Slideshow--paginationNumeric {
+	--Slideshow-Pagination-height: var(--Slideshow-Pagination-height--numeric);
+}

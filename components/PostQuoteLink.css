@@ -1,0 +1,72 @@
+.PostQuoteLink:hover,
+.PostQuoteLink:active {
+	/*--PostQuoteBlock-borderColor: var(--PostQuoteBlock-borderColor--hover);*/
+	--PostQuoteBlock-backgroundColor: var(--PostQuoteBlock-backgroundColor--hover);
+	/*--PostQuoteBlock-borderColor--generated: var(--PostQuoteBlock-borderColor--generated--hover);*/
+	--PostQuoteBlock-backgroundColor--generated: var(--PostQuoteBlock-backgroundColor--generated--hover);
+	.PostQuoteBlock {
+		/* Overrides the default `a:active` color. */
+		color: var(--PostQuoteBlock-color);
+	}
+}
+
+.PostQuoteLink--disabled {
+	user-select: none;
+}
+
+.PostQuoteLink--attachments {
+	/* Attachments are `display: block`, so their container
+	   should be `display: inline-block`, not `display: inline`. */
+	display: inline-block;
+	/* Without `width: 100%` an `inline-block` would shrink
+	   to the attachment thumbnail width. */
+	width: 100%;
+}
+
+.PostQuoteLink--minimized {
+	display: inline-block;
+	/*
+	width: calc(100% + 2 * var(--PostQuoteLink-paddingLeft--minimized));
+	margin-left: calc(-1 * var(--PostQuoteLink-paddingLeft--minimized));
+	margin-right: calc(-1 * var(--PostQuoteLink-paddingLeft--minimized));
+	padding-left: var(--PostQuoteLink-paddingLeft--minimized);
+	padding-right: var(--PostQuoteLink-paddingLeft--minimized);
+	*/
+	width: calc(var(--PostQuoteBlock-borderWidth--left) + var(--PostQuoteBlock-paddingLeft) + 100% + var(--PostQuoteBlock-paddingRight));
+	margin-left: calc(-1 * (var(--PostQuoteBlock-paddingLeft) + var(--PostQuoteBlock-borderWidth--left)));
+	margin-right: calc(-1 * var(--PostQuoteBlock-paddingRight));
+	/* `margin-top` and `margin-bottom` compensate border width
+	   so that line height is maintained (same as `<br/>` height)
+	   because there's no need to make minimized post links higher
+	   than they already are. */
+	margin-top: calc(-1 * var(--PostQuoteBlock-borderWidth--generated));
+	margin-bottom: calc(-1 * var(--PostQuoteBlock-borderWidth--generated));
+	padding-left: var(--PostQuoteBlock-paddingLeft);
+	padding-right: var(--PostQuoteBlock-paddingRight);
+	color: var(--PostQuoteLink-color--minimized);
+	border-left: var(--PostQuoteBlock-borderWidth--left) solid transparent;
+	border-top: var(--PostQuoteBlock-borderWidth--generated) solid transparent;
+	border-bottom: var(--PostQuoteBlock-borderWidth--generated) solid transparent;
+	letter-spacing: 2px;
+  cursor: pointer;
+  /*
+	&.PostQuoteLink--first {
+  	margin-top: var(--PostQuoteLink-marginTop--minimizedFirst);
+  	padding-top: var(--PostQuoteLink-paddingTop--minimizedFirst);
+  	border-top: 0;
+	}
+	*/
+}
+
+/* Using `.PostQuoteLink--minimized--hover` selector instead of `:hover`
+   because this way it doesn't highlight a minimized post quote link
+   when a user scrolls the page and the mouse cursor unintentionally
+   hovers random minimized post quote links in the process. */
+.PostQuoteLink--minimized--hover {
+	color: var(--PostQuoteLink-color--minimizedHover);
+	background-color: var(--PostQuoteLink-backgroundColor--minimizedHover);
+	/*box-shadow: inset 0 0 0 var(--PostQuoteBlock-borderWidth--generated) var(--PostQuoteBlock-borderColor--generated);*/
+	border-left-color: var(--PostQuoteLink-borderColor--minimizedHover);
+	border-top-color: var(--PostQuoteLink-borderColor--minimizedHover);
+	border-bottom-color: var(--PostQuoteLink-borderColor--minimizedHover);
+}

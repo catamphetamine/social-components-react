@@ -1,0 +1,4 @@
+.PostContentBlock {
+	margin-top: var(--PostContentBlock-marginTop);
+	margin-bottom: var(--PostContentBlock-marginTop);
+}

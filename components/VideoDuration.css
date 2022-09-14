@@ -1,0 +1,11 @@
+.VideoDuration {
+	--PictureBadge-fontSize: 80%;
+	display: flex;
+	align-items: center;
+}
+
+.VideoDuration-playIcon {
+	height: 0.7em;
+  padding-left: 0.15em;
+  padding-right: 0.1em;
+}

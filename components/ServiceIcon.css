@@ -1,0 +1,28 @@
+:root {
+	--ServiceIcon-color: var(--SocialComponents-color-900);
+	--ServiceIcon-backgroundColor: var(--SocialComponents-backgroundColor);
+}
+
+.ServiceIcon {
+	color: var(--ServiceIcon-color);
+}
+
+/*
+.ServiceIcon--monochrome {
+	color: inherit;
+}
+*/
+
+.ServiceIcon--monochrome [data-stroke] {
+	/* `!important` overrides `color` set via `style="color:var(--white-color)"`. */
+	/* For example, see `steam.svg`. */
+	color: inherit !important;
+}
+
+.ServiceIcon--monochrome [data-fill] {
+	color: var(--ServiceIcon-backgroundColor);
+}
+
+.ServiceIcon--monochrome [data-fill="gradient"] {
+	fill: currentColor;
+}

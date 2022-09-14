@@ -1,0 +1,69 @@
+.Slideshow {
+	/* Slideshow is focused upon opening. */
+	outline: none;
+	/* Update: doesn't seem to disable neither scroll nor pinch-zoom, */
+	/* scroll and pinch-zoom are disabled via `event.preventDefault()` instead. */
+	/* Disables browser handling pan and zoom gestures. */
+	/* Pan and zoom are handled manually on "pointermove" instead. */
+	/* `touch-action: none` is not supported in Safari. */
+	/* https://caniuse.com/#feat=css-touch-action */
+	/*touch-action: none;*/
+}
+
+.Slideshow--fullscreen {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: var(--Slideshow-zIndex);
+}
+
+.Slideshow-Slides {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100%;
+	height: 100%;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	/* Prepare slides for swiping when slideshow is shown. */
+	transition-property: transform;
+}
+
+.Slideshow-SlideWrapper {
+	flex: 0 0 100%;
+	/* `width: 100%` and `height: 100%` are required, otherwise
+	   slides larger than viewport won't be centered on screen. */
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Show a border around the current slide
+   so that it can be discerned from the next/previous slides. */
+.Slideshow-SlideWrapper--current {
+	/* Elevating the current slide using `z-index`
+	   so that its `box-shadow` is above the next slide's. */
+	position: relative;
+	z-index: 1;
+}
+
+.Slideshow-Slide {
+	/* Without `flex: 0 0 auto` it wouldn't allow scaling the slide
+	   larger than slideshow width. */
+	flex: 0 0 auto;
+}
+
+.Slideshow-Slide--current {
+	--Video-borderColor--focus: var(--Picture-borderColor);
+}
+
+.Slideshow-Slide--card {
+	box-shadow: var(--Slideshow-Slide-boxShadow);
+	/* PNG images can be transparent. */
+	background-color: var(--Slideshow-Slide-backgroundColor);
+}

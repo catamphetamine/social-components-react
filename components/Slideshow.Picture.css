@@ -1,0 +1,7 @@
+.Slideshow-Picture {
+	cursor: pointer;
+}
+
+.Slideshow-Picture .Picture-status {
+	color: var(--white-color);
+}

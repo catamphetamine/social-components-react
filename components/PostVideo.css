@@ -1,0 +1,61 @@
+.PostVideo {
+	margin-top: var(--PostContent-marginTop);
+}
+
+/*
+.PostVideo-title {
+	margin-top: 0.4em;
+	margin-bottom: 0;
+	font-weight: normal;
+	line-height: 1.35em;
+}
+*/
+
+/*
+.PostVideo:last-child {
+	.PostVideo-title {
+		margin-bottom: calc(-1 * var(--Post-textLineHeightBlankSpace));
+	}
+}
+*/
+
+/* For play video icon. */
+.PostVideo .Video {
+	&:hover {
+		.VideoPlayIcon-background {
+			fill: rgba(0, 0, 0, 0.8);
+		}
+	}
+}
+
+.PostVideo--alignLeft {
+	/* By default, CSS aligns content to the left.
+	   (at least on non-Arabic OS-es). */
+	/*
+	.Video--preview {
+		margin-right: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: left;
+	}
+	*/
+}
+
+.PostVideo--alignCenter {
+	.Video--preview {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: center;
+	}
+}
+
+.PostVideo--alignRight {
+	.Video--preview {
+		margin-left: auto;
+	}
+	.PostEmbeddedAttachmentTitle {
+		text-align: right;
+	}
+}

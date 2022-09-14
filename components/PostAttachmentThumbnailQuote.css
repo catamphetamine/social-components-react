@@ -1,0 +1,30 @@
+/* This is only used as a workaround for quotes containing attachments. */
+.PostQuoteBlock--attachment {
+	/* This removes the weird white space on the bottom. */
+	/* At the same time, it introduces some weird extra margin bottom. */
+  line-height: 0;
+  /* This makes the `<q/>` a `display: inline-block`
+     because it contains an attachment that is `display: block`. */
+	.PostQuoteBlock__content {
+		display: inline-block;
+	}
+}
+
+.PostQuoteBlock-attachment {
+	/* It's a `<span/>` tag. */
+	/* Can't be `display: block`, because it's inside a `<p/>`. */
+	/* Should be `display: inline-block`, because it contains a `display: block` attachment. */
+	.PostAttachmentThumbnail {
+		display: inline-block;
+	}
+	margin-top: calc(var(--unit) / 2);
+	margin-bottom: calc(var(--unit) / 2);
+}
+
+/*
+.PostQuoteBlock-attachmentMoreCount {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+*/

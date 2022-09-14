@@ -1,0 +1,14 @@
+.Video-progress {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 3px;
+	background-color: var(--SocialComponentsClickable-color);
+	/*transform: scaleX(var(--Video-progress));*/
+	transform-origin: left center;
+	pointer-events: none;
+}
+
+.Video-progress--YouTube {
+	background-color: red;
+}

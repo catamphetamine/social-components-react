@@ -1,0 +1,117 @@
+.Picture {
+	position: relative;
+	border-radius: inherit;
+	user-select: none;
+	/* If the `<img/>` image is blurred then `overflow: hidden`
+	   prevents it bleeding over the edges. */
+	/* `overflow: hidden` also prevents the possible overflow
+	   of `.Picture` with `<img/>` when there're several
+	   `sizes` each of which have `width` and `height` rounded
+	   and therefore have slightly different aspect ratios. */
+	overflow: hidden;
+	/* The container element is focusable. */
+	outline: none;
+}
+
+.Picture--nonTransparentBackground {
+	background-color: var(--Picture-backgroundColor);
+}
+
+/*
+.Picture--cover
+{
+	background-size : cover;
+	background-position : center center;
+}
+*/
+
+.Picture--repeatX {
+	height : 100%;
+	background-repeat : repeat;
+}
+
+/*
+.PictureBorder {
+	padding: var(--Picture-borderWidth);
+	.Picture {
+		box-shadow: 0 0 0 var(--Picture-borderWidth) var(--Picture-borderColor);
+	}
+}
+*/
+
+.Picture--withBorder {
+	border: var(--Picture-borderWidth) solid var(--Picture-borderColor);
+	/* Without `background-clip: padding-box` the border wouldn't blend with background. */
+	/* https://stackoverflow.com/questions/4062001/can-you-set-a-border-opacity-in-css */
+  background-clip: padding-box;
+	/* Show :focused state for `<button/>`. */
+	/* Outline is not shown on `<a/>` too for some reason. */
+	&:focus {
+		/* Won't be applied to `.Picture--transparent-background`. */
+		--Picture-borderColor: var(--Picture-borderColor--focus);
+	}
+}
+
+.Picture--transparentBackground {
+	background-color: transparent;
+}
+
+.Picture-image {
+	/* Setting `position: relative` so that it's rendered above `.Picture-status`
+	   so that the clickable element is the `<img/>` and not the `<div/>`. */
+	position: relative;
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: inherit;
+	/* Remove `:focus` outline. */
+	outline: none;
+}
+
+.Picture-image--blurred {
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* <Slideshow/> captures `thumbnailElement` on click
+	   in order to play scale open animation.
+	   If the blurred image was clickable,
+	   then the scale open animation wouldn't be correct
+	   because the coordinates of the blurred image
+	   aren't equal to the coordinates of the picture. */
+	pointer-events: none;
+}
+
+.Picture-status {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Placeholder stretches the `.Picture`
+   so the `<img/>` and the status indicator
+   are `position: absolute`. */
+.Picture-status,
+.Picture-image {
+	position: absolute;
+	top: 0;
+}
+
+.Picture-loadingIndicator,
+.Picture-loadingError {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	width: calc(var(--unit) * 2);
+	height: calc(var(--unit) * 2);
+	color: var(--SocialComponents-color-700);
+	/* <ActivityIndicator/> uses `em`s by default. */
+	font-size: 12px;
+}
+
+.Picture-loadingError {
+	width: calc(var(--unit) * 2 * 0.7);
+	height: calc(var(--unit) * 2 * 0.7);
+	cursor: pointer;
+}

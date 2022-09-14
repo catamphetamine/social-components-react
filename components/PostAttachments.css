@@ -1,0 +1,55 @@
+.PostAttachments {
+	--PostAttachments-marginTop: 0px;
+	margin-top: calc(var(--PostAttachments-marginTop) - var(--PostContent-marginTop));
+}
+
+.PostAttachments--compact {
+	--PostContent-marginTop: var(--PostContent-marginTop--compact);
+}
+
+.PostContent + .PostAttachments {
+	/* Add vertical spacing between post content and attachments. */
+	--PostAttachments-marginTop: var(--Post-paddingTop);
+}
+
+.PostAttachments-thumbnails {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-right: calc(-1 * var(--PostContent-marginTop));
+	/* `.PostAttachmentThumbnail` is also used in `post-link` quotes,
+	   where `margin`s aren't required. */
+	.PostAttachmentThumbnail {
+		margin-top: var(--PostContent-marginTop);
+		margin-right: var(--PostContent-marginTop);
+	}
+}
+
+/* `.PostAttachmentThumbnail` can't have `margin`s
+   when it's being shown as a `<PictureStack/>`,
+   so the `margin` is moved to its container
+   which is `.PostAttachments-pictureStack`. */
+.PostAttachments-thumbnails--onlyShowFirstAttachmentThumbnail {
+	.PostAttachments-pictureStack {
+		margin-top: var(--PostContent-marginTop);
+		.PostAttachmentThumbnail {
+			margin: 0;
+		}
+	}
+}
+
+/*
+.PostAttachmentThumbnail--transparent {
+	--Picture-borderWidth: 0;
+	--Picture-backgroundColor: transparent;
+	--PostAttachment-shadow--hover: none;
+	--PostAttachment-shadow--focus: none;
+}
+*/
+
+.PostAttachmentThumbnail {
+	/*--PostAttachment-shadow--hover: 0 0 0.25em var(--PostAttachment-shadowColor--hover), 0 0 0.1em var(--PostAttachment-shadowColor--hover);*/
+	/*--PostAttachment-shadow--focus: 0 0 3px var(--PostAttachment-shadowColor--focus);*/
+	/* Video attachments have a `position: absolute` duration placed in bottom right corner. */
+	position: relative;
+}

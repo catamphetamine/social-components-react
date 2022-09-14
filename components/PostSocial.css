@@ -1,0 +1,108 @@
+.PostSocial {
+	/* Units don't scale on small screens, so using `em`s instead. */
+	/*--PostSocial-authorPicture-width: calc(var(--unit) * 3);*/
+	/*--PostSocial-authorPicture-width: 2em;*/
+	/* `position: relative` is for `<PostQuoteBorderLeft/>`. */
+	position: relative;
+	/*margin-top: var(--PostContent-marginTop);*/
+	background-color: var(--PostSocial-backgroundColor);
+	padding-left: var(--PostSocial-paddingLeft);
+	padding-right: var(--PostSocial-paddingRight);
+	margin-left: calc(-1 * (var(--PostSocial-paddingLeft) + var(--PostSocial-borderLeftWidth)));
+	margin-right: calc(-1 * var(--PostSocial-paddingRight) + var(--PostSocial-borderRightWidth));
+	margin-top: calc(-1 * var(--PostSocial-borderWidth) + var(--PostContent-marginTop));
+	margin-bottom: calc(-1 * var(--PostSocial-borderWidth));
+	border-top: var(--PostSocial-borderWidth) solid var(--PostSocial-borderColor);
+	border-bottom: var(--PostSocial-borderWidth) solid var(--PostSocial-borderColor);
+	border-left: var(--PostSocial-borderLeftWidth) solid var(--PostSocial-borderColor);
+	border-right: var(--PostSocial-borderRightWidth) solid var(--PostSocial-borderColor);
+	.PostQuoteBorderLeft {
+		display: none;
+	}
+}
+
+.PostSocial--clickable {
+	cursor: pointer;
+	&:active {
+		--PostSocial-backgroundColor: var(--PostSocial-backgroundColor--active);
+	}
+}
+
+/* The only purpose of this "wrapper" is setting `color`
+   in order for `<PostQuoteBorderLeft/>` to have that color
+   via its `color: inherit`.
+   Not setting `<PostQuoteBorderLeft/>` color directly
+   because it could be overridden in a custom theme
+   and if explicitly set here it would override that
+   custome theme style. */
+/*
+.PostSocial {
+	.PostQuoteBorderLeft {
+		color: var(--PostQuoteBlock-color);
+	}
+}
+*/
+
+.PostSocial-header {
+	display: flex;
+	align-items: center;
+}
+
+.PostSocial-authorPicture {
+	width: var(PostSocial-authorPicture-width);
+	height: var(PostSocial-authorPicture-width);
+	margin-right: 0.4em;
+}
+
+.PostSocial-providerLogo {
+	width: 1em;
+	height: 1em;
+	margin-right: 0.25em;
+}
+
+.PostSocial-authorNameAndId {
+	display: flex;
+	flex-direction: column;
+}
+
+.PostSocial-authorName {
+	padding-bottom: 0.15em;
+}
+
+.PostSocial-authorNameInner {
+	display: flex;
+	align-items: center;
+}
+
+.PostSocial-authorId {
+	font-size: 85%;
+	color: var(--SocialComponents-color-600);
+	/*
+	&:hover {
+		color: var(--SocialComponents-color-700);
+	}
+	*/
+}
+
+.PostSocial-authorIdElement:before {
+	content: '@';
+	position: relative;
+	top: -0.1em;
+}
+
+.PostSocial-content {
+	margin: 0;
+	margin-top: 0.25em;
+	/*line-height: var(--SocialComponents-lineHeight);*/
+	p {
+		margin: 0;
+	}
+}
+
+.PostSocial-content-link--text-color {
+	color: inherit;
+}
+
+/*.PostSocial-content-link--block {
+	display: block;
+}*/

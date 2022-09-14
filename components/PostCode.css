@@ -1,0 +1,230 @@
+.PostCode {
+	/*border-radius: var(--border-radius);*/
+	border: var(--PostCode-borderWidth) solid var(--SocialComponents-color-200);
+	border-left-width: var(--PostCode-borderLeftWidth);
+	border-right-width: var(--PostCode-borderRightWidth);
+	background-color: var(--SocialComponents-color-100);
+	/* "Prism" syntax highlighter doesn't seem to
+	   force line breaks on long lines, so `overflow: auto`
+	   is required to not stretch the page width beyond `100%`. */
+	overflow-x: auto;
+}
+
+.PostCode--block {
+	--PostCode-paddingLeft: var(--PostQuoteBlock-paddingLeft);
+	--PostCode-paddingRight: var(--PostQuoteBlock-paddingRight);
+	line-height: var(--SocialComponents-lineHeight);
+	/* `width` and `margin` are synchronized with `width` and `margin` on `post-link` quotes
+	   so that `<code/>` blocks appearance matches that of `post-link` quote blocks. */
+	width: calc(100% - var(--PostCode-marginLeft) + var(--PostCode-borderLeftWidth) + var(--PostCode-paddingLeft) + var(--PostCode-paddingRight) + var(--PostCode-borderRightWidth) - var(--PostCode-marginRight));
+	margin-left: calc(var(--PostCode-marginLeft) - var(--PostCode-paddingLeft) - var(--PostCode-borderLeftWidth));
+	margin-right: calc(var(--PostCode-marginRight) - var(--PostCode-paddingRight) - var(--PostCode-borderRightWidth));
+	padding-left: var(--PostCode-paddingLeft);
+	padding-right: var(--PostCode-paddingRight);
+	margin-top: calc(-1 * var(--PostCode-borderWidth));
+	margin-bottom: calc(-1 * var(--PostCode-borderWidth));
+}
+
+.PostCode--inline {
+	padding-left: var(--PostCode-paddingLeft--inline);
+	padding-right: var(--PostCode-paddingLeft--inline);
+}
+
+.PostCode--block {
+	margin-top: var(--PostCode-marginTop--block);
+}
+
+/*
+.Post.content-section {
+	.PostCode--block {
+		margin-left: calc(var(--Post-paddingLeft) * -1);
+		margin-right: calc(var(--Post-paddingLeft) * -1);
+		padding-left: var(--Post-paddingLeft);
+		padding-right: var(--Post-paddingLeft);
+		padding-top: 0.5em;
+		padding-bottom: 0.5em;
+		border-left: none;
+		border-right: none;
+		width: calc(100% + 2 * var(--Post-paddingLeft));
+		border-radius: 0;
+	}
+}
+*/
+
+/*-moz-tab-size: 2;
+-o-tab-size: 2;
+tab-size: 2;*/
+
+/*-webkit-hyphens: none;
+-moz-hyphens: none;
+-ms-hyphens: none;
+hyphens: none;*/
+
+.dark {
+	.PostCode--highlighted {
+		/**
+		 * prism.js tomorrow night eighties for JavaScript, CoffeeScript, CSS and HTML
+		 * Based on https://github.com/chriskempson/tomorrow-theme
+		 * @author Rose Pritchard
+		 */
+
+		.token.comment,
+		.token.block-comment,
+		.token.prolog,
+		.token.doctype,
+		.token.cdata {
+			color: #999;
+		}
+
+		.token.punctuation {
+			color: #ccc;
+		}
+
+		.token.tag,
+		.token.attr-name,
+		.token.namespace,
+		.token.deleted {
+			color: #e2777a;
+		}
+
+		.token.function-name {
+			color: #6196cc;
+		}
+
+		.token.boolean,
+		.token.number,
+		.token.function {
+			color: #f08d49;
+		}
+
+		.token.property,
+		.token.class-name,
+		.token.constant,
+		.token.symbol {
+			color: #f8c555;
+		}
+
+		.token.selector,
+		.token.important,
+		.token.atrule,
+		.token.keyword,
+		.token.builtin {
+			color: #cc99cd;
+		}
+
+		.token.string,
+		.token.char,
+		.token.attr-value,
+		.token.regex,
+		.token.variable {
+			color: #7ec699;
+		}
+
+		.token.operator,
+		.token.entity,
+		.token.url {
+			color: #67cdcc;
+		}
+
+		.token.important,
+		.token.bold {
+			font-weight: bold;
+		}
+		.token.italic {
+			font-style: italic;
+		}
+
+		.token.entity {
+			cursor: help;
+		}
+
+		.token.inserted {
+			color: green;
+		}
+	}
+}
+
+.light {
+	.PostCode--highlighted {
+		/*
+		 Solarized Color Schemes originally by Ethan Schoonover
+		 http://ethanschoonover.com/solarized
+
+		 Ported for PrismJS by Hector Matos
+		 Website: https://krakendev.io
+		 Twitter Handle: https://twitter.com/allonsykraken)
+		*/
+
+		background: #fdf6e3;
+		color: #657b83;
+
+		.token.comment,
+		.token.prolog,
+		.token.doctype,
+		.token.cdata {
+			color: #93a1a1; /* base1 */
+		}
+
+		.token.punctuation {
+			color: #586e75; /* base01 */
+		}
+
+		.namespace {
+			opacity: .7;
+		}
+
+		.token.property,
+		.token.tag,
+		.token.boolean,
+		.token.number,
+		.token.constant,
+		.token.symbol,
+		.token.deleted {
+			color: #268bd2; /* blue */
+		}
+
+		.token.selector,
+		.token.attr-name,
+		.token.string,
+		.token.char,
+		.token.builtin,
+		.token.url,
+		.token.inserted {
+			color: #2aa198; /* cyan */
+		}
+
+		.token.entity {
+			color: #657b83; /* base00 */
+			background: #eee8d5; /* base2 */
+		}
+
+		.token.atrule,
+		.token.attr-value,
+		.token.keyword {
+			color: #859900; /* green */
+		}
+
+		.token.function,
+		.token.class-name {
+			color: #b58900; /* yellow */
+		}
+
+		.token.regex,
+		.token.important,
+		.token.variable {
+			color: #cb4b16; /* orange */
+		}
+
+		.token.important,
+		.token.bold {
+			font-weight: bold;
+		}
+		.token.italic {
+			font-style: italic;
+		}
+
+		.token.entity {
+			cursor: help;
+		}
+	}
+}

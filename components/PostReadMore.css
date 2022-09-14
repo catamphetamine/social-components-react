@@ -1,0 +1,5 @@
+.PostReadMore {
+	font-family: var(--SocialComponents-fontFamily);
+	font-weight: var(--PostReadMore-fontWeight);
+	color: var(--PostReadMore-color);
+}

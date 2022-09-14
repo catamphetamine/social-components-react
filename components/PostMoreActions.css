@@ -1,0 +1,58 @@
+:root {
+	--PostMoreActionsButton-width: 1em;
+	--PostMoreActionsButton-paddingLeft: 0.25em;
+	--PostMoreActionsButton-paddingTop: 0.15em;
+}
+
+.PostMoreActions-toggler {
+	--PostMoreActions-marginRight: 0.5em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Units don't scale on smaller screen sizes, so using `em`s instead. */
+	/*
+	width: calc(var(--unit) * 1.5);
+	height: calc(var(--unit) * 1.5);
+	margin-left: calc(-1 * var(--unit) / 3);
+	margin-right: calc(-1 * var(--unit) / 3);
+	padding-left: calc(var(--unit) / 3);
+	padding-right: calc(var(--unit) / 3);
+	*/
+	width: var(--PostMoreActionsButton-width);
+	height: var(--PostMoreActionsButton-width);
+	margin-left: calc(var(--PostMoreActionsButton-paddingLeft) * -1);
+	margin-right: calc(var(--PostMoreActionsButton-paddingLeft) * -1 + var(--PostMoreActions-marginRight));
+	margin-top: calc(var(--PostMoreActionsButton-paddingTop) * -1);
+	margin-bottom: calc(var(--PostMoreActionsButton-paddingTop) * -1);
+	padding-left: var(--PostMoreActionsButton-paddingLeft);
+	padding-right: var(--PostMoreActionsButton-paddingLeft);
+	padding-top: var(--PostMoreActionsButton-paddingTop);
+	padding-bottom: var(--PostMoreActionsButton-paddingTop);
+	box-sizing: content-box;
+}
+
+.PostMoreActions-toggler--right {
+	--PostMoreActions-marginRight: 0px;
+}
+
+.PostMoreActions-menu--right {
+	.rrui__expandable {
+		right: calc(var(--unit) * -1);
+		margin-top: calc(var(--unit) / 2);
+	}
+}
+
+.PostMoreActions-togglerIcon {
+	width: 100%;
+	/* `<Clickable/>`'s `filter` is set up to ignore clicks on `<button/>`s.
+	   `<svg/>` is required to ignore clicks in order for those clicks to be
+	   registered by `<button/>`. */
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.PostMoreActions-toggler:active {
+	.PostMoreActions-togglerIcon {
+		opacity: initial;
+	}
+}

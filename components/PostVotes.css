@@ -1,0 +1,67 @@
+.PostVotes {
+	display: flex;
+	align-items: center;
+	font-weight: 300;
+}
+
+.PostVotes-count {
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	/* Disable text selection cursor on votes count.
+	   Could be "cursor: default" instead but that would
+	   override `<Clickable/>`'s `cursor: pointer`. */
+	pointer-events: none;
+	opacity: 0.75;
+}
+
+.PostVotes-count--neutral {
+	opacity: 0.6;
+}
+
+.PostVotes-count--positive {
+	color: var(--PostVotes-color--positive);
+}
+
+.PostVotes-count--negative {
+	color: var(--PostVotes-color--negative);
+}
+
+.PostVote-icon {
+	width: var(--unit);
+	height: var(--unit);
+}
+
+.PostVote-icon--up {
+	transform: rotate(90deg);
+}
+
+.PostVote-icon--down {
+	transform: rotate(270deg);
+}
+
+.PostVotes {
+	--Padding-paddingLeft: var(--PostButton-paddingLeft);
+	--Padding-paddingTop: var(--PostButton-paddingTop);
+}
+
+.PostVote--downvoted {
+	color: var(--PostVotes-color--negative);
+}
+
+.PostVote--upvoted {
+	color: var(--PostVotes-color--positive);
+}
+
+.PostVote--voted {
+	opacity: 0.5;
+}
+
+.PostVote--downvoted,
+.PostVote--upvoted {
+	opacity: 1;
+	.PostVote-icon {
+		line {
+			stroke-width: 10;
+		}
+	}
+}

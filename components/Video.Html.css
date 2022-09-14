@@ -1,0 +1,6 @@
+.Video video {
+	/* `<video/>`'s `display` is `inline` by default. */
+	display: block;
+	/* Don't show the `:focused` outline. */
+	outline: none;
+}

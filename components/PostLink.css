@@ -1,0 +1,23 @@
+.PostLink-icon {
+	position: relative;
+	top: 0.15em;
+	/*margin-right: 0.2em;*/
+	width: 1em;
+	height: 1em;
+	/* For some reason the icon may shrink sometimes in iOS Safari.
+	   Perhaps something related to long links not fitting.
+	   Added `min-width` and `min-height` to test if it fixes that. */
+	min-width: 1em;
+	min-height: 1em;
+}
+
+/* This is a fix for preventing the link icon
+   from staying on the previous line while the
+   link text being placed on the next line
+   due to wrapping in case of long unbreakable links. */
+/* https://snook.ca/archives/html_and_css/icon-wrap-after-text */
+.PostLink-iconWrapFix {
+	white-space: nowrap;
+	/* This "negative" margin compensates the width added by "&nbsp;". */
+	/*margin-right: -0.2em;*/
+}

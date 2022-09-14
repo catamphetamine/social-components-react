@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.39 127.39">
+  <path color="#65469c" fill="currentColor" data-stroke="true" d="M109.5,67.9,91.3,86.1H62.7L47.11,101.69V86.1H23.71V10.71H109.5ZM13.31.31l-5.2,20.8v93.58h23.4v13h13l13-13H78.3L119.89,73.1V.31Z"/>
+  <polygon data-fill="true" style="color:var(--white-color)" fill="currentColor" points="23.7,10.7 23.7,86.1 47.1,86.1 47.1,101.7 62.7,86.1 91.3,86.1 109.5,67.9 109.5,10.7 "/>
+  <path color="#65469c" fill="currentColor" data-stroke="true" d="M52.3,62.7H62.7V31.5H52.3Zm28.6,0H91.3V31.5H80.9Z"/>
+</svg>

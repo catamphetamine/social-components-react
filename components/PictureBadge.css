@@ -1,0 +1,40 @@
+:root {
+	--PictureBadge-margin: 0.3em;
+	--PictureBadge-height: 1.5em;
+	--PictureBadge-paddingLeft: 0.26em;
+	--PictureBadge-borderRadius: 0.2em;
+	--PictureBadge-fontSize: 70%;
+	--PictureBadge-fontWeight: 300;
+	--PictureBadge-letterSpacing: 0.03em;
+	--PictureBadge-textTransform: uppercase;
+	--PictureBadge-backgroundColor: rgba(0, 0, 0, 0.7);
+	/* `--white-color` is slightly dimmer than "white" in Dark mode. */
+	--PictureBadge-color: var(--white-color);
+}
+
+.PictureBadge {
+	position: absolute;
+	display: block;
+	height: var(--PictureBadge-height);
+	line-height: var(--PictureBadge-height);
+	padding-left: var(--PictureBadge-paddingLeft);
+	padding-right: var(--PictureBadge-paddingLeft);
+	border-radius: var(--PictureBadge-borderRadius);
+	font-family: var(--SocialComponents-fontFamily);
+	font-size: var(--PictureBadge-fontSize);
+	font-weight: var(--PictureBadge-fontWeight);
+	letter-spacing: var(--PictureBadge-letterSpacing);
+	text-transform: var(--PictureBadge-textTransform);
+	background-color: var(--PictureBadge-backgroundColor);
+	color: var(--PictureBadge-color);
+}
+
+.PictureBadge--bottomRight {
+	right: var(--PictureBadge-margin);
+	bottom: var(--PictureBadge-margin);
+}
+
+.PictureBadge--topRight {
+	right: var(--PictureBadge-margin);
+	top: var(--PictureBadge-margin);
+}

@@ -1,0 +1,18 @@
+.PostQuoteBorderLeft {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	left: var(--PostQuoteBorderLeft-left);
+	top: 0;
+	height: 100%;
+	color: var(--PostQuoteBorderLeft-color);
+	&:before {
+		display: block;
+		content: '';
+		width: var(--PostQuoteBorderLeft-width);
+		height: calc(100% - 2 * var(--PostQuoteBorderLeft-marginTop));
+		min-height: 1.3em;
+		background-color: currentColor;
+		opacity: var(--PostQuoteBorderLeft-opacity);
+	}
+}

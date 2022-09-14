@@ -1,0 +1,159 @@
+.PostHeader {
+	/* Added `z-index: 1` so that post header "hover buttons"' borders
+	   aren't hidden by the first block quote's background color. */
+	/* Removed `z-index: 1` because otherwise the "..." (more actions)
+	   expandable menu for an upper post would be below the header
+	   buttons/badges of the lower post. */
+  /*position: relative;*/
+  /*z-index: 1;*/
+}
+
+.PostHeader-top {
+	display: flex;
+	justify-content: space-between;
+	color: var(--Post-color--secondary);
+}
+
+.PostHeader-items {
+	display: flex;
+	/* Was `flex-start` previously but changed to `center`
+	   because otherwise date and reply button would be
+	   on different levels for some weird reason. */
+	align-items: center;
+	/* Fallback for really small screens. */
+	flex-wrap: wrap;
+	/* Add some spacing between post header left links / buttons
+	   and post header right badges / buttons. */
+  margin-right: calc(var(--unit) * 2);
+}
+
+/*
+.PostHeader-item {
+	margin-right: calc(var(--unit) * 1.5);
+	&:last-child {
+		margin-right: 0;
+	}
+}
+*/
+
+.PostHeader-item {
+	--Padding-paddingLeft: var(--PostButton-paddingLeft);
+	--Padding-paddingTop: var(--PostButton-paddingTop);
+	/* `display: flex` is to prevent weird vertical space
+	   or misalignment on "Show replies" button. */
+	display: flex;
+}
+
+.PostHeader-itemSeparator {
+	margin-left: calc(var(--unit) * 0.75);
+	margin-right: calc(var(--unit) * 0.75);
+	pointer-events: none;
+}
+
+.PostHeader-itemIcon {
+	width: 0.9em;
+	height: 0.9em;
+	margin-right: 0.35em;
+}
+
+.PostHeader-itemIcon--replies {
+	margin-top: 0.1em;
+}
+
+.PostAuthor {
+	display: flex;
+	align-items: center;
+}
+
+.PostHeader-badges {
+	display: flex;
+	/* Fallback for really small screens. */
+	flex-wrap: wrap;
+	user-select: none;
+}
+
+.PostHeader-badges + .PostVotes {
+	margin-left: var(--unit);
+}
+
+.PostHeader-badgeContainer {
+	margin-right: var(--unit);
+	&:last-child {
+		margin-right: 0;
+	}
+}
+
+.PostHeader-badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Sizing in units would be preferable
+	   but they don't scale good on small screens,
+	   therefore using `em`s here. */
+	/*
+	width: calc(var(--unit) * 1.5);
+	height: calc(var(--unit) * 1.5);
+	*/
+	width: 1em;
+	height: 1em;
+	opacity: 0.8;
+}
+
+.PostHeader-right {
+	display: flex;
+	/* Was `flex-start` previously but changed to `center`
+	   because otherwise date and reply button would be
+	   on different levels for some weird reason. */
+	align-items: center;
+}
+
+.PostHeader-rightExceptMoreActionsMenuButton {
+	display: flex;
+	/* Was `flex-start` previously but changed to `center`
+	   because otherwise date and reply button would be
+	   on different levels for some weird reason. */
+	align-items: center;
+	/* Fallback for really small screens. */
+	flex-wrap: wrap;
+	margin-right: var(--unit);
+}
+
+/*.Post--compact.Post--anonymous {
+	.PostHeader {
+		margin-top: calc(-1 * var(--Post-textLineHeightBlankSpace));
+	}
+}*/
+
+/* Textual content has some inherent bottom spacing due to line height.
+   Other content (attachment thumbnails, embedded pictures and videos)
+   doesn't have such extra visual spacing. Therefore reduce it for text. */
+/*
+.Post--compact.Post--anonymous:not(.Post--no-content):not(.Post--has-title) {
+	.PostHeader {
+		margin-bottom: calc(-1 * var(--Post-textLineHeightBlankSpace));
+	}
+}
+*/
+
+.PostHeader-items {
+	display: flex;
+	flex-direction: column;
+	margin-left: var(--unit);
+}
+
+.PostAuthor-name {
+	color: var(--SocialComponentsClickable-color--text);
+}
+
+.PostAuthor-picture {
+	width: calc(var(--unit) * 4);
+	height: calc(var(--unit) * 4);
+	border-radius : var(--border-radius);
+	box-shadow : 0 0 0 1px var(--Picture-borderColor);
+}
+
+.Post--titled {
+	.PostHeader-items {
+		margin-bottom: -0.1em;
+	}
+}

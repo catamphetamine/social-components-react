@@ -1,0 +1,18 @@
+.PostList {
+	padding-left: var(--PostList-marginLeft)
+}
+
+/** Change bullet color of list item by replacing it with CSS. */
+
+.PostList-item {
+	line-height: var(--SocialComponents-lineHeight);
+	list-style: none;
+	&:before {
+		position: relative;
+		top: 0;
+		padding-right: 0.45em;
+		content: "\2022";
+		font-size: 1em;
+		color: var(--gray-color-600);
+	}
+}

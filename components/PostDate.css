@@ -1,0 +1,26 @@
+.PostDate {
+	--Padding-paddingLeft: var(--PostButton-paddingLeft);
+	--Padding-paddingTop: var(--PostButton-paddingTop);
+}
+
+.PostDate--link {
+	display: block;
+	color: inherit;
+	outline: none;
+}
+
+.PostDate-date {
+	margin-top: 0.1em;
+	font-weight: var(--Post-fontWeight--secondary);
+	time {
+		user-select: none;
+	}
+}
+
+.PostDate-tooltip {
+	height        : calc(var(--unit) * 3);
+	margin-top    : -0.5em;
+	padding-left  : 0.85em;
+	padding-right : 0.85em;
+	font-size     : 0.85rem;
+}

@@ -1,0 +1,136 @@
+/* Even though slideshow actions are shown above a YouTube video <iframe/>
+   clicks are being captured by that video <iframe/> for some reason. */
+.Slideshow-Actions {
+	position: absolute;
+	top: var(--Slideshow-Control-margin);
+	right: 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	line-height: 0;
+	display: flex;
+}
+
+.Slideshow-Action {
+	display: block;
+	position: relative;
+
+	width: var(--Slideshow-Control-height);
+	height: var(--Slideshow-Control-height);
+
+	/*border-radius: 50%;*/
+	/* `border-radius` is set manually so that pill-shaped buttons
+	   are possible, not just round ones. */
+	border-radius: calc(var(--Slideshow-Control-height) / 2);
+	background-color: var(--Slideshow-Control-backgroundColor);
+	color: var(--Slideshow-Control-color);
+	font-weight: var(--Slideshow-Control-fontWeight);
+
+	outline: none;
+
+	&:hover, &:focus {
+		color: var(--Slideshow-Control-color--focus);
+	}
+}
+
+/*
+.Slideshow-Action--wide {
+	display: flex;
+	align-items: center;
+	width: auto;
+	min-width: var(--Slideshow-Control-height);
+	padding-left: var(--Slideshow-Control-paddingLeft);
+	padding-right: var(--Slideshow-Control-paddingLeft);
+}
+*/
+
+/*
+.Slideshow-Action--wide .Slideshow-ActionIcon {
+	left: auto;
+	right: calc(var(--Slideshow-Control-height) * 0.25);
+	width: calc(var(--Slideshow-Control-height) / 2);
+	height: calc(var(--Slideshow-Control-height) / 2);
+}*/
+
+.Slideshow-ActionSeparator {
+	width: 1px;
+	height: var(--Slideshow-Control-height);
+	margin-left: calc(var(--Slideshow-Control-paddingLeft) * 0.75);
+	margin-right: calc(var(--Slideshow-Control-paddingLeft) * 0.75);
+	background-color: currentColor;
+}
+
+.Slideshow-Action--fontSize-s {
+	font-size: 75%;
+}
+
+.Slideshow-Action--fontSize-xs {
+	font-size: 60%;
+}
+
+.Slideshow-Action--fontSize-xxs {
+	font-size: 45%;
+}
+
+.Slideshow-Action:active,
+.Slideshow-Action--toggled {
+	/* Override link buttons :active color. */
+	color: var(--Slideshow-Control-color--active);
+	background-color: var(--Slideshow-Control-backgroundColor--active);
+	/*box-shadow: 0 0 0 1px var(--SocialComponentsClickable-color--active);*/
+}
+
+.Slideshow-Action--counterform {
+	background-color: transparent;
+}
+
+.Slideshow-Action--counterform:active,
+.Slideshow-Action--counterform.Slideshow-Action--toggled {
+	background-color: var(--SocialComponentsClickable-color--active);
+	.svg-icon-counter-form {
+		color: var(--SocialComponentsClickable-color--active);
+		fill: var(--white-color);
+	}
+}
+
+.Slideshow-Actions .Slideshow-Action {
+	margin-left: var(--Slideshow-Control-margin);
+}
+
+.Slideshow-ActionWrapper {
+	line-height: 0;
+	margin-right: var(--Slideshow-Control-margin);
+}
+
+.Slideshow-Action:first-child,
+.Slideshow-ActionWrapper--group:first-child {
+	margin-left: 0;
+}
+
+.Slideshow-Action:active {
+	background-color: var(--SocialComponentsClickable-color--active);
+}
+
+.Slideshow-ActionIcon {
+	position: absolute;
+	top: 25%;
+	left: 25%;
+	width: 50%;
+}
+
+.Slideshow-ActionWrapper--group {
+	display: flex;
+}
+
+.Slideshow-ActionWrapper--group .Slideshow-Action {
+	margin: 0;
+	border-radius: 0;
+	&:first-child {
+		border-top-left-radius: 50%;
+		border-bottom-left-radius: 50%;
+	}
+	&:last-child {
+		border-top-right-radius: 50%;
+		border-bottom-right-radius: 50%;
+	}
+}
