@@ -29,7 +29,7 @@
    when it's being shown as a `<PictureStack/>`,
    so the `margin` is moved to its container
    which is `.PostAttachments-pictureStack`. */
-.PostAttachments-thumbnails--onlyShowFirstAttachmentThumbnail {
+.PostAttachments-thumbnails--showOnlyFirstAttachmentThumbnail {
 	.PostAttachments-pictureStack {
 		margin-top: var(--PostContent-marginTop);
 		.PostAttachmentThumbnail {

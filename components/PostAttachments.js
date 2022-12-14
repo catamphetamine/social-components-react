@@ -59,7 +59,7 @@ export default function PostAttachments({
 	compact,
 	expandFirstPictureOrVideo,
 	expandAttachments,
-	onlyShowFirstAttachmentThumbnail,
+	showOnlyFirstAttachmentThumbnail,
 	attachmentThumbnailSize,
 	useSmallestThumbnails,
 	spoilerLabel,
@@ -130,7 +130,7 @@ export default function PostAttachments({
 	})
 
 	let Container = PassthroughContainer
-	if (onlyShowFirstAttachmentThumbnail) {
+	if (showOnlyFirstAttachmentThumbnail) {
 		Container = PictureStackContainer
 		if (titlePictureOrVideo) {
 			picturesAndVideos = []
@@ -195,7 +195,7 @@ export default function PostAttachments({
 			}
 			{!expandAttachments && picturesAndVideos.length > 0 &&
 				<div className={classNames('PostAttachments-thumbnails', {
-					'PostAttachments-thumbnails--onlyShowFirstAttachmentThumbnail': onlyShowFirstAttachmentThumbnail
+					'PostAttachments-thumbnails--showOnlyFirstAttachmentThumbnail': showOnlyFirstAttachmentThumbnail
 				})}>
 					{picturesAndVideos.map((pictureOrVideo, i) => {
 						return (
@@ -246,7 +246,7 @@ PostAttachments.propTypes = {
 	expandAttachments: PropTypes.bool,
 	// Currently this property only limits the displayed pictures and videos.
 	// Doesn't affect audios, files, links, etc.
-	onlyShowFirstAttachmentThumbnail: PropTypes.bool,
+	showOnlyFirstAttachmentThumbnail: PropTypes.bool,
 	spoilerLabel: PropTypes.string,
 	attachmentThumbnailSize: PropTypes.number,
 	useSmallestThumbnails: PropTypes.bool,

@@ -265,7 +265,7 @@ PostContent.propTypes = {
 	contentMaxLength: PropTypes.number,
 	expandFirstPictureOrVideo: PropTypes.bool,
 	expandAttachments: PropTypes.bool,
-	onlyShowFirstAttachmentThumbnail: PropTypes.bool,
+	showOnlyFirstAttachmentThumbnail: PropTypes.bool,
 	useSmallestThumbnailsForAttachments: PropTypes.bool,
 	serviceIcons: PropTypes.objectOf(PropTypes.func),
 	youTubeApiKey: PropTypes.string,
