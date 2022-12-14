@@ -65,7 +65,7 @@ function PostContent({
 
 	useLayoutEffectSkipMount(() => {
 		if (onExpandContentChange) {
-			onExpandContentChange(showPreview)
+			onExpandContentChange(!showPreview)
 		}
 		// The post height did change due to "expanding" its content,
 		// so the post height should be re-measured.

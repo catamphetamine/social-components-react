@@ -37,7 +37,7 @@ export default function CommentTree({
 	onStateChange,
 	onShowReply,
 	onDidToggleShowReplies,
-	dialogueChainStyle,
+	dialogueTraceStyle,
 	getState,
 	setState,
 	className,
@@ -258,7 +258,7 @@ export default function CommentTree({
 			comment: repliesWithRemovedLeadingPostLink[i],
 			parentComment: comment,
 			component: Component,
-			dialogueChainStyle,
+			dialogueTraceStyle,
 			getComponentProps,
 			onShowReply,
 			onDidToggleShowReplies
@@ -298,8 +298,8 @@ export default function CommentTree({
 			{/* Reply link marker for a single reply. */}
 			{showReplies && _isMiddleDialogueChainLink &&
 				<div className={classNames('CommentTreeDialogueTrace', {
-					'CommentTreeDialogueTrace--side': dialogueChainStyle === 'side',
-					'CommentTreeDialogueTrace--through': dialogueChainStyle === 'through'
+					'CommentTreeDialogueTrace--side': dialogueTraceStyle === 'side',
+					'CommentTreeDialogueTrace--through': dialogueTraceStyle === 'through'
 				})}/>
 			}
 			{/* If there's only a single reply then there won't be (visually) the actual
@@ -413,12 +413,35 @@ CommentTree.propTypes = {
 	// `getState()`/`setState()` properties are only passed to child comment trees.
 	setState: PropTypes.func,
 	getState: PropTypes.func,
-	dialogueChainStyle: PropTypes.oneOf(['side', 'through']).isRequired
+
+	// Determines how the visual traces between comments of a "dialogue" are gonna look like:
+	// * "side" — Paints the connection lines on the left side of the comments of a "dialogue".
+	// * "through" — Paints the connection line going directly through the comments of a "dialogue".
+	//
+	// "Dialogue" is a list of comments, each next comment being an only reply to the previous one.
+	//
+	// Example of a "dialogue":
+	//
+	// {
+	// 	id: 1,
+	// 	replies: [{
+	// 		id: 5,
+	// 		replies: [{
+	// 			id: 10,
+	// 			replies: [{
+	// 				id: 11,
+	// 				replies: [...]
+	// 			}]
+	// 		}]
+	// 	}]
+	// }
+	//
+	dialogueTraceStyle: PropTypes.oneOf(['side', 'through']).isRequired
 }
 
 CommentTree.defaultProps = {
 	initialState: {},
-	dialogueChainStyle: 'side'
+	dialogueTraceStyle: 'side'
 }
 
 export function isMiddleDialogueChainLink(comment, parentComment) {

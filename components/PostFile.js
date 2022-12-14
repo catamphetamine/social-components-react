@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import filesize from 'filesize'
+import { filesize } from 'filesize'
 
 import { postFile } from './PropTypes.js'
 
