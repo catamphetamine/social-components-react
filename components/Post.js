@@ -43,6 +43,8 @@ function Post({
 	serviceIcons,
 	onAttachmentClick,
 	onPostUrlClick,
+	postDateLinkUpdatePageUrlToPostUrlOnClick,
+	postDateLinkNavigateToPostUrlOnClick,
 	onPostLinkClick,
 	isPostLinkClickable,
 	isSocialClickable,
@@ -81,6 +83,8 @@ function Post({
 				url={url}
 				urlBasePath={urlBasePath}
 				onPostUrlClick={onPostUrlClick}
+				postDateLinkUpdatePageUrlToPostUrlOnClick={postDateLinkUpdatePageUrlToPostUrlOnClick}
+				postDateLinkNavigateToPostUrlOnClick={postDateLinkNavigateToPostUrlOnClick}
 				locale={locale}
 				header={header}
 				items={headerItems}
@@ -177,6 +181,8 @@ Post.propTypes = {
 	attachmentThumbnailSize: PropTypes.number,
 	onAttachmentClick: PropTypes.func,
 	onPostUrlClick: PropTypes.func,
+	postDateLinkUpdatePageUrlToPostUrlOnClick: PropTypes.bool,
+	postDateLinkNavigateToPostUrlOnClick: PropTypes.bool,
 	onPostLinkClick: PropTypes.func,
 	isPostLinkClickable: PropTypes.func,
 	isSocialClickable: PropTypes.func,

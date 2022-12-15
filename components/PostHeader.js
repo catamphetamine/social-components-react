@@ -25,6 +25,8 @@ export default function PostHeader({
 	url,
 	urlBasePath,
 	onPostUrlClick,
+	postDateLinkUpdatePageUrlToPostUrlOnClick,
+	postDateLinkNavigateToPostUrlOnClick,
 	locale,
 	header: Header,
 	items,
@@ -48,6 +50,9 @@ export default function PostHeader({
 					url={url}
 					urlBasePath={urlBasePath}
 					onPostUrlClick={onPostUrlClick}
+					postDateLinkNavigation={postDateLinkNavigation}
+					postDateLinkUpdatePageUrlToPostUrlOnClick={postDateLinkUpdatePageUrlToPostUrlOnClick}
+					postDateLinkNavigateToPostUrlOnClick={postDateLinkNavigateToPostUrlOnClick}
 					locale={locale}
 					messages={messages}
 					items={items}
@@ -84,6 +89,8 @@ PostHeader.propTypes = {
 	url: PropTypes.string,
 	urlBasePath: PropTypes.string,
 	onPostUrlClick: PropTypes.func,
+	postDateLinkUpdatePageUrlToPostUrlOnClick: PropTypes.bool,
+	postDateLinkNavigateToPostUrlOnClick: PropTypes.bool,
 	locale: PropTypes.string,
 	header: PropTypes.func,
 	moreActions: moreActionsType,
@@ -103,6 +110,8 @@ function PostHeaderLeft({
 	url,
 	urlBasePath,
 	onPostUrlClick,
+	postDateLinkUpdatePageUrlToPostUrlOnClick,
+	postDateLinkNavigateToPostUrlOnClick,
 	locale,
 	messages,
 	items,
@@ -167,8 +176,11 @@ function PostHeaderLeft({
 						date={post.createdAt}
 						url={url}
 						urlBasePath={urlBasePath}
+						postDateLinkUpdatePageUrlToPostUrlOnClick={postDateLinkUpdatePageUrlToPostUrlOnClick}
+						postDateLinkNavigateToPostUrlOnClick={postDateLinkNavigateToPostUrlOnClick}
 						onClick={onPostUrlClick_}
-						locale={locale}/>
+						locale={locale}
+					/>
 				</div>
 			}
 			{onReply && (!post.author && post.createdAt)  &&
@@ -214,6 +226,8 @@ PostHeaderLeft.propTypes = {
 	url: PropTypes.string,
 	urlBasePath: PropTypes.string,
 	onPostUrlClick: PropTypes.func,
+	postDateLinkUpdatePageUrlToPostUrlOnClick: PropTypes.bool,
+	postDateLinkNavigateToPostUrlOnClick: PropTypes.bool,
 	locale: PropTypes.string,
 	messages: PropTypes.object,
 	items: PropTypes.arrayOf(PropTypes.node),

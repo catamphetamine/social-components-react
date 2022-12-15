@@ -14,6 +14,8 @@ import './PostSelfLink.css'
 export default function PostSelfLink({
 	url,
 	baseUrl,
+	updatePageUrlToPostUrlOnClick,
+	navigateToPostUrlOnClick,
 	onClick,
 	className,
 	children
@@ -22,11 +24,27 @@ export default function PostSelfLink({
 		if (onClick) {
 			onClick(event)
 		}
-		if (!event.defaultPrevented) {
-			event.preventDefault()
+		if (updatePageUrlToPostUrlOnClick) {
 			replacePageUrl((baseUrl || '') + url)
 		}
+		if (!navigateToPostUrlOnClick) {
+			if (!event.defaultPrevented) {
+				event.preventDefault()
+			}
+		}
 	}, [url, baseUrl, onClick])
+
+	const isClickable = Boolean(onClick || updatePageUrlToPostUrlOnClick || navigateToPostUrlOnClick)
+
+	if (!isClickable) {
+		return (
+			<Padding>
+				<span className={classNames('PostSelfLink', className)}>
+					{children}
+				</span>
+			</Padding>
+		)
+	}
 
 	let props
 	if (url[0] === '/') {
@@ -58,7 +76,19 @@ export default function PostSelfLink({
 PostSelfLink.propTypes = {
 	url: PropTypes.string,
 	baseUrl: PropTypes.string,
+	updatePageUrlToPostUrlOnClick: PropTypes.bool,
+	navigateToPostUrlOnClick: PropTypes.bool,
 	onClick: PropTypes.func,
 	className: PropTypes.string,
 	children: PropTypes.node.isRequired
+}
+
+PostSelfLink.defaultProps = {
+	updatePageUrlToPostUrlOnClick: true
+}
+
+// Replaces the current web browser page's URL without reloading the page.
+function replacePageUrl(newUrl) {
+	// https://stackoverflow.com/questions/824349/how-do-i-modify-the-url-without-reloading-the-page
+	window.history.replaceState(null, document.title, newUrl)
 }

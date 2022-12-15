@@ -66,9 +66,14 @@ by offsetting the root replies branch line to the right.
 	width: var(--CommentTree-padding);
 	height: 100%;
 	box-sizing: border-box;
-	cursor: pointer;
-	&:hover {
+
+	&:not(:disabled) {
+		cursor: pointer;
+	}
+
+	&:hover:not(:disabled) {
 		background-color: var(--CommentTree-backgroundColor--hover);
+
 		& ~ .CommentTree {
 			/* Highlights branch lines for the immediate child comment tree
 			   and for all nested comment trees. */

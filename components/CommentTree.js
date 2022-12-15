@@ -35,8 +35,10 @@ export default function CommentTree({
 	getComponentProps,
 	initialState,
 	onStateChange,
+	initialShowReplies,
 	onShowReply,
 	onDidToggleShowReplies,
+	toggleShowRepliesOnTreeBranchesClick,
 	dialogueTraceStyle,
 	getState,
 	setState,
@@ -60,13 +62,6 @@ export default function CommentTree({
 	// (the lines act as a clickable "hide thread" button).
 	const toggleShowRepliesButtonRef = useRef()
 
-	// `getState()` and `setState()` properties are always defined
-	// for a subtree of a tree. They aren't defined for the root of the tree.
-
-	const [shouldShowReplies, setShowReplies] = useState(
-		Boolean((parentComment ? getState() : initialState).replies)
-	)
-
 	// Suppose a subtree has 3 child subtrees.
 	// That would be an equivalent of a comment having 3 replies.
 	//
@@ -80,6 +75,22 @@ export default function CommentTree({
 	// `{ replies: [undefined, { replies: undefined }, undefined] }`
 	//
 	// Therefore, `state` is recursive.
+
+	// Create `initialState` in case of `initialShowReplies: true`.
+	if (!initialState) {
+		if (initialShowReplies) {
+			if (comment.replies) {
+				initialState = {
+					replies: comment.replies.map(_ => ({}))
+				}
+			}
+		}
+	}
+
+	// Set default `initialState`.
+	if (!initialState) {
+		initialState = {}
+	}
 
 	// The tree state is stored in an "instance variable".
 	const rootState = useRef(initialState)
@@ -149,6 +160,13 @@ export default function CommentTree({
 		return childSubtreeStateSetters.current[i]
 	}, [])
 
+	// `getState()` and `setState()` properties are always defined
+	// for a subtree of a tree. They aren't defined for the root of the tree.
+
+	const [shouldShowReplies, setShowReplies] = useState(
+		Boolean((parentComment ? getState() : initialState).replies)
+	)
+
 	const onShowRepliesChange = useCallback((showReplies) => {
 		// The "expanded?" state of replies is derived from the `state` as:
 		// * If state is `{}`, then replies are not expanded.
@@ -200,7 +218,7 @@ export default function CommentTree({
 		// On expand replies — no scroll.
 		// On un-expand replies — scroll to the original comment if it's not visible.
 		if (!showReplies) {
-			if (elementRef.current) {
+			if (elementRef.current && toggleShowRepliesButtonRef.current) {
 				promise = scrollToCommentIfToggleButtonIsNotVisible(
 					elementRef.current,
 					toggleShowRepliesButtonRef.current
@@ -317,6 +335,7 @@ export default function CommentTree({
 					{/* Comment tree branch which is also a "Show"/"Hide" replies tree toggler. */}
 					<Button
 						tabIndex={-1}
+						disabled={!toggleShowRepliesOnTreeBranchesClick}
 						onClick={onToggleShowReplies}
 						className="CommentTree-toggler"
 					/>
@@ -338,20 +357,32 @@ const commentTypeStub = PropTypes.object
 
 const commentType = PropTypes.shape({
 	id: PropTypes.any.isRequired,
+
 	// Can't use recursive type definition here.
 	// replies: PropTypes.arrayOf(commentType)
 	replies: PropTypes.arrayOf(commentTypeStub)
 })
 
 CommentTree.propTypes = {
+	// When `flat` is set to `true`, there won't be any side margin
+	// (indentation) added to expanded replies' elements.
+	// The default value is `false`.
 	flat: PropTypes.bool,
+
 	comment: commentType.isRequired,
 	parentComment: commentType,
+
 	// This flag is only for correctly styling root-level dialogue chains:
 	// they require some left padding for eligibility on mobile devices.
 	isFirstLevelTree: PropTypes.bool,
+
 	component: PropTypes.func.isRequired,
 	getComponentProps: PropTypes.func,
+
+	// Whether the tree branches should be clickable.
+	// If they're clickable, clicking on them will un-expand the corresponding tree of replies.
+	toggleShowRepliesOnTreeBranchesClick: PropTypes.bool,
+
 	// `state` is a recursive structure.
 	// For a comment, `state` is an object.
 	// If a comment's replies are expanded, it's `state.replies[]` property
@@ -407,9 +438,12 @@ CommentTree.propTypes = {
 	//    |---------|
 	// "Dialogue" reply chains are always expanded
 	// when the first reply in the chain is expanded.
-	initialState: PropTypes.object.isRequired,
+	initialState: PropTypes.object,
 	onStateChange: PropTypes.func,
+
+	initialShowReplies: PropTypes.bool,
 	onShowReply: PropTypes.func,
+
 	// `getState()`/`setState()` properties are only passed to child comment trees.
 	setState: PropTypes.func,
 	getState: PropTypes.func,
@@ -440,7 +474,7 @@ CommentTree.propTypes = {
 }
 
 CommentTree.defaultProps = {
-	initialState: {},
+	toggleShowRepliesOnTreeBranchesClick: true,
 	dialogueTraceStyle: 'side'
 }
 

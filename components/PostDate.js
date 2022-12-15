@@ -16,6 +16,8 @@ export default function PostDate({
 	date,
 	url,
 	urlBasePath,
+	postDateLinkUpdatePageUrlToPostUrlOnClick,
+	postDateLinkNavigateToPostUrlOnClick,
 	onClick,
 	locale,
 	className
@@ -33,6 +35,8 @@ export default function PostDate({
 				<PostSelfLink
 					url={url}
 					baseUrl={urlBasePath}
+					updatePageUrlToPostUrlOnClick={postDateLinkUpdatePageUrlToPostUrlOnClick}
+					navigateToPostUrlOnClick={postDateLinkNavigateToPostUrlOnClick}
 					onClick={onClick}
 					className={className}>
 					{dateElement}
@@ -51,6 +55,8 @@ PostDate.propTypes = {
 	date: PropTypes.instanceOf(Date).isRequired,
 	url: PropTypes.string,
 	urlBasePath: PropTypes.string,
+	postDateLinkUpdatePageUrlToPostUrlOnClick: PropTypes.bool,
+	postDateLinkNavigateToPostUrlOnClick: PropTypes.bool,
 	locale: PropTypes.string,
 	onClick: PropTypes.func,
 	className: PropTypes.string
