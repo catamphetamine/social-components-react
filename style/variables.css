@@ -170,7 +170,8 @@
 	/*--PostTitle-marginBottom: 0px;*/
 	/*--PostTitle-marginBottom--compact: var(--PostTitle-marginBottom);*/
 	--PostTitle-fontSize: 1.17em;
-	--PostTitle-fontWeight: normal;
+	--PostTitle-fontWeight: 500;
+	--PostTitle-color: initial;
 
 	/* PressedStateButton. */
 	--PressedStateButton-color: inherit;

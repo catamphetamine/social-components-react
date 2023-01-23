@@ -128,7 +128,13 @@ function Picture({
 		// There seems to be no way around this issue.
 
 		const onFinished = () => {
-			window.interactiveResize.add(renderAppropriateSize)
+			window.interactiveResize.add(() => {
+				// A picture might become unmounted after a window resize.
+				// An example is using `virtual-scroller` to show a list of comments.
+				if (isMounted()) {
+					renderAppropriateSize()
+				}
+			})
 		}
 
 		let imageLoadDevModeTimer

@@ -174,7 +174,7 @@ export default function CommentTree({
 
 		// A subtree state doesn't necessarily only contain the `replies` property.
 		// It could contain other "custom" subtree state properties as well:
-		// those could be set by the component by calling `componentProps.onStateChange()`.
+		// those could be set by the component by calling `componentProps.updateState(state => ({ ... }))`.
 		//
 		// Clone the subtree state so that it doesn't get "mutated".
 		// We don't do "deep" cloning here because there's no need.
@@ -255,8 +255,9 @@ export default function CommentTree({
 	}
 
 	const componentProps = getComponentProps ? getComponentProps({
+		// If the initial state is "empty" then it's gonna be an empty object `{}`.
 		initialState: getState(),
-		onStateChange: (transformState) => setState(transformState(getState()))
+		updateState: (transformState) => setState(transformState(getState()))
 	}) : undefined
 
 	const repliesWithRemovedLeadingPostLink = useMemo(() => {

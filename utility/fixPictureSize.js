@@ -1,9 +1,17 @@
 import getImageSize from './getImageSize.js'
 
-// `lynxchan` doesn't provide `width` and `height`
-// neither for the picture not for the thumbnail
-// in `/catalog.json` API response (which is a bug).
-// http://lynxhub.com/lynxchan/res/722.html#q984
+// In `lynxchan` engine, in `/catalog.json` API response, there're no `files` array.
+// There're only two properties — `thumb` and `mime` — and no `width` or `height`, which is a bug.
+// https://gitlab.com/catamphetamine/imageboard/-/blob/master/docs/engines/lynxchan-issues.md#no-thread-thumbnail-size-in-catalog-api-response
+//
+// The bug is not present on `kohlchan.net` (as of 2022) because they're using their own fork of `lynxchan`.
+// The bug could be observed at the offical `lynxchan` demo site by looking at the JSON API response:
+// https://<website>/<board>/catalog.json.
+//
+// This function works around that bug by loading the thumbnail image
+// of every attachment and then reading the actual `width` and `height`
+// of the thumbnails to set the `width` and `height` of the picture attachments.
+//
 export function fixAttachmentPictureSizes(attachments) {
 	return Promise.all(attachments.map(async (attachment) => {
 		switch (attachment.type) {
@@ -32,6 +40,7 @@ export function fixAttachmentPictureSizes(attachments) {
 					attachment.picture.sizeHasBeenFixed = true
 				}
 				if (thumbnailSize) {
+					// Set the correct thumbnail size in a picture attachment.
 					attachment.picture = {
 						...attachment.picture,
 						sizes: [{
@@ -39,38 +48,12 @@ export function fixAttachmentPictureSizes(attachments) {
 							...thumbnailSize
 						}]
 					}
-					// `fixAttachmentPictureSizes()` gets the correct image sizes
-					// but for some reason React doesn't apply the `style` changes to the DOM.
-					// It's most likely a bug in React.
-					// https://github.com/facebook/react/issues/16357
-					// `<PostAttachment/>` does pass the correct `style` to `<ButtonOrLink/>`
-					// but the `style` doesn't get applied in the DOM.
-					// This is a workaround for that bug: applies the changes to the DOM
-					// that aren't applied by React (React will apply the changes on subsequent updates).
-					// There also might be several elements corresponding to the attachment
-					// in cases when "post thumbnail" is rendered, so using `document.querySelectorAll()`.
-					// If the component is unmounted before this code executes,
-					// then the `thumbnails` array will be empty.
-					const thumbnails = document.querySelectorAll(`.PostAttachmentThumbnail img[src="${thumbnailSizeUrl}"]`)
-					for (const thumbnail of thumbnails) {
-						const borderWidth = parseInt(getComputedStyle(thumbnail.parentNode).borderWidth)
-						thumbnail.parentNode.style.width = thumbnailSize.width + 2 * borderWidth + 'px'
-						thumbnail.parentNode.style.height = thumbnailSize.height + 2 * borderWidth + 'px'
-					}
-					// Not fetching the "original images" because that would be extra bandwidth.
-					// Instead assuming the "original image" is big enough.
-					const originalSize = {}
-					const aspectRatio = thumbnailSize.width / thumbnailSize.height
-					if (thumbnailSize.width > thumbnailSize.height) {
-						originalSize.width = 1280
-						originalSize.height = Math.round(originalSize.width / aspectRatio)
-					} else {
-						originalSize.height = 1024
-						originalSize.width = Math.round(originalSize.height * aspectRatio)
-					}
+					// Fix React bug.
+					fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl)
+					// Set the correct picture size.
 					attachment.picture = {
 						...attachment.picture,
-						...originalSize
+						...getOriginalPictureSize(thumbnailSize)
 					}
 				}
 				break
@@ -111,5 +94,54 @@ export async function getOriginalPictureSizeAndUrl(attachment) {
 			...originalSize,
 			url: originalSizeUrl
 		}
+	}
+}
+
+// These values are somewhat "comfortable" dimensions
+// for a "statistically average" image attachment.
+// "Comfortable" means "comfortable for viewing on a desktop monitor in a slideshow".
+const ORIGINAL_IMAGE_DUMMY_WIDTH = 1280
+const ORIGINAL_IMAGE_DUMMY_HEIGHT = 1024
+
+function getOriginalPictureSize(thumbnailSize) {
+	// Not fetching the "original images" to get their size because that would be
+	// a lot of unneeded bandwidth usage and unnecessary file server load.
+	// Instead, just setting the original image size to be a "dummy" one.
+	// The rationale is that the user can still enlarge it if the actual image
+	// resolution is higher than the "dummy" one.
+	// And if the actual image resolution is lower than that then it'll just be
+	// "zoomed in" a little bit which is not critical too.
+	const aspectRatio = thumbnailSize.width / thumbnailSize.height
+	if (aspectRatio > 1) {
+		return {
+			width: ORIGINAL_IMAGE_DUMMY_WIDTH,
+			height: Math.round(ORIGINAL_IMAGE_DUMMY_WIDTH / aspectRatio)
+		}
+	} else {
+		return {
+			height: ORIGINAL_IMAGE_DUMMY_HEIGHT,
+			width: Math.round(ORIGINAL_IMAGE_DUMMY_HEIGHT * aspectRatio)
+		}
+	}
+}
+
+function fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl) {
+	// `fixAttachmentPictureSizes()` gets the correct image sizes
+	// but for some reason React doesn't apply the `style` changes to the DOM.
+	// It's most likely a bug in React.
+	// https://github.com/facebook/react/issues/16357
+	// `<PostAttachment/>` does pass the correct `style` to `<ButtonOrLink/>`
+	// but the `style` doesn't get applied in the DOM.
+	// This is a workaround for that bug: applies the changes to the DOM
+	// that aren't applied by React (React will apply the changes on subsequent updates).
+	// There also might be several elements corresponding to the attachment
+	// in cases when "post thumbnail" is rendered, so using `document.querySelectorAll()`.
+	// If the component is unmounted before this code executes,
+	// then the `thumbnails` array will be empty.
+	const thumbnails = document.querySelectorAll(`.PostAttachmentThumbnail img[src="${thumbnailSizeUrl}"]`)
+	for (const thumbnail of thumbnails) {
+		const borderWidth = parseInt(getComputedStyle(thumbnail.parentNode).borderWidth)
+		thumbnail.parentNode.style.width = thumbnailSize.width + 2 * borderWidth + 'px'
+		thumbnail.parentNode.style.height = thumbnailSize.height + 2 * borderWidth + 'px'
 	}
 }
