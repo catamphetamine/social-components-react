@@ -4,6 +4,8 @@
 // https://github.com/bvaughn/react-virtualized/issues/722
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
+import { px, scaleFactor, ms } from 'web-browser-style'
+
 import triggerDomElementRender from '../utility/triggerDomElementRender.js'
 
 const SCALE = 0.95
@@ -49,12 +51,12 @@ export default class OpenCloseAnimationFade {
 		// Set up a pre-transition state.
 		const transforms = []
 		if (useLongerOpenCloseAnimation) {
-			transforms.push(`scale(${SCALE})`)
+			transforms.push(`scale(${scaleFactor(SCALE)})`)
 		}
 		if (slideOffsetX !== undefined) {
 			transforms.push(
-				`translateX(${slideOffsetX - slideWidth * (1 - SCALE) / 2}px)`,
-				`translateY(${slideOffsetY - slideHeight * (1 - SCALE) / 2}px)`
+				`translateX(${px(slideOffsetX - slideWidth * (1 - SCALE) / 2)})`,
+				`translateY(${px(slideOffsetY - slideHeight * (1 - SCALE) / 2)})`
 			)
 		}
 		if (transforms.length > 0) {
@@ -63,11 +65,11 @@ export default class OpenCloseAnimationFade {
 		slideElement.style.opacity = 0
 		triggerDomElementRender(slideElement)
 		// Perform a transition to a new state.
-		const transitions = [`opacity ${animationDuration}ms`]
+		const transitions = [`opacity ${ms(animationDuration)}`]
 		if (transforms.length > 0 && slideOffsetX === undefined) {
 			// If `slideOffsetX` is applied, then preserve the offset `transform`,
 			// so that it doesn't animate the slide floating to a zero-offset position.
-			transitions.push(`transform ${animationDuration}ms`)
+			transitions.push(`transform ${ms(animationDuration)}`)
 		}
 		slideElement.style.transition = transitions.join(', ')
 		if (transforms.length > 0) {
@@ -102,12 +104,12 @@ export default class OpenCloseAnimationFade {
 			transforms.push(transform)
 		}
 		if (useLongerOpenCloseAnimation) {
-			transforms.push(`scale(${SCALE})`)
+			transforms.push(`scale(${scaleFactor(SCALE)})`)
 		}
 		// Perform a transition to a new state.
-		const transitions = [`opacity ${animationDuration}ms`]
+		const transitions = [`opacity ${ms(animationDuration)}`]
 		if (transforms.length > 0) {
-			transitions.push(`transform ${animationDuration}ms`)
+			transitions.push(`transform ${ms(animationDuration)}`)
 		}
 		slideElement.style.transition = transitions.join(', ')
 		if (transforms.length > 0) {

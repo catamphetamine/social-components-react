@@ -1,24 +1,32 @@
 .PostAttachmentThumbnail {
 	/* `<button/>`s are `display: inline` by default. */
 	display: block;
+
+	/* `<Picture/>` is rendered as a `<span/>` because
+	   a `<div/>` shouldn't be placed inside a `<button/>`. */
+	.Picture {
+		display: block;
+	}
 }
 
 /* Only apply border to attachment thumbnails having non-transparent background. */
-.PostAttachmentThumbnail.Picture--nonTransparentBackground {
-	/* Material Design Card elevation shadow. */
-	/* https://codepen.io/sdthornton/pen/wBZdXq */
-	/*transition: box-shadow 160ms cubic-bezier(.25,.8,.25,1);*/
-	/*&:hover {
-		box-shadow: var(--PostAttachment-shadow--hover);
-	}*/
-	/*&:focus {
-		box-shadow: var(--PostAttachment-shadow--focus);
-	}*/
-	/*
-	&:focus {
-		box-shadow: 0 0 0 var(--PostAttachment-focusOutlineWidth) var(--Picture-borderColor);
+.PostAttachmentThumbnail {
+	.Picture--nonTransparentBackground {
+		/* Material Design Card elevation shadow. */
+		/* https://codepen.io/sdthornton/pen/wBZdXq */
+		/*transition: box-shadow 160ms cubic-bezier(.25,.8,.25,1);*/
+		/*&:hover {
+			box-shadow: var(--PostAttachment-shadow--hover);
+		}*/
+		/*&:focus {
+			box-shadow: var(--PostAttachment-shadow--focus);
+		}*/
+		/*
+		&:focus {
+			box-shadow: 0 0 0 var(--PostAttachment-focusOutlineWidth) var(--Picture-borderColor);
+		}
+		*/
 	}
-	*/
 }
 
 /* Blur radius depends on the actual image dimensions. */

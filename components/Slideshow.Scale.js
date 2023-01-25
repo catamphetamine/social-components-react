@@ -4,6 +4,8 @@
 // https://github.com/bvaughn/react-virtualized/issues/722
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
+import { px, ms } from 'web-browser-style'
+
 export default class SlideshowScale {
 	constructor(slideshow) {
 		this.slideshow = slideshow
@@ -365,7 +367,7 @@ export default class SlideshowScale {
 		} else {
 			this.isAnimatingScale = true
 			const { getSlideDOMNode } = this.slideshow.props
-			getSlideDOMNode().style.transition = `transform ${scaleAnimationDuration}ms, box-shadow ${scaleAnimationDuration}ms`
+			getSlideDOMNode().style.transition = `transform ${ms(scaleAnimationDuration)}, box-shadow ${ms(scaleAnimationDuration)}`
 		}
 		this.animateScaleStartedAt = Date.now()
 		this.finishAnimateScaleTimeout = setTimeout(this.finishAnimateScale, scaleAnimationDuration)
@@ -453,6 +455,7 @@ export default class SlideshowScale {
 		this.slideshow.updateSlideTransform()
 	}
 
+	// This function is not currently used.
 	resetBoxShadow = () => {
 		// Reset `box-shadow`.
 		const { getSlideDOMNode } = this.slideshow.props
@@ -479,7 +482,13 @@ export default class SlideshowScale {
 			boxShadow = this.originalBoxShadow = getBoxShadow(getSlideDOMNode())
 		}
 		if (boxShadow) {
-			getSlideDOMNode().style.boxShadow = scaleBoxShadow(boxShadow, 1 / this.slideshow.getScaleFactor(scale))
+			// Scaling of the `box-shadow` is inverted: when a slide is being scaled up,
+			// the `box-shadow` is being scaled down so that those two scales neutralize one another
+			// and the perceived `box-shadow` remains constant on screen.
+			// That's because when a slide gets `transform: scale` applied to it,
+			// so does its `box-shadow`.
+			const boxShadowCounterScale = 1 / this.slideshow.getScaleFactor(scale)
+			getSlideDOMNode().style.boxShadow = scaleBoxShadow(boxShadow, boxShadowCounterScale)
 		}
 	}
 
@@ -547,8 +556,8 @@ function scaleBoxShadow(boxShadow, scale) {
 		const color = shadow.slice(0, colorEndsAt + 1)
 		const shadowValues = shadow.slice(colorEndsAt + 1 + ' '.length)
 		const values = shadowValues.split(' ')
-		let [xOffset, yOffset, blurRadius] = values.slice(0, 3).map(parseFloat).map(_ => _ * scale)
-		return `${color} ${xOffset}px ${yOffset}px ${blurRadius}px ${values.slice(3).join(' ')}`
+		let [xOffset, yOffset, blurRadius] = values.slice(0, 3).map(parseFloat).map(_ => _ * scale).map(_ => px(_))
+		return `${color} ${xOffset} ${yOffset} ${blurRadius} ${values.slice(3).join(' ')}`
 	}).join(', ')
 }
 

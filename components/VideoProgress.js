@@ -8,6 +8,8 @@ import classNames from 'classnames'
 // https://github.com/bvaughn/react-virtualized/issues/722
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
+import { ms } from 'web-browser-style'
+
 import './VideoProgress.css'
 
 export default function VideoProgress({
@@ -54,7 +56,7 @@ export default function VideoProgress({
 		clearTimeout(hideTimer.current)
 		// Schedule hiding.
 		hideTimer.current = setTimeout(() => {
-			element.current.style.transition = `opacity ${hideDuration}ms`
+			element.current.style.transition = `opacity ${ms(hideDuration)}`
 			element.current.style.opacity = 0
 			afterHideTimer.current = setTimeout(() => {
 				isShown.current = false

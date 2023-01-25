@@ -131,7 +131,7 @@ export default class OpenCloseAnimation {
 			}
 			// if (imageElement) {
 			// 	imageElementTransition = getComputedStyle(imageElement).transition
-			// 	imageElement.style.transition = `opacity ${imageElementAnimationDuration}ms`
+			// 	imageElement.style.transition = `opacity ${ms(imageElementAnimationDuration)}`
 			// 	imageElement.style.opacity = 0.25
 			// }
 			_promise.then(() => {

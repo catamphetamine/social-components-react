@@ -1,6 +1,6 @@
 import { getFitSize } from './Picture.js'
 
-import { roundPixels } from 'web-browser-window'
+import { px } from 'web-browser-style'
 
 export default class SlideshowOpenPictureInHoverMode {
 	constructor(slideshow) {
@@ -82,7 +82,7 @@ export default class SlideshowOpenPictureInHoverMode {
 			this.slideshow.getSlideshowHeight(),
 			this.slideshow.getMargin
 		)
-		slideDOMNode.style.transform = `translateX(${roundPixels(slideOffsetX)}px) translateY(${roundPixels(slideOffsetY)}px)`
+		slideDOMNode.style.transform = `translateX(${px(slideOffsetX)}) translateY(${px(slideOffsetY)})`
 		return [slideOffsetX, slideOffsetY]
 	}
 }

@@ -131,6 +131,8 @@ function PostContent({
 			// `<PostAttachment/>` does pass the correct `style` to `<ButtonOrLink/>`
 			// but the `style` doesn't get applied in the DOM.
 			//
+			// Returns a list of `Promise`s.
+			//
 			loadResources: shouldFixAttachmentPictureSizes ? () => {
 				if (post.attachments) {
 					return fixAttachmentPictureSizes(post.attachments)

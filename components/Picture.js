@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { ActivityIndicator, FadeInOut } from 'react-responsive-ui'
 
+import { px } from 'web-browser-style'
+
 import { picture } from './PropTypes.js'
 
 import useMount from '../hooks/useMount.js'
@@ -220,8 +222,8 @@ function Picture({
 	function getContainerStyle() {
 		if (isExactTargetSizeProvided(width, height)) {
 			return {
-				width: addBorder(width || (height * getImageAspectRatio())) + 'px',
-				height: addBorder(height || (width / getImageAspectRatio())) + 'px'
+				width: px(addBorder(width || (height * getImageAspectRatio()))),
+				height: px(addBorder(height || (width / getImageAspectRatio())))
 			}
 		}
 		if (maxWidth || maxHeight) {
@@ -231,7 +233,7 @@ function Picture({
 			}
 			return {
 				width: '100%',
-				maxWidth: addBorder(_maxWidth) + 'px'
+				maxWidth: px(addBorder(_maxWidth))
 			}
 		}
 	}
@@ -394,8 +396,11 @@ function Picture({
 			    then it itself would stretch such container. But because the `<img/>` is
 			    rendered with `position: absolute`, it doesn't stretch the container.
 			*/}
+			{/* `<span/>` is used instead of a `<div/>`
+			    because a `<div/>` isn't supposed to be inside a `<button/>`.
+			*/}
 			{!isExactTargetSizeProvided(width, height) &&
-				<div style={FULL_WIDTH_STRETCHER_STYLE}/>
+				<span style={FULL_WIDTH_STRETCHER_STYLE}/>
 			}
 
 			{/* "Loading" status indicator. */}
@@ -685,15 +690,15 @@ function addBlur(style, radius) {
 	return {
 		...style,
 		// https://caniuse.com/#feat=css-filters
-		filter: `blur(${radius}px)`,
+		filter: `blur(${px(radius)})`,
 		// Works around the white edges bug.
 		// https://stackoverflow.com/questions/28870932/how-to-remove-white-border-from-blur-background-image
 		// For some reason it will still add a white inner shadow
 		// if the `<img/>` has a `border` — seems to be a bug in a web browser.
-		width: `calc(100% + ${getBlurMargin(radius)}px)`,
-		height: `calc(100% + ${getBlurMargin(radius)}px)`,
-		marginLeft: `-${getBlurMargin(radius) / 2}px`,
-		marginTop: `-${getBlurMargin(radius) / 2}px`
+		width: `calc(100% + ${px(getBlurMargin(radius))})`,
+		height: `calc(100% + ${px(getBlurMargin(radius))})`,
+		marginLeft: `-${px(getBlurMargin(radius) / 2)}`,
+		marginTop: `-${px(getBlurMargin(radius) / 2)}`
 	}
 }
 
@@ -746,6 +751,7 @@ export function getFitSize(picture, availableWidth, availableHeight) {
 }
 
 const FULL_WIDTH_STRETCHER_STYLE = {
+	display: 'block',
 	width: '100vw',
 	maxWidth: '100%'
 }

@@ -4,7 +4,13 @@ import classNames from 'classnames'
 
 import { video } from './PropTypes.js'
 import getVideoUrl from 'social-components/utility/video/getVideoUrl.js'
-import { enterFullScreen as _enterFullScreen, exitFullScreen as _exitFullScreen } from 'web-browser-window'
+
+import {
+	enterFullScreen as _enterFullScreen,
+	exitFullScreen as _exitFullScreen
+} from 'web-browser-window'
+
+import { px } from 'web-browser-style'
 
 import AspectRatioWrapper from './AspectRatioWrapper.js'
 import ButtonOrLink from './ButtonOrLink.js'
@@ -545,14 +551,14 @@ function Video({
 	function getContainerStyle() {
 		if (width || height) {
 			return {
-				width: addBorder(width || (height * getAspectRatio(video))) + 'px',
-				height: addBorder(height || (width / getAspectRatio(video))) + 'px'
+				width: px(addBorder(width || (height * getAspectRatio(video)))),
+				height: px(addBorder(height || (width / getAspectRatio(video))))
 			}
 		}
 		if (maxWidth || maxHeight) {
 			return {
 				width: '100%',
-				maxWidth: addBorder(getMaxWidth()) + 'px'
+				maxWidth: px(addBorder(getMaxWidth()))
 			}
 		}
 	}

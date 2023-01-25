@@ -8,6 +8,7 @@ import { preloadPictureSlide } from './Slideshow.Picture.js'
 import SlideshowSize from './Slideshow.Size.js'
 import Picture from './Picture.js'
 import PictureBadge from './PictureBadge.js'
+import PostAttachmentThumbnailSpoilerBar from './PostAttachmentThumbnailSpoilerBar.js'
 
 import { getOriginalPictureSizeAndUrl } from '../utility/fixPictureSize.js'
 
@@ -26,7 +27,7 @@ import './PostAttachmentThumbnail.css'
 export default function PostAttachmentThumbnail({
 	url,
 	onClick,
-	component,
+	component: Component,
 	componentProps,
 	attachment,
 	spoilerLabel,
@@ -44,12 +45,14 @@ export default function PostAttachmentThumbnail({
 	className
 }) {
 	const thumbnailElement = useRef()
+	const slideshowOpenRequest = useRef()
 	const [isRevealed, setIsRevealed] = useState(attachment.spoiler ? false : true)
 	const [isMounted, onMount] = useMount()
 	const [loadOnClick, isLoading, setIsLoading] = useLoadOnClick(attachment, fixAttachmentPictureSize, thumbnailElement, isMounted)
+
 	const picture = getPicture(attachment)
 	const isLandscape = picture.width >= picture.height
-	const slideshowOpenRequest = useRef()
+
 	// This `onClick(event)` function is not `async`
 	// because an `async` function results in a React warning
 	// telling that a "synthetic event" has been reused.
@@ -86,6 +89,7 @@ export default function PostAttachmentThumbnail({
 		setIsRevealed,
 		onClick
 	])
+
 	useEffect(() => {
 		return () => {
 			if (slideshowOpenRequest.current) {
@@ -93,52 +97,27 @@ export default function PostAttachmentThumbnail({
 			}
 		}
 	}, [])
+
 	// Either `maxSize` should be set, or `maxWidth`/`maxHeight`,
 	// or `width`/`height`.
 	if ((maxWidth === undefined && maxHeight === undefined) &&
 		(width === undefined && height === undefined)) {
 		maxSize = ATTACHMENT_THUMBNAIL_SIZE
 	}
+
 	onMount()
-	// Could set some default `title` here. For example, to some
-	// `contentTypeLabels.picture` or `contentTypeLabels.video`,
+
+	// Could also set some default `title` on an attachment here for ARIA purposes.
+	// For example, to some `contentTypeLabels.picture` or `contentTypeLabels.video`,
 	// but that would result in a "Picture" / "Video" tooltip
 	// being shown in a web browser on mouse over, which would be
 	// redundant, pointless and distracting to a user.
+
 	return (
-		<Picture
-			border={border}
-			imageRef={thumbnailElement}
-			component={component}
-			componentProps={componentProps}
+		<Component
+			{...componentProps}
 			url={url || getAttachmentUrl(attachment)}
-			title={isRevealed ? attachment.title : spoilerLabel}
 			onClick={onClick ? onPictureClick : undefined}
-			picture={picture}
-			width={expand || expandToTheFullest ? undefined : width}
-			height={expand || expandToTheFullest ? undefined : height}
-			maxWidth={expandToTheFullest
-				? undefined
-				: (expand
-					? picture.width
-					: Math.min(
-						picture.width,
-						maxWidth || (maxSize && isLandscape ? maxSize : undefined)
-					)
-				)
-			}
-			maxHeight={expandToTheFullest
-				? undefined
-				: (expand
-					? undefined
-					: Math.min(
-						picture.height,
-						maxHeight || (maxSize && !isLandscape ? maxSize : undefined)
-					)
-				)
-			}
-			useSmallestSize={expand || expandToTheFullest ? undefined : useSmallestThumbnail}
-			blur={attachment.spoiler && !isRevealed ? BLUR_FACTOR : undefined}
 			className={classNames(
 				className,
 				'PostAttachmentThumbnail', {
@@ -147,36 +126,70 @@ export default function PostAttachmentThumbnail({
 					'PostAttachmentThumbnail--transparent': picture.transparentBackground
 				}
 			)}>
-			{isLoading &&
-				<FadeInOut show fadeInInitially fadeInDuration={3000} fadeOutDuration={0}>
-					{/* `<span/>` is used instead of a `<div/>`
-					    because a `<div/>` isn't supposed to be inside a `<button/>`. */}
-					<span className="PostAttachmentThumbnail__loading">
-						<ActivityIndicator className="PostAttachmentThumbnail__loading-indicator"/>
+			{/* `<span/>` is used instead of a `<div/>`
+			    because a `<div/>` isn't supposed to be found inside a `<button/>`.
+			*/}
+			<Picture
+				component="span"
+				border={border}
+				imageRef={thumbnailElement}
+				title={isRevealed ? attachment.title : spoilerLabel}
+				picture={picture}
+				width={expand || expandToTheFullest ? undefined : width}
+				height={expand || expandToTheFullest ? undefined : height}
+				maxWidth={expandToTheFullest
+					? undefined
+					: (expand
+						? picture.width
+						: Math.min(
+							picture.width,
+							maxWidth || (maxSize && isLandscape ? maxSize : undefined)
+						)
+					)
+				}
+				maxHeight={expandToTheFullest
+					? undefined
+					: (expand
+						? undefined
+						: Math.min(
+							picture.height,
+							maxHeight || (maxSize && !isLandscape ? maxSize : undefined)
+						)
+					)
+				}
+				useSmallestSize={expand || expandToTheFullest ? undefined : useSmallestThumbnail}
+				blur={attachment.spoiler && !isRevealed ? BLUR_FACTOR : undefined}>
+				{isLoading &&
+					<FadeInOut show fadeInInitially fadeInDuration={3000} fadeOutDuration={0}>
+						{/* `<span/>` is used instead of a `<div/>`
+						    because a `<div/>` isn't supposed to be inside a `<button/>`. */}
+						<span className="PostAttachmentThumbnail__loading">
+							<ActivityIndicator className="PostAttachmentThumbnail__loading-indicator"/>
+						</span>
+					</FadeInOut>
+				}
+				{attachment.spoiler && !isRevealed && spoilerLabel &&
+					<PostAttachmentThumbnailSpoilerBar width={width} height={height}>
+						{spoilerLabel}
+					</PostAttachmentThumbnailSpoilerBar>
+				}
+				{attachment.type === 'picture' && attachment.picture.type === 'image/gif' &&
+					<PictureBadge placement="bottom-right">
+						gif
+					</PictureBadge>
+				}
+				{attachment.type === 'video' &&
+					<VideoDuration duration={attachment.video.duration}/>
+				}
+				{moreAttachmentsCount > 0 &&
+					<span className="PostAttachmentThumbnail__more-count">
+						{/* `<span/>` is used instead of a `<div/>`
+						    because a `<div/>` isn't supposed to be inside a `<button/>`. */}
+						+{moreAttachmentsCount + 1}
 					</span>
-				</FadeInOut>
-			}
-			{attachment.spoiler && !isRevealed && spoilerLabel &&
-				<AttachmentSpoilerBar width={width} height={height}>
-					{spoilerLabel}
-				</AttachmentSpoilerBar>
-			}
-			{attachment.type === 'picture' && attachment.picture.type === 'image/gif' &&
-				<PictureBadge placement="bottom-right">
-					gif
-				</PictureBadge>
-			}
-			{attachment.type === 'video' &&
-				<VideoDuration duration={attachment.video.duration}/>
-			}
-			{moreAttachmentsCount > 0 &&
-				<span className="PostAttachmentThumbnail__more-count">
-					{/* `<span/>` is used instead of a `<div/>`
-					    because a `<div/>` isn't supposed to be inside a `<button/>`. */}
-					+{moreAttachmentsCount + 1}
-				</span>
-			}
-		</Picture>
+				}
+			</Picture>
+		</Component>
 	)
 }
 
@@ -210,38 +223,7 @@ PostAttachmentThumbnail.defaultProps = {
 
 // export default React.forwardRef(PostAttachment)
 
-const DEFAULT_FONT_SIZE = 16
-const MIN_FONT_SIZE = 8
-const MAX_FONT_SIZE_HEIGHT_FACTOR = 0.85
 const BLUR_FACTOR = 0.1
-
-function AttachmentSpoilerBar({ width, height, children: spoilerLabel, ...rest }) {
-	let fontSize = DEFAULT_FONT_SIZE
-	if (width && height) {
-		fontSize = Math.floor(width / spoilerLabel.length)
-		if (fontSize > height * MAX_FONT_SIZE_HEIGHT_FACTOR) {
-			if (height > MIN_FONT_SIZE * MAX_FONT_SIZE_HEIGHT_FACTOR) {
-				fontSize = height / MAX_FONT_SIZE_HEIGHT_FACTOR
-			} else {
-				return null
-			}
-		}
-	}
-	return (
-		<div
-			{...rest}
-			style={{ fontSize: fontSize + 'px' }}
-			className="PostAttachmentThumbnail-spoiler">
-			{spoilerLabel}
-		</div>
-	)
-}
-
-AttachmentSpoilerBar.propTypes = {
-	width: PropTypes.number,
-	height: PropTypes.number,
-	children: PropTypes.string.isRequired
-}
 
 // `thumbnailElement` could be used in `Slideshow.OpenCloseAnimationFade.js`.
 function useLoadOnClick(
@@ -251,6 +233,7 @@ function useLoadOnClick(
 	isMounted
 ) {
 	const [isLoading, setIsLoading] = useState()
+
 	// This `onClick(event)` function is not `async`
 	// because an `async` function results in a React warning
 	// telling that a "synthetic event" has been reused.
@@ -258,10 +241,13 @@ function useLoadOnClick(
 		if (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey) {
 			return
 		}
+
 		// Prevent hyperlink click.
 		event.preventDefault()
+
 		// "Persist" the event because the function is `async`.
 		event.persist()
+
 		if (attachment.type === 'picture') {
 			// Preload the picture.
 			setIsLoading(true)
@@ -284,6 +270,7 @@ function useLoadOnClick(
 		thumbnailElement,
 		setIsLoading
 	])
+
 	return [onClick, isLoading, setIsLoading]
 }
 

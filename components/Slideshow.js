@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import FocusLock from 'react-focus-lock'
 
+import { ms } from 'web-browser-style'
+
 // // `body-scroll-lock` has been modified a bit, see the info in the header of the file.
 // import {
 // 	disableBodyScroll,
@@ -20,8 +22,6 @@ import SlideshowPropTypes, { defaultProps as SlideshowDefaultProps, SlideshowSta
 
 import PicturePlugin from './Slideshow.Picture.js'
 import VideoPlugin from './Slideshow.Video.js'
-
-import { roundPixels } from 'web-browser-window'
 
 import './Slideshow.css'
 import './Slideshow.Pan.css'
@@ -119,9 +119,9 @@ function SlideshowComponent(props) {
 			// getSlideElement: () => currentSlideRef.current && currentSlideRef.current.getDOMNode && currentSlideRef.current.getDOMNode(),
 			onPanStart: () => container.current.classList.add('Slideshow--panning'),
 			onPanEnd: () => container.current.classList.remove('Slideshow--panning'),
-			setOverlayTransitionDuration: (duration) => container.current.style.transition = duration ? `background-color ${duration}ms` : null,
+			setOverlayTransitionDuration: (duration) => container.current.style.transition = duration ? `background-color ${ms(duration)}` : null,
 			setOverlayBackgroundColor: (color) => container.current.style.backgroundColor = color,
-			setSlideRollTransitionDuration: (duration) => slidesRef.current.style.transitionDuration = duration + 'ms',
+			setSlideRollTransitionDuration: (duration) => slidesRef.current.style.transitionDuration = ms(duration),
 			setSlideRollTransform: (transform) => slidesRef.current.style.transform = transform,
 			isRendered: () => slidesRef.current ? true : false,
 			getWidth: () => slidesRef.current.clientWidth,
@@ -398,20 +398,20 @@ function Slideshow({
 					// transitionDuration: slideshow.getOverlayTransitionDuration(),
 					//
 					// backgroundColor: slideshow.getOverlayBackgroundColor(overlayOpacityForAnimation),
-					// transition: openCloseAnimationDuration ? `background-color ${openCloseAnimationDuration}ms` : undefined
+					// transition: openCloseAnimationDuration ? `background-color ${ms(openCloseAnimationDuration)}` : undefined
 					//
 					backgroundColor: slideshow.getOverlayBackgroundColor(animateOpenCloseSlideAndBackgroundSeparately ? overlayOpacityForAnimation : overlayOpacity),
 					opacity: animateOpenCloseSlideAndBackgroundSeparately ? undefined : slideshowOpacityForAnimation,
 					transition: (
 						openCloseAnimationDuration
-							? `${animateOpenCloseSlideAndBackgroundSeparately ? 'background-color' : 'opacity'} ${openCloseAnimationDuration}ms`
+							? `${animateOpenCloseSlideAndBackgroundSeparately ? 'background-color' : 'opacity'} ${ms(openCloseAnimationDuration)}`
 							: undefined
 							// Turns out, animating overlay opacity on slide change by a
 							// keyboard key press (Left/Right/etc) doesn't look good,
 							// to the point that a simple "immediate" transition looks better.
 							// : (
 							// 	animateOverlayOpacityDurationOnSlideChange
-							// 		? `background-color ${animateOverlayOpacityDurationOnSlideChange}ms`
+							// 		? `background-color ${ms(animateOverlayOpacityDurationOnSlideChange)}`
 							// 		: undefined
 							// )
 					)
@@ -463,35 +463,42 @@ function Slideshow({
 										// // `scale` is passed as `pixelRatioMultiplier` to `<Picture/>`.
 										// scale: slideshow.getSlideScale(j),
 										onClick: slideshow.onSlideClick,
-										width: roundPixels(slideshow.getSlideWidth(slide) * slideshow.getSlideScale(j)),
-										height: roundPixels(slideshow.getSlideHeight(slide) * slideshow.getSlideScale(j)),
+										width: slideshow.getSlideWidth(slide) * slideshow.getSlideScale(j),
+										height: slideshow.getSlideHeight(slide) * slideshow.getSlideScale(j),
 										dragAndScaleMode,
 										className: classNames('Slideshow-Slide', {
 											'Slideshow-Slide--current': j === slideIndex,
 											'Slideshow-Slide--card': overlayOpacity < useCardsForSlidesMaxOverlayOpacity && !slideshow.isTransparentBackground(slideshow.getSlide(j))
 										}),
 										style: {
-											/* Can be scaled via `style="transform: scale(...)". */
-											// transition: 'transform 120ms ease-out',
-											// Scaling is done via a CSS transform.
-											// The reason for that is having a CSS transition animation.
-											// The right way of doing scaling would be by scaling
-											// `maxWidth` and `maxHeight`, but that wouldn't be
-											// as performant when animating as CSS transitions.
-											// For `<img/>`s it doesn't make any difference
-											// whether they're scaled via a CSS transform
-											// or by scaling `width` and `height`.
-											// Same's for `<video/>`s.
-											// transform: slideshow.getSlideScale(j) === 1 ? undefined : `scale(${slideshow.getSlideScale(j)})`
+											// Scaling slides is done via a CSS transform.
+											// The reason for that is having a CSS transition animation:
+											// if slides were scaled by modifying their `width` and `height` directly,
+											// the transition wouldn't be as smooth as it can be when using `transform: scale()`.
+											//
+											// For `<img/>` elements it doesn't make any difference if they're scaled
+											// using `transform: scale()` or by modifying the `width` and `height` attributes.
+											// Same's for `<video/>` elements.
+											//
 											...slideshow.getSlideTransform(j),
-											// Adjacent slides have `box-shadow`.
-											// If its `opacity` isn't animated during open/close
-											// then the non-smoothness is noticeable.
+
+											// The slideshow renders the slide that is currently being viewed,
+											// and it also "pre-renders" the adjacent slides for the swipe transition effect.
+											//
+											// Adjacent slides have `box-shadow` that does sometimes "leak"
+											// onto the slide currently being on screen.
+											//
+											// The current slide's opacity is animated during open/close transition.
+											// The opacity of the `box-shadow` of the adjacent slides should be animated too,
+											// otherwise those "bleeds" of adjacent `box-shadow` would appear/disappear abruptly.
+											//
+											// Therefore, for a non-current slide, `transition` and `opacity` should be set.
+											//
 											transition: j === slideIndex ? undefined : (
 												hasStartedOpening ?
 													(hasFinishedOpening ?
-														(hasStartedClosing && animateClose ? `opacity ${closeAnimationDuration}ms` : undefined) :
-														`opacity ${openAnimationDuration}ms`
+														(hasStartedClosing && animateClose ? `opacity ${ms(closeAnimationDuration)}` : undefined) :
+														`opacity ${ms(openAnimationDuration)}`
 													) :
 													undefined
 											),
@@ -504,7 +511,6 @@ function Slideshow({
 													(animateOpen ? 0 : undefined)
 											)
 										}
-										// shouldUpscaleSmallSlides: slideshow.shouldUpscaleSmallSlides()
 									})
 								}
 							</div>

@@ -4,6 +4,8 @@
 // https://github.com/bvaughn/react-virtualized/issues/722
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
+import { px, scaleFactor, ms } from 'web-browser-style'
+
 // For expand animation, in `PostAttachment.js`, in `onClick`,
 // after `setIsLoading(false)` (still before opening the slideshow):
 // import { openTransition } from './Slideshow.OpenCloseAnimationFade'
@@ -21,6 +23,8 @@ const ANIMATION_MIN_DURATION = 120
 
 // This is a workaround for browsers not playing a CSS transition.
 const CSS_TRANSITION_DELAY = 30
+
+const SCALE_PRECISION = 3
 
 export default class SlideshowOpenCloseAnimationFloat {
 	constructor(slideshow) {
@@ -204,13 +208,13 @@ function openTransition(
 	// const thumbnailImagePlaceholder = document.createElement('div')
 	// // "position: fixed" gets in the way of floating headers.
 	// // thumbnailImagePlaceholder.style.position = 'fixed'
-	// // thumbnailImagePlaceholder.style.left = thumbnailX + 'px'
-	// // thumbnailImagePlaceholder.style.top = thumbnailY + 'px'
+	// // thumbnailImagePlaceholder.style.left = px(thumbnailX)
+	// // thumbnailImagePlaceholder.style.top = px(thumbnailY)
 	// thumbnailImagePlaceholder.style.position = 'absolute'
 	// thumbnailImagePlaceholder.style.left = '0'
 	// thumbnailImagePlaceholder.style.top = '0'
-	// thumbnailImagePlaceholder.style.width = thumbnailWidth + 'px'
-	// thumbnailImagePlaceholder.style.height = thumbnailHeight + 'px'
+	// thumbnailImagePlaceholder.style.width = px(thumbnailWidth)
+	// thumbnailImagePlaceholder.style.height = px(thumbnailHeight)
 	// thumbnailImagePlaceholder.style.backgroundColor = 'var(--Picture-borderColor--focus)'
 	// thumbnailImagePlaceholder.style.opacity = 0.35
 	// thumbnailElement.parentNode.appendChild(thumbnailImagePlaceholder)
@@ -225,12 +229,12 @@ function openTransition(
 	thumbnailImageCopy.width = thumbnailWidth
 	thumbnailImageCopy.height = thumbnailHeight
 	thumbnailImageCopy.src = thumbnailElement.src
-	thumbnailImageCopy.style.transform = `translateX(${thumbnailX}px) translateY(${thumbnailY}px)`
+	thumbnailImageCopy.style.transform = getTranslateXY(thumbnailX, thumbnailY)
 	thumbnailImageCopy.style.transformOrigin = 'top left'
 	thumbnailImageCopy.style.position = 'fixed'
 	thumbnailImageCopy.style.left = '0'
 	thumbnailImageCopy.style.top = '0'
-	thumbnailImageCopy.style.transition = `transform ${animationDuration}ms`
+	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
 	document.body.appendChild(thumbnailImageCopy)
 
 	// if (expandedImageElement) {
@@ -251,7 +255,15 @@ function openTransition(
 	expandedImage.width = slideWidth
 	expandedImage.height = slideHeight
 	expandedImage.src = expandedPictureUrl // expandedPictureSize.url
-	expandedImage.style.transform = `scaleX(${thumbnailWidth / slideWidth}) scaleY(${thumbnailHeight / slideHeight}) translateX(${thumbnailX * (slideWidth / thumbnailWidth)}px) translateY(${thumbnailY * (slideHeight / thumbnailHeight)}px)`
+	expandedImage.style.transform =
+		getScaleXY(
+			thumbnailWidth / slideWidth,
+			thumbnailHeight / slideHeight
+		) + ' ' +
+		getTranslateXY(
+			thumbnailX * (slideWidth / thumbnailWidth),
+			thumbnailY * (slideHeight / thumbnailHeight)
+		)
 	expandedImage.style.transformOrigin = 'top left'
 	expandedImage.style.position = 'fixed'
 	expandedImage.style.left = '0'
@@ -259,15 +271,23 @@ function openTransition(
 	expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
 	expandedImage.style.opacity = 0
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${animationDuration}ms, box-shadow ${animationDuration}ms, opacity ${ANIMATION_MIN_DURATION}ms`
+	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
 	document.body.appendChild(expandedImage)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
 	triggerDomElementRender(thumbnailImageCopy)
 	expandedImage.style.opacity = 1
-	expandedImage.style.transform = `translateX(${slideX}px) translateY(${slideY}px)`
-	thumbnailImageCopy.style.transform = `scaleX(${slideWidth / thumbnailWidth}) scaleY(${slideHeight / thumbnailHeight}) translateX(${slideX * (thumbnailWidth / slideWidth)}px) translateY(${slideY * (thumbnailHeight / slideHeight)}px)`
+	expandedImage.style.transform = getTranslateXY(slideX, slideY)
+	thumbnailImageCopy.style.transform =
+		getScaleXY(
+			slideWidth / thumbnailWidth,
+			slideHeight / thumbnailHeight
+		) + ' ' +
+		getTranslateXY(
+			slideX * (thumbnailWidth / slideWidth),
+			slideY * (thumbnailHeight / slideHeight)
+		)
 	let timeout
 	const promise = new Promise((resolve) => {
 		timeout = setTimeout(() => {
@@ -333,19 +353,27 @@ function closeTransition(
 	thumbnailImageCopy.width = thumbnailWidth
 	thumbnailImageCopy.height = thumbnailHeight
 	thumbnailImageCopy.src = thumbnailElement.src
-	thumbnailImageCopy.style.transform = `scaleX(${slideWidth / thumbnailWidth}) scaleY(${slideHeight / thumbnailHeight}) translateX(${slideX * (thumbnailWidth / slideWidth)}px) translateY(${slideY * (thumbnailHeight / slideHeight)}px)`
+	thumbnailImageCopy.style.transform =
+		getScaleXY(
+			slideWidth / thumbnailWidth,
+			slideHeight / thumbnailHeight
+		) + ' ' +
+		getTranslateXY(
+			slideX * (thumbnailWidth / slideWidth),
+			slideY * (thumbnailHeight / slideHeight)
+		)
 	thumbnailImageCopy.style.transformOrigin = 'top left'
 	thumbnailImageCopy.style.position = 'fixed'
 	thumbnailImageCopy.style.left = '0'
 	thumbnailImageCopy.style.top = '0'
-	thumbnailImageCopy.style.transition = `transform ${animationDuration}ms`
+	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
 	document.body.appendChild(thumbnailImageCopy)
 
 	const expandedImage = document.createElement('img')
 	expandedImage.width = slideWidth
 	expandedImage.height = slideHeight
 	expandedImage.src = slideImage ? slideImage.src : TRANSPARENT_PIXEL
-	expandedImage.style.transform = `translateX(${slideX}px) translateY(${slideY}px)`
+	expandedImage.style.transform = getTranslateXY(slideX, slideY)
 	expandedImage.style.transformOrigin = 'top left'
 	expandedImage.style.position = 'fixed'
 	expandedImage.style.left = '0'
@@ -356,15 +384,24 @@ function closeTransition(
 	// and also for cases when `slideImage` is not defined.
 	expandedImage.style.backgroundColor = 'var(--Slideshow-Slide-backgroundColor)'
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${animationDuration}ms, box-shadow ${animationDuration}ms, opacity ${ANIMATION_MIN_DURATION}ms`
+	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
 	document.body.appendChild(expandedImage)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
 	triggerDomElementRender(thumbnailImageCopy)
 	expandedImage.style.opacity = 0
-	expandedImage.style.transform = `scaleX(${thumbnailWidth / slideWidth}) scaleY(${thumbnailHeight / slideHeight}) translateX(${thumbnailX * (slideWidth / thumbnailWidth)}px) translateY(${thumbnailY * (slideHeight / thumbnailHeight)}px)`
-	thumbnailImageCopy.style.transform = `translateX(${thumbnailX}px) translateY(${thumbnailY}px)`
+	expandedImage.style.transform =
+		getScaleXY(
+			thumbnailWidth / slideWidth,
+			thumbnailHeight / slideHeight
+		) + ' ' +
+		getTranslateXY(
+			thumbnailX * (slideWidth / thumbnailWidth),
+			thumbnailY * (slideHeight / thumbnailHeight)
+		)
+	thumbnailImageCopy.style.transform = getTranslateXY(thumbnailX, thumbnailY)
+
 	let timeout
 	const promise = new Promise((resolve) => {
 		timeout = setTimeout(() => {
@@ -383,4 +420,12 @@ function closeTransition(
 
 function calculateDistance(x1, y1, x2, y2) {
 	return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+}
+
+function getScaleXY(scaleX, scaleY) {
+	return `scaleX(${scaleFactor(scaleX)}) scaleY(${scaleFactor(scaleY)})`
+}
+
+function getTranslateXY(translateX, translateY) {
+	return `translateX(${px(translateX)}) translateY(${px(translateY)})`
 }

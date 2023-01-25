@@ -4,9 +4,11 @@ import getImageSize from './getImageSize.js'
 // There're only two properties — `thumb` and `mime` — and no `width` or `height`, which is a bug.
 // https://gitlab.com/catamphetamine/imageboard/-/blob/master/docs/engines/lynxchan-issues.md#no-thread-thumbnail-size-in-catalog-api-response
 //
-// The bug is not present on `kohlchan.net` (as of 2022) because they're using their own fork of `lynxchan`.
+// The bug is not present on `kohlchan` (as of 2022) because they're using their own fork of `lynxchan`.
 // The bug could be observed at the offical `lynxchan` demo site by looking at the JSON API response:
 // https://<website>/<board>/catalog.json.
+//
+// As of early 2023, the bug can be observed on `endchan`.
 //
 // This function works around that bug by loading the thumbnail image
 // of every attachment and then reading the actual `width` and `height`
@@ -48,8 +50,11 @@ export function fixAttachmentPictureSizes(attachments) {
 							...thumbnailSize
 						}]
 					}
-					// Fix React bug.
-					fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl)
+
+					// No longer required.
+					// // Fix React bug.
+					// fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl)
+
 					// Set the correct picture size.
 					attachment.picture = {
 						...attachment.picture,
@@ -125,6 +130,7 @@ function getOriginalPictureSize(thumbnailSize) {
 	}
 }
 
+// This is no longer required.
 function fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl) {
 	// `fixAttachmentPictureSizes()` gets the correct image sizes
 	// but for some reason React doesn't apply the `style` changes to the DOM.

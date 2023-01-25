@@ -17,7 +17,7 @@ import SlideshowOpenCloseAnimationFloat from './Slideshow.OpenCloseAnimationFloa
 import SlideshowOpenCloseAnimationFade from './Slideshow.OpenCloseAnimationFade.js'
 import SlideshowOpenPictureInHoverMode from './Slideshow.OpenPictureInHoverMode.js'
 
-import { roundPixels } from 'web-browser-window'
+import { px, percent, scaleFactor as formatScaleFactor, ms } from 'web-browser-style'
 
 export default class Slideshow {
 	inits = []
@@ -270,6 +270,10 @@ export default class Slideshow {
 		})
 	}
 
+	removeOnStateChangeListener(listener) {
+		this.onStateChangeListeners = this.onStateChangeListeners.filter(_ => _ !== listener)
+	}
+
 	// Only execute `fn` if the component is still mounted.
 	// Can be used for `setTimeout()` and `Promise`s.
 	ifStillMounted = (fn) => (...args) => {
@@ -443,12 +447,12 @@ export default class Slideshow {
 		function createTouchElement(x, y) {
 			const element = document.createElement('div')
 			element.style.position = 'absolute'
-			element.style.top = (y - TOUCH_ELEMENT_WIDTH / 2) + 'px'
-			element.style.left = (x - TOUCH_ELEMENT_WIDTH / 2) + 'px'
+			element.style.top = px(y - TOUCH_ELEMENT_WIDTH / 2)
+			element.style.left = px(x - TOUCH_ELEMENT_WIDTH / 2)
 			element.style.zIndex = 1000
-			element.style.width = TOUCH_ELEMENT_WIDTH + 'px'
-			element.style.height = TOUCH_ELEMENT_WIDTH + 'px'
-			element.style.borderRadius = TOUCH_ELEMENT_WIDTH / 2 + 'px'
+			element.style.width = px(TOUCH_ELEMENT_WIDTH)
+			element.style.height = px(TOUCH_ELEMENT_WIDTH)
+			element.style.borderRadius = px(TOUCH_ELEMENT_WIDTH / 2)
 			element.style.border = '1px solid rgba(0,0,0,0.3)'
 			element.style.background = 'rgba(255,0,0,0.3)'
 			document.body.appendChild(element)
@@ -459,8 +463,8 @@ export default class Slideshow {
 		this.emulateInteractiveZoomMouseMoveListener = (event) => {
 			if (event.shiftKey) {
 				secondTouchCoords = [event.clientX, event.clientY]
-				secondTouchElement.style.top = (secondTouchCoords[1] - TOUCH_ELEMENT_WIDTH / 2) + 'px'
-				secondTouchElement.style.left = (secondTouchCoords[0] - TOUCH_ELEMENT_WIDTH / 2) + 'px'
+				secondTouchElement.style.top = px(secondTouchCoords[1] - TOUCH_ELEMENT_WIDTH / 2)
+				secondTouchElement.style.left = px(secondTouchCoords[0] - TOUCH_ELEMENT_WIDTH / 2)
 				this.updateInteractiveZoom()
 			} else {
 				// `resetEmulateInteractiveZoom()` could have already been called
@@ -631,18 +635,23 @@ export default class Slideshow {
 
 	exitDragAndScaleMode = () => {
 		this.lock()
+
 		if (this.resetEmulateInteractiveZoom) {
 			this.resetEmulateInteractiveZoom()
 		}
+
 		this.pan.stopDragInertialMovement()
+
 		const { i } = this.state
 		const slide = this.getCurrentSlide()
+
 		// Calculate scale factor.
 		const { scale: currentScale } = this.state
 		let scale = this.scale.stopAnimateScale({ applyScale: false })
 		if (scale === undefined) {
 			scale = currentScale
 		}
+
 		// Start animation.
 		const { getSlideDOMNode, scaleAnimationDuration } = this.props
 		const scaleFactor = this.scale.getInitialScaleForSlide(slide) / currentScale
@@ -650,38 +659,66 @@ export default class Slideshow {
 			scale: scaleFactor,
 			ignoreDragAndScaleMode: true
 		})
-		const finish = () => {
-			this.setSlideTransition()
-			// Reset "Drag and Scale" mode.
-			this.resetDragAndScaleMode()
-			this.pan.resetDragOffset()
-			this.resetBoxShadow()
-			this.resetScaleOrigin()
-			this.resetScaleOriginOffset()
-			// React doesn't update the slide's `transform`
-			// after re-rendering with the new state, when scale is `1`,
-			// for some reason: perhaps it doesn't compare
-			// CSS `transform` property itself, but instead
-			// tracks it internally somehow on each rerender,
-			// so when `transform` is set here manually on a DOM element,
-			// React doesn't see that and doesn't reset that `transform`
-			// when rerendering with the newly reset state.
-			// The workaround used here is to manually reset the CSS `transform`
-			// to the value it would have as part of a normal React `render()`.
+
+		// Resets the CSS `transform` property.
+		// But calling this function should also come with resetting
+		// the `width` and `height` of the slide,
+		// otherwise there'd be a momentary "flicker" of an enlarged copy of the slide.
+		const resetTransformScale = () => {
 			const { transform, transformOrigin } = this.getSlideTransform(i, {
 				ignoreDragAndScaleMode: true
 			})
 			this.setSlideTransform(transform, transformOrigin)
+		}
+
+		const finish = () => {
+			// Turn off CSS `transition` for the slide.
+			this.setSlideTransition()
+
+			this.pan.resetDragOffset()
+			this.resetScaleOrigin()
+			this.resetScaleOriginOffset()
+
+			// The current slide's `box-shadow` gets "scaled" along with the slide itself
+			// so it has to be dynamically adjusted to counter that scaling so that
+			// the shadow stays of the same size.
+			//
+			// When a user resets a slide's zoom, its `box-shadow` has to be reset
+			// to its original value as well immediately after a React re-render.
+			//
+			const onStateChangeOnceListener = () => {
+				this.resetBoxShadow()
+				this.removeOnStateChangeListener(onStateChangeOnceListener)
+			}
+			this.onStateChange(onStateChangeOnceListener, { immediate: true })
+
+			// `this.resetBoxShadow()` function is not used here
+			// because it would produce a momentary "flicker" of the box shadow
+			// upon exiting "Drag & Scale" mode because the slide's scale is not
+			// reset at that time yet: it will be reset during a follow-up React re-render.
+			// this.resetBoxShadow()
+
+			// Scale is not reset immediately.
+			// Instead, it's reset during a follow-up React re-render.
+			// resetTransformScale()
+
+			// Reset "Drag and Scale" mode.
+			// Will update slideshow state and re-render the `<Slideshow/>`.
+			this.resetDragAndScaleMode()
+
 			// Re-focus the slide, because the "Drag and Scale" mode button
 			// won't be rendered after the new state is applied,
 			// and so it would "lose" the focus.
 			const { focus } = this.props
 			focus(i)
+
 			this.unlock()
 		}
+
 		// Hide "Drag and Scale" mode button.
 		const { onDragAndScaleModeChange } = this.props
 		onDragAndScaleModeChange(false)
+
 		// // Update scale value in the UI.
 		// const { onScaleChange } = this.props
 		// if (onScaleChange) {
@@ -696,6 +733,7 @@ export default class Slideshow {
 			// No `transform: scale()` transition.
 			return finish()
 		}
+
 		// Calculate animation distance.
 		const { offsetX, offsetY } = this.getSlideCoordinates(i)
 		const [defaultOffsetX, defaultOffsetY] = this.getDefaultSlideOffset(i, {
@@ -708,17 +746,20 @@ export default class Slideshow {
 		const dw = (this.getSlideWidth(slide) * (scale - 1))
 		const animationOffset = dr + dw / 2
 		const animationDuration = scaleAnimationDuration * (0.7 + 0.5 * animationOffset / 1000)
-		this.setSlideTransition(`transform ${animationDuration}ms, box-shadow ${animationDuration}ms`)
+
+		this.setSlideTransition(`transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}`)
+
 		// Scale (and animate) the slide's shadow accordingly.
 		this.updateBoxShadow(1)
 		this.setSlideTransform(
 			bouncer ? bouncer.getInitialTransform() : transform,
 			transformOrigin
 		)
-		this.animateExitDragAndScaleModeTimer = setTimeout(() => {
-			this.animateExitDragAndScaleModeTimer = undefined
+
+		this.exitDragAndScaleModeTimer = setTimeout(() => {
+			this.exitDragAndScaleModeTimer = undefined
 			if (bouncer) {
-				bouncer.playBounceAnimation(timer => this.animateExitDragAndScaleModeTimer = timer).then(finish)
+				bouncer.playBounceAnimation(timer => this.exitDragAndScaleModeTimer = timer).then(finish)
 			} else {
 				finish()
 			}
@@ -735,9 +776,9 @@ export default class Slideshow {
 	}
 
 	resetExitDragAndScaleModeTimer = () => {
-		if (this.animateExitDragAndScaleModeTimer) {
-			clearTimeout(this.animateExitDragAndScaleModeTimer)
-			this.animateExitDragAndScaleModeTimer = undefined
+		if (this.exitDragAndScaleModeTimer) {
+			clearTimeout(this.exitDragAndScaleModeTimer)
+			this.exitDragAndScaleModeTimer = undefined
 		}
 	}
 
@@ -752,7 +793,7 @@ export default class Slideshow {
 		if (animate) {
 			const { getSlideDOMNode, scaleAnimationDuration } = this.props
 			const animationDuration = scaleAnimationDuration
-			this.setSlideTransition(`transform ${animationDuration}ms`)
+			this.setSlideTransition(`transform ${ms(animationDuration)}`)
 			this.resetSlideTransitionTimer = setTimeout(() => {
 				this.resetSlideTransitionTimer = undefined
 				this.setSlideTransition()
@@ -1004,38 +1045,39 @@ export default class Slideshow {
 		// const debug = CONSOLE
 		// debug('### Get Slide Transform')
 		// debug('# Scale', scale)
+
 		let transformOrigin
+
 		if (this.isCustomOriginTransform(j) && !ignoreDragAndScaleMode) {
 			const { scaleOriginRatio } = this
 			transformOrigin = [
 				scaleOriginRatio.x,
 				scaleOriginRatio.y
-			].map(_ => (_ * 100).toFixed(4) + '%').join(' ')
+			].map(_ => percent(_)).join(' ')
 		} else {
 			transformOrigin = '50% 50%'
 		}
+
 		let { offsetX, offsetY } = this.getSlideCoordinates(j, {
 			ignoreDragAndScaleMode,
 			scaleFactor: scale
 		})
+
 		let transform = ''
+
+		// While `scale` transition is playing, it's sub-pixel anyway,
+		// so `translateX` and `translateY` can be sub-pixel too.
+		// Presumably this would result in a slightly higher positioning precision.
+		// Maybe noticeable, maybe not. Didn't test this specific case.
+		transform += ` translateX(${px(offsetX)}) translateY(${px(offsetY)})`
+
 		if (scale !== undefined) {
-			// While `scale` transition is playing, it's sub-pixel anyway,
-			// so `translateX` and `translateY` can be sub-pixel too.
-			// Presumably this would result in a slightly higher positioning precision.
-			// Maybe noticeable, maybe not. Didn't test this specific case.
-			offsetX = offsetX.toFixed(2)
-			offsetY = offsetY.toFixed(2)
-		} else {
-			offsetX = roundPixels(offsetX)
-			offsetY = roundPixels(offsetY)
+			transform += ` scale(${formatScaleFactor(scale)})`
 		}
-		transform += ` translateX(${offsetX}px) translateY(${offsetY}px)`
-		if (scale !== undefined) {
-			transform += ` scale(${scale.toFixed(4)})`
-		}
+
 		// debug('### Transform', transform)
 		// debug('### Transform Origin', transformOrigin)
+
 		return {
 			transform,
 			transformOrigin
@@ -1675,11 +1717,11 @@ export default class Slideshow {
 			offsetX += this.pan.getPanOffsetX()
 			offsetY += this.pan.getPanOffsetY()
 		}
-		return `translate(${offsetX}px, ${offsetY}px)`
+		return `translate(${px(offsetX)}, ${px(offsetY)})`
 	}
 
 	// getSlideRollTransitionDuration() {
-	// 	return `${this.pan.getSlideRollTransitionDuration()}ms`
+	// 	return ms(this.pan.getSlideRollTransitionDuration())
 	// }
 }
 
@@ -1697,6 +1739,13 @@ function CONSOLE(...args) {
 	console.log.apply(console, args)
 }
 
+// `4` would've worked as `SCALE_PRECISION`
+// but `Bouncer` animation scaling is a bit subtle at times
+// so set it to `10` instead.
+const SCALE_PRECISION = 10
+
+const TRANSFORM_ORIGIN_PRECISION = 4
+
 class Bouncer {
 	constructor(slideshow, transform, transformOrigin, callback) {
 		this.slideshow = slideshow
@@ -1707,13 +1756,16 @@ class Bouncer {
 		this.scaleAnimationFactor = 0.75 * (1 + 0.8 * ((2000 - slideshow.getSlideshowWidth()) / 2000))
 		this.bounceAnimationInitialScale = 1 - (0.04 * this.scaleAnimationFactor)
 	}
+
 	getTransform(scale) {
 		// Scales `scale()` factor in `transform`.
-		return this.transform.replace(/scale\([\d\.]+\)/, `scale(${(this.transformScale * scale).toFixed(10)})`)
+		return this.transform.replace(/scale\([\d\.]+\)/, `scale(${formatScaleFactor(this.transformScale * scale)})`)
 	}
+
 	getInitialTransform() {
 		return this.getTransform(this.bounceAnimationInitialScale)
 	}
+
 	playBounceAnimation(setTimer) {
 		// Play "bounce" animation on the slide.
 		// const BOUNCE_ANIMATION_EASING = 'cubic-bezier(0.215, 0.610, 0.355, 1.000)'
@@ -1727,12 +1779,13 @@ class Bouncer {
 				scale: 1
 			}
 		]
+
 		const animateKeyframes = (keyframes, callback) => {
 			if (keyframes.length === 0) {
 				return callback()
 			}
 			const keyframe = keyframes[0]
-			this.slideshow.setSlideTransition(`transform ${keyframe.duration}ms`) // ${BOUNCE_ANIMATION_EASING}`)
+			this.slideshow.setSlideTransition(`transform ${ms(keyframe.duration)}`) // ${BOUNCE_ANIMATION_EASING}`)
 			this.slideshow.setSlideTransform(this.getTransform(keyframe.scale), this.transformOrigin)
 			// getSlideDOMNode().classList.add('Slideshow-Slide--bounce')
 			setTimer(setTimeout(() => {
@@ -1740,6 +1793,7 @@ class Bouncer {
 				animateKeyframes(keyframes.slice(1), callback)
 			}, keyframe.duration))
 		}
+
 		return new Promise((resolve) => {
 			animateKeyframes(KEYFRAMES, resolve)
 		})
