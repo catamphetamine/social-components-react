@@ -679,19 +679,6 @@ export default class Slideshow {
 			this.resetScaleOrigin()
 			this.resetScaleOriginOffset()
 
-			// The current slide's `box-shadow` gets "scaled" along with the slide itself
-			// so it has to be dynamically adjusted to counter that scaling so that
-			// the shadow stays of the same size.
-			//
-			// When a user resets a slide's zoom, its `box-shadow` has to be reset
-			// to its original value as well immediately after a React re-render.
-			//
-			const onStateChangeOnceListener = () => {
-				this.resetBoxShadow()
-				this.removeOnStateChangeListener(onStateChangeOnceListener)
-			}
-			this.onStateChange(onStateChangeOnceListener, { immediate: true })
-
 			// `this.resetBoxShadow()` function is not used here
 			// because it would produce a momentary "flicker" of the box shadow
 			// upon exiting "Drag & Scale" mode because the slide's scale is not
@@ -704,15 +691,24 @@ export default class Slideshow {
 
 			// Reset "Drag and Scale" mode.
 			// Will update slideshow state and re-render the `<Slideshow/>`.
-			this.resetDragAndScaleMode()
+			this.resetDragAndScaleMode(() => {
+				// The current slide's `box-shadow` gets "scaled" along with the slide itself
+				// so it has to be dynamically adjusted to counter that scaling so that
+				// the shadow stays of the same size.
+				//
+				// When a user resets a slide's zoom, its `box-shadow` has to be reset
+				// to its original value as well immediately after a React re-render.
+				//
+				this.resetBoxShadow()
 
-			// Re-focus the slide, because the "Drag and Scale" mode button
-			// won't be rendered after the new state is applied,
-			// and so it would "lose" the focus.
-			const { focus } = this.props
-			focus(i)
+				// Re-focus the slide, because the "Drag and Scale" mode button
+				// won't be rendered after the new state is applied,
+				// and so it would "lose" the focus.
+				const { focus } = this.props
+				focus(i)
 
-			this.unlock()
+				this.unlock()
+			})
 		}
 
 		// Hide "Drag and Scale" mode button.
@@ -766,9 +762,20 @@ export default class Slideshow {
 		}, animationDuration)
 	}
 
-	resetDragAndScaleMode = () => {
-		const slide = this.getCurrentSlide()
+	resetDragAndScaleMode = (callback) => {
 		this.dragAndScaleMode = undefined
+
+		// If `callback` was supplied, then call it right after the state update.
+		if (callback) {
+			const onStateChangeOnceListener = () => {
+				callback()
+				this.removeOnStateChangeListener(onStateChangeOnceListener)
+			}
+			this.onStateChange(onStateChangeOnceListener, { immediate: true })
+		}
+
+		// Update the state: reset the `scale`.
+		const slide = this.getCurrentSlide()
 		this.setState({
 			scale: this.scale.getInitialScaleForSlide(slide),
 			// ...this.getSlideDragAndScaleInitialState()

@@ -98,10 +98,13 @@ export default function PostAttachmentThumbnail({
 		}
 	}, [])
 
-	// Either `maxSize` should be set, or `maxWidth`/`maxHeight`,
+	// Either `maxSize` should be set,
+	// or `maxWidth`/`maxHeight`,
 	// or `width`/`height`.
-	if ((maxWidth === undefined && maxHeight === undefined) &&
-		(width === undefined && height === undefined)) {
+	if (
+		(maxWidth === undefined && maxHeight === undefined) &&
+		(width === undefined && height === undefined)
+	) {
 		maxSize = ATTACHMENT_THUMBNAIL_SIZE
 	}
 
@@ -143,7 +146,7 @@ export default function PostAttachmentThumbnail({
 						? picture.width
 						: Math.min(
 							picture.width,
-							maxWidth || (maxSize && isLandscape ? maxSize : undefined)
+							maxWidth || (isLandscape ? maxSize : undefined)
 						)
 					)
 				}
@@ -153,11 +156,19 @@ export default function PostAttachmentThumbnail({
 						? undefined
 						: Math.min(
 							picture.height,
-							maxHeight || (maxSize && !isLandscape ? maxSize : undefined)
+							maxHeight || (!isLandscape ? maxSize : undefined)
 						)
 					)
 				}
 				useSmallestSize={expand || expandToTheFullest ? undefined : useSmallestThumbnail}
+				useSmallestSizeExactDimensions={expand || expandToTheFullest ? undefined : (
+					useSmallestThumbnail
+						? (
+							(maxWidth === undefined && maxHeight === undefined) &&
+							(width === undefined && height === undefined)
+						)
+						: undefined
+				)}
 				blur={attachment.spoiler && !isRevealed ? BLUR_FACTOR : undefined}>
 				{isLoading &&
 					<FadeInOut show fadeInInitially fadeInDuration={3000} fadeOutDuration={0}>

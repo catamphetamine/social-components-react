@@ -48,6 +48,7 @@ function Picture({
 	maxWidth,
 	maxHeight,
 	useSmallestSize,
+	useSmallestSizeExactDimensions,
 	component: Component,
 	componentProps,
 	showLoadingPlaceholder,
@@ -62,7 +63,7 @@ function Picture({
 	imageRef,
 	...rest
 }, ref) {
-	if (useSmallestSize && !width && !height) {
+	if (useSmallestSize && useSmallestSizeExactDimensions) {
 		width = getMinSize(picture).width
 		height = getMinSize(picture).height
 	}
@@ -512,6 +513,10 @@ Picture.propTypes = {
 
 	// If `true` then will only show the smallest size ever.
 	useSmallestSize: PropTypes.bool,
+
+	// If `true` then, when using `useSmallestSize={true}` property,
+	// will show the image at the exact width and height of the smallest size.
+	useSmallestSizeExactDimensions: PropTypes.bool,
 
 	// // Is a small hack for `<Slideshow/>` scaling.
 	// pixelRatioMultiplier: PropTypes.number.isRequired,
