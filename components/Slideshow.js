@@ -115,6 +115,7 @@ function SlideshowComponent(props) {
 	const slideshow = useMemo(() => {
 		return new SlideshowCore({
 			...props,
+			getContainerDOMNode: () => container.current,
 			getSlideDOMNode: () => currentSlideRef.current && currentSlideContainerRef.current.firstChild,
 			// getSlideElement: () => currentSlideRef.current && currentSlideRef.current.getDOMNode && currentSlideRef.current.getDOMNode(),
 			onPanStart: () => container.current.classList.add('Slideshow--panning'),
@@ -584,7 +585,11 @@ const FOCUS_OPTIONS = {
 const INNER_CONTAINER_STYLE = {
 	position: 'relative',
 	width: '100%',
-	height: '100%'
+	height: '100%',
+	// `Slideshow.OpenCloseAnimationFloat` will prepend `<img/>` elements
+	// before this `<div/>`, so it should have `z-index: 1` so that those `<img/>`s
+	// aren't rendered on top of the slideshow controls (for example, pagination).
+	zIndex: 1
 }
 
 window.Slideshow = {

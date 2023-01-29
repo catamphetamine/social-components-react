@@ -814,6 +814,11 @@ export default class Slideshow {
 		return maxOverlayOpacity
 	}
 
+	getContainerDOMNode() {
+		const { getContainerDOMNode } = this.props
+		return getContainerDOMNode()
+	}
+
 	onOpenExternalLink = (event) => {
 		// this.onActionClick()
 		const downloadInfo = this.getPluginForSlide().download(this.getCurrentSlide())

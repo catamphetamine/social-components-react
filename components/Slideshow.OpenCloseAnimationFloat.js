@@ -64,7 +64,8 @@ export default class SlideshowOpenCloseAnimationFloat {
 			slideHeight,
 			this.slideshow.getSlideshowWidth(),
 			this.slideshow.getSlideshowHeight(),
-			this.slideshow.getMargin
+			this.slideshow.getMargin,
+			this.slideshow.getContainerDOMNode()
 		)
 		this.openingAnimationTimeout = timeout
 		slideElement.style.opacity = 0
@@ -95,7 +96,8 @@ export default class SlideshowOpenCloseAnimationFloat {
 			slideElement,
 			slideImage,
 			this.slideshow.size.getSlideMaxWidth(this.slideshow.getCurrentSlide()),
-			this.slideshow.size.getSlideMaxHeight(this.slideshow.getCurrentSlide())
+			this.slideshow.size.getSlideMaxHeight(this.slideshow.getCurrentSlide()),
+			this.slideshow.getContainerDOMNode()
 		)
 		this.closingAnimationTimeout = timeout
 		slideElement.style.opacity = 0
@@ -120,6 +122,7 @@ export default class SlideshowOpenCloseAnimationFloat {
  * // @param  {object} picture
  * @param  {Element} thumbnailElement
  * // @param  {Element} [expandedImageElement] — Will be hidden until the animation finishes.
+ * @param  {Element} containerDOMNode — The container DOM element of the Slideshow. Floating `<img/>` elements will be added to it and then removed from it.
  * @return {Promise}
  */
 function openTransition(
@@ -133,7 +136,8 @@ function openTransition(
 	slideHeight,
 	slideshowWidth,
 	slideshowHeight,
-	getMargin
+	getMargin,
+	containerDOMNode
 ) {
 	const imageElementCoords = thumbnailElement.getBoundingClientRect()
 	const thumbnailWidth = thumbnailElement.width
@@ -201,6 +205,15 @@ function openTransition(
 	// Round intervals like "123.456789ms" to "123ms".
 	animationDuration = Math.round(animationDuration)
 
+	// Create `addElement()` and `removeElement()` functions.
+	let containerElement = containerDOMNode
+	if (!containerElement) {
+		console.error('[Slideshow.OpenCloseAnimationFloat] Slideshow container DOM Element not found. Using `<body/>` instead.')
+		containerElement = document.body
+	}
+	const addElement = (element) => prependElement(containerElement, element)
+	const removeElement = (element) => containerElement.removeChild(element)
+
 	// thumbnailElement.style.opacity = 0.25
 
 	// thumbnailElement.parentNode.style.position = 'relative'
@@ -231,11 +244,15 @@ function openTransition(
 	thumbnailImageCopy.src = thumbnailElement.src
 	thumbnailImageCopy.style.transform = getTranslateXY(thumbnailX, thumbnailY)
 	thumbnailImageCopy.style.transformOrigin = 'top left'
-	thumbnailImageCopy.style.position = 'fixed'
+	// `position: fixed` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// expandedImage.style.position = 'fixed'
+	thumbnailImageCopy.style.position = 'absolute'
 	thumbnailImageCopy.style.left = '0'
 	thumbnailImageCopy.style.top = '0'
 	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
-	document.body.appendChild(thumbnailImageCopy)
+
+	addElement(thumbnailImageCopy)
 
 	// if (expandedImageElement) {
 	// 	expandedImageElement.style.opacity = 0
@@ -265,14 +282,20 @@ function openTransition(
 			thumbnailY * (slideHeight / thumbnailHeight)
 		)
 	expandedImage.style.transformOrigin = 'top left'
-	expandedImage.style.position = 'fixed'
+	// `position: fixed` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// expandedImage.style.position = 'fixed'
+	expandedImage.style.position = 'absolute'
 	expandedImage.style.left = '0'
 	expandedImage.style.top = '0'
-	expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
+	// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
 	expandedImage.style.opacity = 0
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
 	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
-	document.body.appendChild(expandedImage)
+
+	addElement(expandedImage)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
@@ -291,9 +314,9 @@ function openTransition(
 	let timeout
 	const promise = new Promise((resolve) => {
 		timeout = setTimeout(() => {
-			document.body.removeChild(thumbnailImageCopy)
+			removeElement(thumbnailImageCopy)
 			// if (expandedImageElement) {
-				document.body.removeChild(expandedImage)
+				removeElement(expandedImage)
 			// }
 			resolve()
 			// resolve({
@@ -316,6 +339,7 @@ function openTransition(
  * @param  {Element} slideImage — The `<img/>` element inside `slideElement`.
  * @param  {number} maxSlideWidth — The maximum width of a non-zoomed-in slide.
  * @param  {number} maxSlideHeight — The maximum height of a non-zoomed-in slide.
+ * @param  {Element} containerDOMNode — The container DOM element of the Slideshow. Floating `<img/>` elements will be added to it and then removed from it.
  * @return {Promise}
  */
 function closeTransition(
@@ -323,7 +347,8 @@ function closeTransition(
 	slideElement,
 	slideImage,
 	maxSlideWidth,
-	maxSlideHeight
+	maxSlideHeight,
+	containerDOMNode
 ) {
 	const imageElementCoords = thumbnailElement.getBoundingClientRect()
 	const thumbnailWidth = thumbnailElement.width
@@ -349,6 +374,15 @@ function closeTransition(
 	// Round intervals like "123.456789ms" to "123ms".
 	animationDuration = Math.round(animationDuration)
 
+	// Create `addElement()` and `removeElement()` functions.
+	let containerElement = containerDOMNode
+	if (!containerElement) {
+		console.error('[Slideshow.OpenCloseAnimationFloat] Slideshow container DOM Element not found. Using `<body/>` instead.')
+		containerElement = document.body
+	}
+	const addElement = (element) => prependElement(containerElement, element)
+	const removeElement = (element) => containerElement.removeChild(element)
+
 	const thumbnailImageCopy = document.createElement('img')
 	thumbnailImageCopy.width = thumbnailWidth
 	thumbnailImageCopy.height = thumbnailHeight
@@ -363,11 +397,15 @@ function closeTransition(
 			slideY * (thumbnailHeight / slideHeight)
 		)
 	thumbnailImageCopy.style.transformOrigin = 'top left'
-	thumbnailImageCopy.style.position = 'fixed'
+	// `position: fixed` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// thumbnailImageCopy.style.position = 'fixed'
+	thumbnailImageCopy.style.position = 'absolute'
 	thumbnailImageCopy.style.left = '0'
 	thumbnailImageCopy.style.top = '0'
 	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
-	document.body.appendChild(thumbnailImageCopy)
+
+	addElement(thumbnailImageCopy)
 
 	const expandedImage = document.createElement('img')
 	expandedImage.width = slideWidth
@@ -375,17 +413,23 @@ function closeTransition(
 	expandedImage.src = slideImage ? slideImage.src : TRANSPARENT_PIXEL
 	expandedImage.style.transform = getTranslateXY(slideX, slideY)
 	expandedImage.style.transformOrigin = 'top left'
-	expandedImage.style.position = 'fixed'
+	// `position: fixed` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// expandedImage.style.position = 'fixed'
+	expandedImage.style.position = 'absolute'
 	expandedImage.style.left = '0'
 	expandedImage.style.top = '0'
-	expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
+	// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
+	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+	// expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
 	expandedImage.style.opacity = 1
 	// `backgroundColor` is required for transparent PNGs
 	// and also for cases when `slideImage` is not defined.
 	expandedImage.style.backgroundColor = 'var(--Slideshow-Slide-backgroundColor)'
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
 	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
-	document.body.appendChild(expandedImage)
+
+	addElement(expandedImage)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
@@ -405,8 +449,8 @@ function closeTransition(
 	let timeout
 	const promise = new Promise((resolve) => {
 		timeout = setTimeout(() => {
-			document.body.removeChild(thumbnailImageCopy)
-			document.body.removeChild(expandedImage)
+			removeElement(thumbnailImageCopy)
+			removeElement(expandedImage)
 			resolve()
 		}, animationDuration)
 	})
@@ -428,4 +472,12 @@ function getScaleXY(scaleX, scaleY) {
 
 function getTranslateXY(translateX, translateY) {
 	return `translateX(${px(translateX)}) translateY(${px(translateY)})`
+}
+
+function prependElement(container, element) {
+	if (container.firstChild) {
+		container.insertBefore(element, container.firstChild)
+	} else {
+		container.appendChild(element)
+	}
 }
