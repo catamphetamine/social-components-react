@@ -21,7 +21,9 @@
 		"collapseAttachments": "Anhänge reduzieren",
 		"viewAttachments": "Anhänge anzeigen",
 		"videoNotFound": "Video nicht gefunden",
-		"linkTo": "Link zu {0}"
+		"textContent": {
+			"linkTo": "(link zu {url})"
+		}
 	},
 	"slideshow": {
 		"actions": {

@@ -22,7 +22,9 @@
 		"collapseAttachments": "Свернуть картинки",
 		"viewAttachments": "Посмотреть вложения",
 		"videoNotFound": "Видео не найдено",
-		"linkTo": "Ссылка на {0}"
+		"textContent": {
+			"linkTo": "(ссылка на {url})"
+		}
 	},
 	"slideshow": {
 		"actions": {

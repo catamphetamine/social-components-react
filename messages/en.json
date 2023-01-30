@@ -21,7 +21,9 @@
 		"collapseAttachments": "Collapse attachments",
 		"viewAttachments": "View attachments",
 		"videoNotFound": "Video not found",
-		"linkTo": "Link to {0}"
+		"textContent": {
+			"linkTo": "(link to {url})"
+		}
 	},
 	"slideshow": {
 		"actions": {
