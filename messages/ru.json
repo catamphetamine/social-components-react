@@ -23,7 +23,7 @@
 		"viewAttachments": "Посмотреть вложения",
 		"videoNotFound": "Видео не найдено",
 		"textContent": {
-			"linkTo": "(ссылка на {url})"
+			"linkTo": "(ссылка на {domain})"
 		}
 	},
 	"slideshow": {

@@ -22,7 +22,7 @@
 		"viewAttachments": "Anhänge anzeigen",
 		"videoNotFound": "Video nicht gefunden",
 		"textContent": {
-			"linkTo": "(link zu {url})"
+			"linkTo": "(link zu {domain})"
 		}
 	},
 	"slideshow": {
