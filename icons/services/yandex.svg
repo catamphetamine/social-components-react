@@ -1,3 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <path color="red" fill="currentColor" data-stroke="true" d="M281.1 315.8L193.7 512H130l96-209.8c-45.1-22.9-75.2-64.4-75.2-141.1C150.7 53.7 218.8 0 299.7 0H382v512h-55.1V315.8h-45.8zm45.8-269.3h-29.4c-44.4 0-87.4 29.4-87.4 114.6 0 82.3 39.4 108.8 87.4 108.8h29.4V46.5z"/>
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+<path fill="#FC3F1D" d="M300.9,425.1V512h-89.1V365.7L43.7,0h93.1l130.9,285.7C292.9,340.6,300.9,359.4,300.9,425.1z
+	 M468.3,0L359.1,247.4h-90.9L378,0H468.3z"/>
 </svg>

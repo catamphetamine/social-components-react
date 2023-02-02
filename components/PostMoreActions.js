@@ -15,12 +15,14 @@ export default function PostMoreActions({
 	title,
 	toggleComponent: ToggleComponent,
 	className,
+	buttonRef,
 	buttonClassName,
 	children
 }) {
 	const toggleElement = useMemo(() => (
 		<ToggleComponent/>
 	), [ToggleComponent])
+
 	return (
 		<ExpandableMenu
 			upward={upward}
@@ -29,6 +31,7 @@ export default function PostMoreActions({
       buttonTitle={title}
 			toggleElement={toggleElement}
 			button={PressedStateButton}
+			buttonRef={buttonRef}
 			buttonClassName={classNames(buttonClassName, 'PostMoreActions-toggler', {
 				'PostMoreActions-toggler--right': alignment === 'right'
 			})}
@@ -60,6 +63,7 @@ PostMoreActions.propTypes = {
 	alignment: PropTypes.oneOf(['right']),
 	toggleComponent: PropTypes.elementType.isRequired,
 	className: PropTypes.string,
+	buttonRef: PropTypes.object,
 	buttonClassName: PropTypes.string,
 	children: moreActionsType
 }
