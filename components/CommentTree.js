@@ -80,9 +80,7 @@ export default function CommentTree({
 	if (!initialState) {
 		if (initialShowReplies) {
 			if (comment.replies) {
-				initialState = {
-					replies: comment.replies.map(_ => ({}))
-				}
+				initialState = getShowRepliesState(comment)
 			}
 		}
 	}
@@ -553,4 +551,14 @@ function getInitialStateOfReplies(repliesCount) {
 		i++
 	}
 	return replies
+}
+
+// This function is used in `anychan`.
+export function getShowRepliesState(comment) {
+	if (comment.replies) {
+		return {
+			replies: getInitialStateOfReplies(comment.replies.length)
+		}
+	}
+	return {}
 }
