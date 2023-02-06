@@ -6,6 +6,10 @@
 	margin-left: var(--CommentTree-padding);
 }
 
+.CommentTree--nestedFlat {
+	margin-left: 0;
+}
+
 .CommentTree-replies {
 	position: relative;
 	/* On iOS for some reason the first-level replies left branch is invisible.
@@ -23,11 +27,11 @@ because it would be drawn at the very left edge of the screen.
 This CSS class can be used for fixing such special case
 by offsetting the root replies branch line to the right.
 */
-.CommentTree--first-level {
+.CommentTree--firstLevelOfNesting {
 	> .CommentTree-trunk,
 	> .CommentTree-branch,
 	> .CommentTreeDialogueTrace--side {
-		left: calc(-1 * var(--CommentTree-padding) * (1 - var(--CommentTreeBranch-paddingLeft--firstLevel)));
+		left: calc(-1 * var(--CommentTree-padding) * (1 - var(--CommentTreeBranch-leftOffsetRatio--firstLevelOfNesting)));
 		/* This `margin-left: 1px` works around the disappearance of
 		   the branch line on mobile devices for first-level replies branch.
 		   Observed in iOS Safari and Chrome. */
@@ -37,7 +41,7 @@ by offsetting the root replies branch line to the right.
 	> .CommentTreeDialogueTrace--side {
 		/* The `-1px` adjustment is to compensate the `margin-left: 1px` workaround above.
 		   Observed in iOS Safari and Chrome. */
-		width: calc(-1px + var(--CommentTree-padding) * (1 - var(--CommentTreeBranch-paddingLeft--firstLevel)));
+		width: calc(-1px + var(--CommentTree-padding) * (1 - var(--CommentTreeBranch-leftOffsetRatio--firstLevelOfNesting)));
 	}
 }
 /* ^ var(--CommentTree-padding) * var(--CommentTree-root-level-replies-branch-width-factor) */

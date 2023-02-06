@@ -33,7 +33,7 @@
 	/* Approximate offset top so that it points to the first line of text in a comment. */
 	--CommentTreeBranch-marginTop--content: 1.6em;
 	--CommentTreeBranch-marginTop: calc(var(--Post-paddingTop) + var(--CommentTreeBranch-marginTop--content));
-	--CommentTreeBranch-paddingLeft--firstLevel: 0;
+	--CommentTreeBranch-leftOffsetRatio--firstLevelOfNesting: 0;
 
 	/* Picture. */
 	--Picture-backgroundColor: var(--SocialComponents-color-100);

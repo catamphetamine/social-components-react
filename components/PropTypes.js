@@ -383,11 +383,11 @@ export const censoredText = oneOfType([
 	]))
 ])
 
-const accountShape = {
+export const account = shape({
 	id,
-	name,
+	name: string,
 	picture: pictureType
-}
+})
 
 export const post = shape({
 	id,
@@ -395,9 +395,8 @@ export const post = shape({
 	titleCensored: censoredText,
 	content: postContent,
 	createdAt: date,
-	account: shape(accountShape), //.isRequired,
-	// commentsCount: number,
-	replies: arrayOf(object), // .arrayOf(post)
+	author: account, //.isRequired,
+	replies: arrayOf(object), // .arrayOf(post) // Can't recurse into `post` type here.
 	attachments: arrayOf(postAttachment)
 })
 

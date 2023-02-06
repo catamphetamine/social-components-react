@@ -13,7 +13,7 @@ import Picture from './Picture.js'
 
 import PressedStateButton from './PressedStateButton.js'
 
-import { post, postBadge } from './PropTypes.js'
+import { post, postBadge, account } from './PropTypes.js'
 
 import MessageIcon from '../icons/message-rounded-rect-square.svg'
 
@@ -137,25 +137,33 @@ function PostHeaderLeft({
 			*/}
 			{post.author &&
 				<div className="PostAuthor">
-					<Link to={getAccountUrl(post.author)}>
-						<Picture
-							picture={post.author}
-							className="PostAuthor-picture"/>
-					</Link>
+					{post.author.picture &&
+						<AccountOptionalLink
+							account={post.author}
+							getAccountUrl={getAccountUrl}
+							className="PostAuthor-pictureContainer">
+							<Picture
+								picture={post.author.picture}
+								className="PostAuthor-picture"
+							/>
+						</AccountOptionalLink>
+					}
 					<div className="PostAuthor-nameAndDate">
-						<Link
-							to={getAccountUrl(post.author)}
+						<AccountOptionalLink
+							account={post.author}
+							getAccountUrl={getAccountUrl}
 							rel="author"
 							className="PostAuthor-name">
 							{post.author.name}
-						</Link>
+						</AccountOptionalLink>
 						{post.createdAt &&
 							<PostDate
 								date={post.createdAt}
 								url={url}
 								urlBasePath={urlBasePath}
 								onClick={onPostUrlClick_}
-								locale={locale}/>
+								locale={locale}
+							/>
 						}
 					</div>
 				</div>
@@ -301,4 +309,42 @@ PostHeaderRight.propTypes = {
 	onVote: PropTypes.func,
 	vote: PropTypes.bool,
 	moreActions: moreActionsType
+}
+
+function AccountOptionalLink({
+	account,
+	getAccountUrl,
+	rel,
+	asFallback: AsFallback,
+	className,
+	children
+}) {
+	if (getAccountUrl) {
+		return (
+			<Link
+				to={getAccountUrl(account)}
+				rel={rel}
+				className={classNames(className, className + '--link')}>
+				{children}
+			</Link>
+		)
+	}
+	return (
+		<AsFallback className={className}>
+			{children}
+		</AsFallback>
+	)
+}
+
+AccountOptionalLink.propTypes = {
+	account: account.isRequired,
+	getAccountUrl: PropTypes.func,
+	rel: PropTypes.string,
+	asFallback: PropTypes.string.isRequired,
+	className: PropTypes.string.isRequired,
+	children: PropTypes.node.isRequired
+}
+
+AccountOptionalLink.defaultProps = {
+	asFallback: 'div'
 }

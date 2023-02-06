@@ -30,7 +30,7 @@ export default function CommentTree({
 	flat,
 	comment,
 	parentComment,
-	isFirstLevelTree,
+	isFirstLevelOfNesting_,
 	component: Component,
 	getComponentProps,
 	initialState,
@@ -242,15 +242,15 @@ export default function CommentTree({
 		}
 	}, [shouldShowReplies])
 
-	let showReplies = shouldShowReplies
+	const showReplies = shouldShowReplies
 	// Expand replies without left padding if this is the only reply
 	// for the comment and the comment is not a root-level one
 	// and it's the only reply for the comment's parent comment.
 	const _isMiddleDialogueChainLink = isMiddleDialogueChainLink(comment, parentComment)
 	// Automatically expand dialogue comment chains.
-	if (_isMiddleDialogueChainLink) {
-		showReplies = true
-	}
+	// if (_isMiddleDialogueChainLink) {
+	// 	showReplies = true
+	// }
 
 	const componentProps = getComponentProps ? getComponentProps({
 		// If the initial state is "empty" then it's gonna be an empty object `{}`.
@@ -284,12 +284,14 @@ export default function CommentTree({
 
 	return (
 		<div className={classNames('CommentTree', {
-			'CommentTree--nested': parentComment && !flat,
+			'CommentTree--topLevel': !parentComment,
+			'CommentTree--nested': parentComment,
+			'CommentTree--nestedFlat': parentComment && flat,
 			// If comments don't have any side padding
 			// then the root replies branch line would be ineligible
 			// because it would be drawn at the very screen edge (mobile devices).
 			// This CSS class can be used for styling such special case.
-			'CommentTree--first-level': isFirstLevelTree
+			'CommentTree--firstLevelOfNesting': isFirstLevelOfNesting_
 		})}>
 			{parentComment && !flat &&
 				<div className="CommentTree-branch"/>
@@ -303,6 +305,7 @@ export default function CommentTree({
 				{...componentProps}
 				className={classNames(className, {
 					'CommentTree-comment--expanded': showReplies,
+					'CommentTree-comment--topLevel': !parentComment,
 					'CommentTree-comment--nested': parentComment
 				})}
 				comment={comment}
@@ -312,7 +315,7 @@ export default function CommentTree({
 				onToggleShowReplies={comment.replies ? onToggleShowReplies : undefined}
 				toggleShowRepliesButtonRef={toggleShowRepliesButtonRef}
 			/>
-			{/* Reply link marker for a single reply. */}
+			{/* Show reply chain marker for a single reply. */}
 			{showReplies && _isMiddleDialogueChainLink &&
 				<div className={classNames('CommentTreeDialogueTrace', {
 					'CommentTreeDialogueTrace--side': dialogueTraceStyle === 'side',
@@ -325,7 +328,7 @@ export default function CommentTree({
 				<CommentTree
 					{...getChildCommentTreeProps(0)}
 					flat
-					isFirstLevelTree={isFirstLevelTree}
+					isFirstLevelOfNesting_={isFirstLevelOfNesting_}
 				/>
 			}
 			{/* If there're more than a single reply then show the replies tree. */}
@@ -343,7 +346,7 @@ export default function CommentTree({
 						<CommentTree
 							{...getChildCommentTreeProps(i)}
 							key={reply.id}
-							isFirstLevelTree={!parentComment}
+							isFirstLevelOfNesting_={!parentComment}
 						/>
 					))}
 				</div>
@@ -371,9 +374,10 @@ CommentTree.propTypes = {
 	comment: commentType.isRequired,
 	parentComment: commentType,
 
-	// This flag is only for correctly styling root-level dialogue chains:
+	// This flag is only used internally by this component.
+	// It's used for correctly styling root-level dialogue chains:
 	// they require some left padding for eligibility on mobile devices.
-	isFirstLevelTree: PropTypes.bool,
+	isFirstLevelOfNesting_: PropTypes.bool,
 
 	component: PropTypes.func.isRequired,
 	getComponentProps: PropTypes.func,

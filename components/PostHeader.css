@@ -142,7 +142,15 @@
 }
 
 .PostAuthor-name {
+	display: block;
+}
+
+.PostAuthor-name--link {
 	color: var(--SocialComponentsClickable-color--text);
+}
+
+.PostAuthor-pictureContainer {
+	display: block;
 }
 
 .PostAuthor-picture {
