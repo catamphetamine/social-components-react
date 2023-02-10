@@ -220,7 +220,7 @@ function PostInlineContentElement({
 	} else if (content.type === 'code') {
 		return (
 			<PostCode
-				inline
+				block={false}
 				language={content.language}>
 				{contentElement}
 			</PostCode>

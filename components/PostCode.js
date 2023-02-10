@@ -13,7 +13,7 @@ import './PostCode.css'
  * https://github.com/catamphetamine/captchan/issues/4#issuecomment-513475218
  */
 export default function PostCode({
-	inline,
+	block,
 	language,
 	className: _className,
 	children
@@ -24,9 +24,9 @@ export default function PostCode({
 	const className = classNames(
 		_className,
 		'PostCode',
-		!inline && 'PostCode--block',
-		inline && 'PostCode--inline',
-		inline && language && `language-${language}`
+		block && 'PostCode--block',
+		!block && 'PostCode--inline',
+		!block && language && `language-${language}`
 	)
 	if (language && typeof children === 'string') {
 		if (SyntaxHighlighter.supportedLanguages.includes(language)) {
@@ -34,7 +34,7 @@ export default function PostCode({
 			// https://github.com/react-syntax-highlighter/react-syntax-highlighter/issues/352
 			return (
 				<SyntaxHighlighter
-					inline={inline}
+					inline={!block}
 					useInlineStyles={false}
 					wrapLongLines
 					language={language}
@@ -45,7 +45,7 @@ export default function PostCode({
 			)
 		}
 	}
-	if (inline) {
+	if (!block) {
 		return (
 			<code className={className}>
 				{children}
@@ -68,7 +68,7 @@ export default function PostCode({
 }
 
 PostCode.propTypes = {
-	inline: PropTypes.bool,
+	block: PropTypes.bool.isRequired,
 	language: PropTypes.string,
 	className: PropTypes.string,
 	children: postCode.isRequired

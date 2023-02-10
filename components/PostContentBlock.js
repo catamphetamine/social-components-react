@@ -108,6 +108,7 @@ export default function PostContentBlock({
 	} else if (content.type === 'code') {
 		return (
 			<PostCode
+				block
 				language={content.language}>
 				{renderContent(content.content)}
 			</PostCode>
