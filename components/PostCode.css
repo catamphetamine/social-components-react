@@ -23,6 +23,7 @@
 	padding-right: var(--PostCode-paddingRight);
 	margin-top: calc(-1 * var(--PostCode-borderWidth));
 	margin-bottom: calc(-1 * var(--PostCode-borderWidth));
+	tab-size: 2;
 }
 
 .PostCode--inline {
