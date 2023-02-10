@@ -300,7 +300,9 @@ PostContent.propTypes = {
 	// http://lynxhub.com/lynxchan/res/722.html#q984
 	fixAttachmentPictureSizes: PropTypes.bool,
 	messages: postMessages,
-	resourceMessages: PropTypes.object,
+	resourceMessages: PropTypes.shape({
+		videoNotFound: PropTypes.string
+	}),
 	className: PropTypes.string
 }
 

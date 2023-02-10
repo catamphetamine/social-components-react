@@ -19,11 +19,7 @@
 		"spoiler": "Спойлер",
 		"expandAttachments": "Раскрыть картинки",
 		"collapseAttachments": "Свернуть картинки",
-		"viewAttachments": "Посмотреть вложения",
-		"videoNotFound": "Видео не найдено",
-		"textContent": {
-			"linkTo": "(ссылка на {domain})"
-		}
+		"viewAttachments": "Посмотреть вложения"
 	},
 	"slideshow": {
 		"actions": {

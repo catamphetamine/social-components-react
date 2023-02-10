@@ -19,11 +19,7 @@
 		"spoiler": "Spoiler",
 		"expandAttachments": "Erweitern Sie Anhänge",
 		"collapseAttachments": "Anhänge reduzieren",
-		"viewAttachments": "Anhänge anzeigen",
-		"videoNotFound": "Video nicht gefunden",
-		"textContent": {
-			"linkTo": "(link zu {domain})"
-		}
+		"viewAttachments": "Anhänge anzeigen"
 	},
 	"slideshow": {
 		"actions": {

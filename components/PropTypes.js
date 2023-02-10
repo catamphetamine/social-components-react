@@ -391,8 +391,7 @@ export const account = shape({
 
 export const post = shape({
 	id,
-	title: string,
-	titleCensored: censoredText,
+	title: oneOfType([string, censoredText]),
 	content: postContent,
 	createdAt: date,
 	author: account, //.isRequired,

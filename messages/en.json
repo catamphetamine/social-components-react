@@ -19,11 +19,7 @@
 		"spoiler": "Spoiler",
 		"expandAttachments": "Expand attachments",
 		"collapseAttachments": "Collapse attachments",
-		"viewAttachments": "View attachments",
-		"videoNotFound": "Video not found",
-		"textContent": {
-			"linkTo": "(link to {domain})"
-		}
+		"viewAttachments": "View attachments"
 	},
 	"slideshow": {
 		"actions": {

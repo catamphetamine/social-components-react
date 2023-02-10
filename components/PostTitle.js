@@ -19,12 +19,14 @@ export default function PostTitle({
 		<h1 className={classNames('PostTitle', {
 			'PostTitle--compact': compact
 		})}>
-			{post.titleCensoredContent &&
-				<PostInlineContent>
-					{post.titleCensoredContent}
-				</PostInlineContent>
+			{post.title && Array.isArray(post.title)
+				? (
+					<PostInlineContent>
+						{post.title}
+					</PostInlineContent>
+				)
+				: post.title
 			}
-			{!post.titleCensoredContent && post.title}
 		</h1>
 	)
 }

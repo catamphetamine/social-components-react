@@ -216,7 +216,9 @@ Post.propTypes = {
 	showPostThumbnailWhenThereAreMultipleAttachments: PropTypes.bool,
 	showPostThumbnailWhenThereIsNoContent: PropTypes.bool,
 	messages: postMessages,
-	resourceMessages: PropTypes.object,
+	resourceMessages: PropTypes.shape({
+		videoNotFound: PropTypes.string
+	}),
 	className: PropTypes.string
 }
 
