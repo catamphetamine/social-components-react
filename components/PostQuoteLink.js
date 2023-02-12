@@ -10,6 +10,8 @@ import PostQuoteLinkMinimized from './PostQuoteLinkMinimized.js'
 
 import useLayoutEffectSkipMount from '../hooks/useLayoutEffectSkipMount.js'
 
+import isRelativeUrl from '../utility/isRelativeUrl.js'
+
 import './PostQuoteLink.css'
 
 export default function PostQuoteLink({
@@ -85,7 +87,8 @@ export default function PostQuoteLink({
 		)
 	}
 
-	if (url[0] === '/') {
+	// If it's a "relative" URL, then render a `<Link/>`.
+	if (isRelativeUrl(url)) {
 		return (
 			<Link
 				to={url}

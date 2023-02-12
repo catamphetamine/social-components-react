@@ -6,6 +6,8 @@ import Button from './Button.js'
 
 import { openLinkInNewTab as _openLinkInNewTab } from 'web-browser-input'
 
+import isRelativeUrl from '../utility/isRelativeUrl.js'
+
 const ButtonOrLink = React.forwardRef(function({
 	url,
 	children,
@@ -164,7 +166,8 @@ const ButtonOrLink = React.forwardRef(function({
 			</Button>
 		)
 	}
-	if (url[0] === '/') {
+	// If it's a "relative" URL, then render a `<Link/>`.
+	if (isRelativeUrl(url)) {
 		return (
 			<Link
 				{...rest}

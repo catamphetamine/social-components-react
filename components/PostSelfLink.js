@@ -8,6 +8,7 @@ import Padding from './Padding.js'
 import PressedStateButton from './PressedStateButton.js'
 
 import replaceUrl from '../utility/replaceUrl.js'
+import isRelativeUrl from '../utility/isRelativeUrl.js'
 
 import './PostSelfLink.css'
 
@@ -47,7 +48,7 @@ export default function PostSelfLink({
 	}
 
 	let props
-	if (url[0] === '/') {
+	if (isRelativeUrl(url)) {
 		props = {
 			component: Link,
 			to: url,

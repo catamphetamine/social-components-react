@@ -5,11 +5,13 @@ import classNames from 'classnames'
 
 import ServiceIcon, { hasIcon } from './ServiceIcon.js'
 
-import './PostLink.css'
+import isRelativeUrl from '../utility/isRelativeUrl.js'
 
 import LinkIcon from '../icons/external.svg'
 
 import getHumanReadableLinkAddress from 'social-components/utility/getHumanReadableLinkAddress.js'
+
+import './PostLink.css'
 
 export default function PostLink({
 	url,
@@ -60,7 +62,8 @@ export default function PostLink({
 		attachment
 	])
 
-	if (url[0] === '/') {
+	// If it's a "relative" URL, then render a `<Link/>`.
+	if (isRelativeUrl(url)) {
 		return (
 			<Link
 				to={url}

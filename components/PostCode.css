@@ -23,6 +23,8 @@
 	padding-right: var(--PostCode-paddingRight);
 	margin-top: calc(-1 * var(--PostCode-borderWidth));
 	margin-bottom: calc(-1 * var(--PostCode-borderWidth));
+
+	/* Set Tab width to an equivalent of 2 spaces. */
 	tab-size: 2;
 }
 
