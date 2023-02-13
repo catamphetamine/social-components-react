@@ -6,7 +6,7 @@ import Padding from './Padding.js'
 
 import PressedStateButton from './PressedStateButton.js'
 
-import LeftArrowIcon from '../icons/left-arrow-minimal.svg'
+import LeftArrowIcon from '../icons/left-arrow-minimal-thin.svg'
 
 import { post } from './PropTypes.js'
 
