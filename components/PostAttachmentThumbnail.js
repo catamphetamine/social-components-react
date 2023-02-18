@@ -39,6 +39,7 @@ export default function PostAttachmentThumbnail({
 	expandToTheFullest,
 	width,
 	height,
+	fit,
 	useSmallestThumbnail,
 	moreAttachmentsCount,
 	fixAttachmentPictureSize,
@@ -135,6 +136,7 @@ export default function PostAttachmentThumbnail({
 			<Picture
 				component="span"
 				border={border}
+				fit={fit}
 				imageRef={thumbnailElement}
 				title={isRevealed ? attachment.title : spoilerLabel}
 				picture={picture}
@@ -220,6 +222,7 @@ PostAttachmentThumbnail.propTypes = {
 	expandToTheFullest: PropTypes.bool,
 	width: PropTypes.number,
 	height: PropTypes.number,
+	fit: PropTypes.string,
 	expand: PropTypes.bool,
 	border: PropTypes.bool,
 	useSmallestThumbnail: PropTypes.bool,

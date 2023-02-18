@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect, useImperativeHandle } from 'react'
+import React, { useState, useMemo, useRef, useCallback, useEffect, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { ActivityIndicator, FadeInOut } from 'react-responsive-ui'
@@ -356,9 +356,16 @@ function Picture({
 		return getAspectRatio(size || picture)
 	}
 
-	onMount()
+	const imageStyle = useMemo(() => {
+		if (fit === 'cover') {
+			return {
+				height: '100%',
+				objectFit: fit
+			}
+		}
+	}, [])
 
-	const imageStyle = fit === 'cover' ? { height: '100%', objectFit: fit } : undefined
+	onMount()
 
 	return (
 		<Component
