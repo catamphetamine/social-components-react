@@ -1,0 +1,76 @@
+/* Light mode. */
+.light {
+	/* Clickable. */
+	--SocialComponentsClickable-color: #00B3FF;
+	--SocialComponentsClickable-color--active: #25BEFF;
+	/* "Clickable text" buttons are usually colored a bit darker. */
+	--SocialComponentsClickable-color--text: #0084BD;
+
+	/* CommentTree. */
+	--CommentTree-color: var(--SocialComponentsClickable-color--active);
+	--CommentTree-color--branch: var(--CommentTree-color);
+	--CommentTree-color--hover: var(--SocialComponentsClickable-color);
+	--CommentTree-backgroundColor--hover: rgba(0,0,0,0.044);
+
+	/* Picture. */
+	--Picture-borderColor: rgba(0, 0, 0, 0.1);
+	--Picture-borderColor--focus: var(--Picture-borderColor);
+	--Picture-filter: none;
+
+	/* Post. */
+	--Post-color--secondary: var(--SocialComponents-color-500);
+
+	/* PostAttachment. */
+	/*--PostAttachment-shadowColor--hover: rgba(0,0,0,0.15);*/
+	/*--PostAttachment-shadowColor--focus: rgba(0,0,0,0.15);*/
+
+	/* PostInlineSpoiler. */
+	--PostInlineSpoiler-color: var(--SocialComponents-color-100);
+	--PostInlineSpoiler-color--contentActive: var(--PostInlineSpoiler-color);
+	--PostInlineSpoiler-color--censored: #f0e1e1;
+	--PostInlineSpoiler-color--censoredContentActive: #f2dccb;
+
+	/* PostQuoteBlock. */
+	/*--PostQuoteBlock-color: #268000;*/
+	/*--PostQuoteBlock-backgroundColor: #dfffcb;*/
+	/*--PostQuoteBlock-borderColor: #c9f6ac;*/
+	--PostQuoteBlock-color: #386b00;
+	--PostQuoteBlock-backgroundColor: #efffd9;
+	--PostQuoteBlock-borderColor: #d4ecad;
+	--PostQuoteBlock-borderWidth: 1px;
+	--PostQuoteBlock-marginTop: 4px;
+	--PostQuoteBlock-marginBottom: var(--PostQuoteBlock-marginTop);
+
+	/* PostQuoteBlockBorderLeft. */
+	--PostQuoteBlockBorderLeft-marginTop: 0px;
+
+	/* PostQuoteBlock (generated). */
+	--PostQuoteBlock-color--generated: #87481b;
+	--PostQuoteBlock-backgroundColor--generated: #fff7ed;
+	--PostQuoteBlock-borderColor--generated: #f4d7bc;
+
+	/* PostQuoteBlockBorderLeft (generated). */
+	--PostQuoteBlockBorderLeft-opacity--generated: 1;
+	--PostQuoteBlockBorderLeft-color--generated: #e6bb85;
+	--PostQuoteBlockBorderLeft-marginTop--generated: 0px;
+
+	/* PostSocial. */
+	--PostSocial-backgroundColor: rgba(0,0,0,0.03);
+	--PostSocial-backgroundColor--active: rgba(0,0,0,0.02);
+	--PostSocial-borderColor: rgba(0,0,0,0.06);
+
+	/* PostVotes. */
+	--PostVotes-color--positive: #008800;
+	--PostVotes-color--negative: #b50000;
+
+	/* PressedStateButton. */
+	--PressedStateButton-color--active: initial;
+	--PressedStateButton-color--pressed: var(--SocialComponentsClickable-color--text);
+	--PressedStateButton-color--pressedActive: var(--SocialComponentsClickable-color--active);
+	--PressedStateButton-backgroundColor--active: var(--SocialComponents-color-100);
+	--PressedStateButton-backgroundColor--pressed: var(--PressedStateButton-backgroundColor--active);
+	--PressedStateButton-borderColor: var(--SocialComponents-color-100);
+	--PressedStateButton-borderColor--active: var(--PressedStateButton-borderColor);
+	--PressedStateButton-borderColor--pressed: var(--PressedStateButton-borderColor--active);
+	--PressedStateButton-borderColor--pressedActive: var(--SocialComponents-color-200);
+}

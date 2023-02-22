@@ -1,0 +1,77 @@
+/* Dark mode. */
+.dark {
+	/* Clickable. */
+	--SocialComponentsClickable-color: #25BEFF;
+	--SocialComponentsClickable-color--active: #00B3FF;
+	/* "Clickable text" buttons are usually colored a bit darker. */
+	--SocialComponentsClickable-color--text: #3FC6FF;
+
+	/* CommentTree. */
+	--CommentTree-color: #006996;
+	--CommentTree-color--hover: #0084BD;
+	--CommentTree-color--branch: var(--CommentTree-color);
+	--CommentTree-backgroundColor--hover: var(--SocialComponents-color-100);
+
+	/* Picture. */
+	--Picture-borderColor: transparent;
+	--Picture-borderColor--focus: var(--Picture-borderColor);
+	/*--Picture-borderColor--focus: var(--SocialComponents-color-500);*/
+	--Picture-filter: brightness(85%);
+
+	/* Post. */
+	--Post-color--secondary: var(--SocialComponents-color-600);
+
+	/* PostAttachment. */
+	/*--PostAttachment-shadowColor--hover: rgba(100,100,100,0.2);*/
+	/*--PostAttachment-shadowColor--focus: rgba(255,255,255,0.2);*/
+
+	/* PostInlineSpoiler. */
+	--PostInlineSpoiler-color: #494949;
+	--PostInlineSpoiler-color--contentActive: #454545;
+	--PostInlineSpoiler-color--censored: #62504f;
+	--PostInlineSpoiler-color--censoredContentActive: #5c4a49;
+
+	/* PostQuoteBlock. */
+	--PostQuoteBlock-color: #83c362;
+	/*--PostQuoteBlock-backgroundColor: #82c45f;*/
+	/*--PostQuoteBlock-borderColor: #f4d7bc;*/
+
+	/* PostQuoteBlockBorderLeft. */
+	--PostQuoteBlockBorderLeft-opacity: 0.65;
+	--PostQuoteBlockBorderLeft-marginTop: var(--PostQuoteBorderLeft-marginTop--standalone);
+
+	/* PostQuoteBlock (generated). */
+	--PostQuoteBlock-color--generated: #bb8662;
+	/*--PostQuoteBlock-backgroundColor--generated: #46382f;*/
+	/*--PostQuoteBlock-borderColor--generated: #4e4035;*/
+
+	/* PostQuoteBlockBorderLeft (generated). */
+	--PostQuoteBlockBorderLeft-opacity--generated: 0.65;
+	--PostQuoteBlockBorderLeft-marginTop--generated: var(--PostQuoteBorderLeft-marginTop--standalone);
+
+	/* PostQuoteLink (minimized). */
+	--PostQuoteLink-backgroundColor--minimizedHover: rgba(255,255,255,0.05);
+
+	/* PostReadMore. */
+	--PostReadMore-color: var(--PostQuoteBlock-color--generated);
+	--PostReadMore-fontWeight: normal;
+
+	/* PostSocial. */
+	--PostSocial-backgroundColor: rgba(255,255,255,0.03);
+	--PostSocial-backgroundColor--active: rgba(255,255,255,0.02);
+	--PostSocial-borderColor: rgba(255,255,255,0.06);
+
+	/* PostVotes. */
+	--PostVotes-color--positive: #83ff5a;
+	--PostVotes-color--negative: #ff5454;
+
+	/* PressedStateButton. */
+	--PressedStateButton-color--active: #3FC6FF;
+	--PressedStateButton-color--pressed: #25BEFF;
+	--PressedStateButton-color--pressedActive: var(--PressedStateButton-color--active);
+	--PressedStateButton-backgroundColor--active: var(--SocialComponents-color-200);
+	--PressedStateButton-borderColor: var(--SocialComponents-color-200);
+	--PressedStateButton-borderColor--active: var(--SocialComponents-color-300);
+	--PressedStateButton-borderColor--pressed: var(--PressedStateButton-borderColor);
+	--PressedStateButton-borderColor--pressedActive: var(--PressedStateButton-borderColor--active);
+}

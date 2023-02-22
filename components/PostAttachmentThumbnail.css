@@ -2,6 +2,9 @@
 	/* `<button/>`s are `display: inline` by default. */
 	display: block;
 
+	/* Limit the maximum width of the attachment element when an attachment is "expanded" (not shown as a thumbnail). */
+	max-width: 100%;
+
 	/* `<Picture/>` is rendered as a `<span/>` because
 	   a `<div/>` shouldn't be placed inside a `<button/>`. */
 	.Picture {
