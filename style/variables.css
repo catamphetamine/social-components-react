@@ -169,7 +169,7 @@
 	/* No margin bottom seems ok. */
 	/*--PostTitle-marginBottom: 0px;*/
 	/*--PostTitle-marginBottom--compact: var(--PostTitle-marginBottom);*/
-	--PostTitle-fontSize: 1.17em;
+	--PostTitle-fontSize: 1.15em;
 	--PostTitle-fontWeight: 500;
 	--PostTitle-color: initial;
 
