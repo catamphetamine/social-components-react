@@ -34,6 +34,14 @@
 	--CommentTreeBranch-marginTop--content: 1.6em;
 	--CommentTreeBranch-marginTop: calc(var(--Post-paddingTop) + var(--CommentTreeBranch-marginTop--content));
 	--CommentTreeBranch-leftOffsetRatio--firstLevelOfNesting: 0;
+	/* This `margin-left: 1px` works around the disappearance of
+	   the branch line on mobile devices for first-level replies branch.
+	   Observed in iOS Safari and Chrome. */
+	--CommentTreeBranch-marginLeft--workaround: 1px;
+	--CommentTreeBranch-marginLeft: 0px;
+	--CommentTreeBranch-marginRight: 0px;
+	--CommentTreeTrunk-marginTop: 0px;
+	--CommentTreeDialogueTrace-height--through: 0px;
 
 	/* Picture. */
 	--Picture-backgroundColor: var(--SocialComponents-color-100);

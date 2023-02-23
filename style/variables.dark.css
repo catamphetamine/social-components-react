@@ -7,7 +7,7 @@
 	--SocialComponentsClickable-color--text: #3FC6FF;
 
 	/* CommentTree. */
-	--CommentTree-color: #006996;
+	--CommentTree-color: #ffffff47;
 	--CommentTree-color--hover: #0084BD;
 	--CommentTree-color--branch: var(--CommentTree-color);
 	--CommentTree-backgroundColor--hover: var(--SocialComponents-color-100);
