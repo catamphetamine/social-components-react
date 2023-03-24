@@ -15,7 +15,7 @@ import { getOriginalPictureSizeAndUrl } from '../utility/fixPictureSize.js'
 import { getUrl as getVideoUrl } from './Video.js'
 import VideoDuration from './VideoDuration.js'
 
-import useMount from '../hooks/useMount.js'
+import useIsMounted from '../hooks/useIsMounted.js'
 
 import {
 	pictureAttachment,
@@ -48,7 +48,7 @@ export default function PostAttachmentThumbnail({
 	const thumbnailElement = useRef()
 	const slideshowOpenRequest = useRef()
 	const [isRevealed, setIsRevealed] = useState(attachment.spoiler ? false : true)
-	const [isMounted, onMount] = useMount()
+	const isMounted = useIsMounted()
 	const [loadOnClick, isLoading, setIsLoading] = useLoadOnClick(attachment, fixAttachmentPictureSize, thumbnailElement, isMounted)
 
 	const picture = getPicture(attachment)
@@ -108,8 +108,6 @@ export default function PostAttachmentThumbnail({
 	) {
 		maxSize = ATTACHMENT_THUMBNAIL_SIZE
 	}
-
-	onMount()
 
 	// Could also set some default `title` on an attachment here for ARIA purposes.
 	// For example, to some `contentTypeLabels.picture` or `contentTypeLabels.video`,

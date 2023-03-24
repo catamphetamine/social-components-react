@@ -8,7 +8,7 @@ import classNames from 'classnames'
 // https://github.com/bvaughn/react-virtualized/issues/722
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
-import useMount from '../hooks/useMount.js'
+import useIsMounted from '../hooks/useIsMounted.js'
 
 import Button from './Button.js'
 
@@ -41,7 +41,7 @@ function Button_({
 		buttonRef
 	])
 
-	const [isMounted, onMount] = useMount()
+	const isMounted = useIsMounted()
 	const [wait, setWait] = useState()
 
 	const focusTimer = useRef()
@@ -78,8 +78,6 @@ function Button_({
 			clearTimeout(focusTimer.current)
 		}
 	}, [])
-
-	onMount()
 
 	return (
 		<Button

@@ -7,7 +7,8 @@ import { px } from 'web-browser-style'
 
 import { picture } from './PropTypes.js'
 
-import useMount from '../hooks/useMount.js'
+import useIsMounted from '../hooks/useIsMounted.js'
+import useEffectSkipMount from '../hooks/useEffectSkipMount.js'
 
 import getMinSize from 'social-components/utility/picture/getMinSize.js'
 
@@ -99,7 +100,7 @@ function Picture({
 
 	const cancelLoadingImageSize = useRef()
 
-	const [isMounted, onMount] = useMount()
+	const isMounted = useIsMounted()
 
 	const [size, setSize] = useState(initialImageSize.current)
 	const [imageStatus, setImageStatus] = useState('LOADING')
@@ -178,10 +179,8 @@ function Picture({
 		}
 	}, [])
 
-	useEffect(() => {
-		if (isMounted()) {
-			renderAppropriateSize({ reloadImage: true })
-		}
+	useEffectSkipMount(() => {
+		renderAppropriateSize({ reloadImage: true })
 	}, [picture])
 
 	useImperativeHandle(ref, () => ({
@@ -364,8 +363,6 @@ function Picture({
 			}
 		}
 	}, [])
-
-	onMount()
 
 	return (
 		<Component

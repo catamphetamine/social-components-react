@@ -6,7 +6,7 @@ import { post, postMessages } from './PropTypes.js'
 
 import PostContentBlock from './PostContentBlock.js'
 
-import useMount from '../hooks/useMount.js'
+import useIsMounted from '../hooks/useIsMounted.js'
 import useLayoutEffectSkipMount from '../hooks/useLayoutEffectSkipMount.js'
 
 import loadResourceLinks from 'social-components/utility/post/loadResourceLinks.js'
@@ -54,7 +54,7 @@ function PostContent({
 	// Re-renders the post element when its content changes by `loadResourceLinks()`.
 	const [postContentChanged, setPostContentChanged] = useState()
 
-	const [isMounted, onMount] = useMount()
+	const isMounted = useIsMounted()
 	const resourceLinkLoader = useRef()
 
 	const onExpandContent = useCallback(() => {
@@ -201,8 +201,6 @@ function PostContent({
 			onPostContentRendered(post)
 		}
 	}, [postContentChanged])
-
-	onMount()
 
 	const startsWithText = content && (
 		typeof content === 'string'
