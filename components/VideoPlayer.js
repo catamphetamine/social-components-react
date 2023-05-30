@@ -9,7 +9,7 @@ import VideoYouTube, { hasYouTubeVideoPlayerApiLoaded } from './Video.YouTube.js
 
 function VideoPlayer({
 	video,
-	preview,
+	showPreview,
 	autoPlay,
 	tabIndex,
 	onClick
@@ -21,12 +21,13 @@ function VideoPlayer({
 			<VideoHtml
 				width="100%"
 				height="100%"
-				preview={preview}
+				showPreview={showPreview}
 				ref={ref}
 				onClick={onClick}
 				tabIndex={tabIndex}
 				video={video}
-				autoPlay={autoPlay}/>
+				autoPlay={autoPlay}
+			/>
 		)
 	}
 
@@ -41,7 +42,8 @@ function VideoPlayer({
 				video={video}
 				width="100%"
 				height="100%"
-				autoPlay={autoPlay}/>
+				autoPlay={autoPlay}
+			/>
 		)
 	}
 
@@ -63,7 +65,8 @@ function VideoPlayer({
 				height="100%"
 				frameBorder={0}
 				allow="autoplay; fullscreen"
-				allowFullScreen/>
+				allowFullScreen
+			/>
 		)
 	}
 
@@ -75,7 +78,7 @@ VideoPlayer = React.forwardRef(VideoPlayer)
 
 VideoPlayer.propTypes = {
 	video: video.isRequired,
-	preview: PropTypes.bool,
+	showPreview: PropTypes.bool,
 	autoPlay: PropTypes.bool,
 	tabIndex: PropTypes.number,
 	onClick: PropTypes.func

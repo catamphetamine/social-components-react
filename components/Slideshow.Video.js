@@ -109,20 +109,20 @@ export default {
 				ref={ref}
 				video={slide.video}
 				onClick={onClick}
-				playable={isCurrentSlide}
-				autoPlay={autoPlay}
-				stopVideoOnStopPlaying
-				showPlayIcon
+				autoPlay={autoPlay && isCurrentSlide}
+				canPlay={isCurrentSlide}
+				showPlayButtonOverPreview
 				width={width}
 				height={height}
 				fit="scale-down"
 				tabIndex={tabIndex}
-				preview={autoPlay ? false : undefined}
+				showPreview={autoPlay ? false : undefined}
 				seekOnArrowKeysAtBorders={false}
 				seekOnArrowKeys={dragAndScaleMode ? false : undefined}
 				changeVolumeOnArrowKeys={dragAndScaleMode ? false : undefined}
 				style={style}
-				className={classNames('Slideshow-Video', className)}/>
+				className={classNames('Slideshow-Video', className)}
+			/>
 		)
 	}
 }

@@ -20,6 +20,7 @@ export default function useEffectSkipMount(handler, dependencies) {
 		} else {
 			hasMounted.current = true
 		}
+		prevDependencies.current = dependencies
 	}, dependencies)
 }
 

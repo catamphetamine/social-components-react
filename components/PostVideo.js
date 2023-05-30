@@ -33,6 +33,7 @@ export default function PostVideo({
 			<Video
 				border={border}
 				expand={expand}
+				showPreview={!expand}
 				video={video}
 				maxWidth={expandToTheFullest
 					? undefined
@@ -42,7 +43,8 @@ export default function PostVideo({
 					)
 				}
 				spoilerLabel={spoilerLabel}
-				onClick={onClick}/>
+				onClick={onClick}
+			/>
 			{video.title &&
 				<PostEmbeddedAttachmentTitle link={url}>
 					{video.title}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect, useImperativeHandle } from 'react'
+import React, { useState, useMemo, useCallback, useRef, useEffect, useLayoutEffect, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
@@ -45,11 +45,12 @@ export const BORDER_WIDTH = 1
 function Video({
 	video,
 	border,
-	preview,
-	playable,
-	autoPlay,
+	showPreview: showPreviewProperty,
+	autoPlay: autoPlayProperty,
+	canPlay,
+	canPlayOffBehavior,
 	expand,
-	showPlayIcon,
+	showPlayButtonOverPreview,
 	width,
 	height,
 	maxWidth,
@@ -62,15 +63,30 @@ function Video({
 	seekOnArrowKeysAtBorders,
 	changeVolumeOnArrowKeys,
 	changeVolumeStep,
-	stopVideoOnStopPlaying,
 	spoilerLabel,
 	tabIndex,
 	style,
 	className,
 	...rest
 }, ref) {
-	const [shouldStartPlaying, setShouldStartPlaying] = useState(playable && autoPlay)
-	const [showPreview, setShowPreview] = useState(preview && !shouldStartPlaying && !expand)
+	const [autoPlay, setAutoPlay] = useState(getAutoPlayValue(autoPlayProperty, canPlay))
+	const [showPreview, setShowPreview] = useState(getShowPreviewValueForAutoPlayValue(showPreviewProperty, autoPlay))
+
+	const setShowPreviewOrAutoPlay = useCallback((mode) => {
+		switch (mode) {
+			case 'showPreview':
+				setShowPreview(true)
+				setAutoPlay(false)
+				break
+			case 'autoPlay':
+				setShowPreview(false)
+				setAutoPlay(true)
+				break
+			default:
+				throw new Error(`Unknown "setShowPreviewOrAutoPlay" mode: "${mode}"`)
+		}
+	}, [])
+
 	const previewRef = useRef()
 	const playerRef = useRef()
 	const playerContainerInnerRef = useRef()
@@ -122,17 +138,28 @@ function Video({
 	// So it's unclear whether using `useLayoutEffect()`
 	// instead of `useEffect()` here makes any difference.
 	useLayoutEffectSkipMount(() => {
-		if (shouldStartPlaying) {
+		if (autoPlay) {
 			focus()
 			setPlayState(play)
-		} else {
-			if (stopVideoOnStopPlaying) {
-				setPlayState(stop)
-			} else {
-				setPlayState(pause)
+		}
+	}, [autoPlay])
+
+	// `useLayoutEffect()` is used here instead of the regular `useEffect()`
+	// just so that it stops the video as soon as `canPlay` becomes `false`.
+	useLayoutEffectSkipMount(() => {
+		if (!canPlay) {
+			switch (canPlayOffBehavior) {
+				case 'stop':
+					setPlayState(stop)
+					break
+				case 'pause':
+					setPlayState(pause)
+					break
+				default:
+					// Ignore.
 			}
 		}
-	}, [shouldStartPlaying])
+	}, [canPlay])
 
 	function setPlayState(newStateTransition) {
 		playState.current = playState.current
@@ -157,31 +184,14 @@ function Video({
 			})
 	}
 
-	function updateShowPreview() {
-		setShowPreview(preview && !(playable && autoPlay) && !expand)
-	}
-
-	// On `preview` property change.
-	useEffectSkipMount(() => {
-		updateShowPreview()
-	}, [preview])
-
-	// On `expand` property change.
-	useEffectSkipMount(() => {
-		updateShowPreview()
-	}, [expand])
-
-	// On `playable` property change.
-	useEffectSkipMount(() => {
-		updateShowPreview()
-		setShouldStartPlaying(playable && autoPlay ? true : false)
-	}, [playable])
-
+	// On `showPreview` property change.
 	// On `autoPlay` property change.
 	useEffectSkipMount(() => {
-		updateShowPreview()
-		setShouldStartPlaying(playable && autoPlay ? true : false)
-	}, [autoPlay])
+		setShowPreviewOrAutoPlay(getShowPreviewValueForAutoPlayValue(showPreviewProperty, getAutoPlayValue(autoPlayProperty, canPlay)) ? 'showPreview' : 'autoPlay')
+	}, [
+		showPreviewProperty,
+		autoPlayProperty
+	])
 
 	useImperativeHandle(ref, () => ({
 		focus
@@ -352,7 +362,7 @@ function Video({
 		if (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey) {
 			return
 		}
-		// Handle click event.
+		// Expanded attachments handle click event by themselves.
 		if (expand) {
 			return
 		}
@@ -364,8 +374,7 @@ function Video({
 		}
 		if (showPreview && !event.defaultPrevented) {
 			event.preventDefault()
-			setShowPreview(false)
-			setShouldStartPlaying(true)
+			setShowPreviewOrAutoPlay('autoPlay')
 		}
 	}
 
@@ -587,10 +596,10 @@ function Video({
 						'Video--border': border
 					}
 				)}>
-				{showPlayIcon &&
+				{showPlayButtonOverPreview &&
 					<VideoPlayIcon className="VideoPlayIcon--center"/>
 				}
-				{!showPlayIcon &&
+				{!showPlayButtonOverPreview &&
 					<VideoDuration duration={video.duration}/>
 				}
 			</Picture>
@@ -621,19 +630,21 @@ function Video({
 			<VideoPlayer
 				ref={playerRef}
 				video={video}
-				preview={showPreview}
-				autoPlay={shouldStartPlaying}
+				showPreview={showPreview}
+				autoPlay={autoPlay}
 				tabIndex={shouldFocusPlayer(video) ? tabIndex : undefined}
 				onClick={onClick}
 				className={classNames({
 					'Video--border': shouldFocusPlayer(video) && border
-				})}/>
+				})}
+			/>
 			{video.provider === 'YouTube' &&
 				<VideoProgress
 					provider={video.provider}
 					onKeyboardSeek={onKeyboardSeek}
 					getDuration={getDuration}
-					getCurrentTime={getCurrentTime}/>
+					getCurrentTime={getCurrentTime}
+				/>
 			}
 		</AspectRatioWrapper>
 	)
@@ -648,17 +659,17 @@ Video.propTypes = {
 	maxWidth: PropTypes.number,
 	maxHeight: PropTypes.number,
 	fit: PropTypes.oneOf(['scale-down']),
-	preview: PropTypes.bool.isRequired,
-	stopVideoOnStopPlaying: PropTypes.bool,
+	showPreview: PropTypes.bool,
+	autoPlay: PropTypes.bool,
+	canPlay: PropTypes.bool,
+	canPlayOffBehavior: PropTypes.oneOf(['stop', 'pause']),
 	seekOnArrowKeys: PropTypes.bool.isRequired,
 	seekOnArrowKeysAtBorders: PropTypes.bool.isRequired,
 	seekStep: PropTypes.number.isRequired,
 	largerSeekStep: PropTypes.number.isRequired,
 	changeVolumeOnArrowKeys: PropTypes.bool.isRequired,
 	changeVolumeStep: PropTypes.number.isRequired,
-	playable: PropTypes.bool.isRequired,
-	autoPlay: PropTypes.bool.isRequired,
-	showPlayIcon: PropTypes.bool,
+	showPlayButtonOverPreview: PropTypes.bool,
 	onClick: PropTypes.func,
 	tabIndex: PropTypes.number,
 	border: PropTypes.bool,
@@ -668,15 +679,15 @@ Video.propTypes = {
 }
 
 Video.defaultProps = {
-	preview: true,
+	canPlay: true,
+	canPlayOffBehavior: 'stop',
+	showPreview: true,
 	seekOnArrowKeys: true,
 	seekOnArrowKeysAtBorders: true,
 	seekStep: 5,
 	largerSeekStep: 30,
 	changeVolumeOnArrowKeys: true,
-	changeVolumeStep: 0.1,
-	playable: true,
-	autoPlay: false
+	changeVolumeStep: 0.1
 }
 
 export default Video
@@ -743,4 +754,12 @@ export function getMaxSize(video) {
 		return video
 	}
 	return video.picture
+}
+
+function getAutoPlayValue(autoPlay, canPlay) {
+	return Boolean(autoPlay && canPlay)
+}
+
+function getShowPreviewValueForAutoPlayValue(showPreviewCurrentValue, autoPlay) {
+	return Boolean(showPreviewCurrentValue && !autoPlay)
 }

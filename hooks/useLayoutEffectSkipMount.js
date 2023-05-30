@@ -20,6 +20,7 @@ export default function useLayoutEffectSkipMount(handler, dependencies) {
 		} else {
 			hasMounted.current = true
 		}
+		prevDependencies.current = dependencies
 	}, dependencies)
 }
 

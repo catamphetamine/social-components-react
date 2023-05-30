@@ -49,7 +49,7 @@ function VideoHtml(props, ref) {
 
 	const {
 		video,
-		preview,
+		showPreview,
 		width,
 		height,
 		tabIndex,
@@ -77,7 +77,7 @@ function VideoHtml(props, ref) {
 			tabIndex={tabIndex}
 			width={width}
 			height={height}
-			poster={preview ? video.picture && video.picture.url : undefined}
+			poster={showPreview ? video.picture && video.picture.url : undefined}
 			autoPlay={autoPlay}
 			playsInline
 			controls>
@@ -94,7 +94,7 @@ export default VideoHtml
 
 VideoHtml.propTypes = {
 	video: video.isRequired,
-	preview: PropTypes.bool.isRequired,
+	showPreview: PropTypes.bool,
 	tabIndex: PropTypes.number,
 	autoPlay: PropTypes.bool,
 	width: PropTypes.oneOfType([
@@ -108,5 +108,5 @@ VideoHtml.propTypes = {
 }
 
 VideoHtml.defaultProps = {
-	preview: true
+	showPreview: true
 }

@@ -460,6 +460,8 @@ function Slideshow({
 										ref: j === slideIndex ? currentSlideRef : undefined,
 										tabIndex: j === slideIndex ? 0 : -1,
 										isCurrentSlide: j === slideIndex,
+										// Auto-play a slide when a user clicks on it.
+										// Also auto-play a slide when `autoPlay` property is set to `true`.
 										autoPlay: autoPlay || j === slideIndexAtWhichTheSlideshowIsBeingOpened,
 										// // `scale` is passed as `pixelRatioMultiplier` to `<Picture/>`.
 										// scale: slideshow.getSlideScale(j),
