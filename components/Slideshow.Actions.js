@@ -27,7 +27,7 @@ import './Slideshow.Actions.css'
 export default function SlideshowActions({
 	slideshow,
 	slides,
-	i,
+	slideIndex,
 	showScaleButtons,
 	showMoreControls,
 	messages,
@@ -39,8 +39,8 @@ export default function SlideshowActions({
 	const EllipsisVerticalCounterForm = highContrastControls ? EllipsisVerticalCounterformThickStroke : EllipsisVerticalCounterform
 
 	const onGoToSource = useCallback(() => {
-		goToSource(slides[i])
-	}, [goToSource, slides, i])
+		goToSource(slides[slideIndex])
+	}, [goToSource, slides, slideIndex])
 
 	return (
 		<ul className="Slideshow-Actions">
@@ -173,15 +173,13 @@ export default function SlideshowActions({
 
 SlideshowActions.propTypes = {
 	slides: PropTypes.arrayOf(slideType).isRequired,
-	i: PropTypes.number.isRequired,
+	slideIndex: PropTypes.number.isRequired,
 	slideshow: PropTypes.object.isRequired,
 	showScaleButtons: PropTypes.bool,
 	showMoreControls: PropTypes.bool,
 	messages: PropTypes.object.isRequired,
 	goToSource: PropTypes.func,
-	closeButtonRef: PropTypes.object,
-	CloseCounterForm: PropTypes.elementType.isRequired,
-	EllipsisVerticalCounterForm: PropTypes.elementType.isRequired
+	closeButtonRef: PropTypes.object
 }
 
 function clickTheLinkOnSpacebar(event) {
