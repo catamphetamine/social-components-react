@@ -13,6 +13,7 @@ import { px, scaleFactor, ms } from 'web-browser-style'
 
 import { getFitSize, getPreferredSize, TRANSPARENT_PIXEL } from './Picture.js'
 import { calculateSlideCoordinates } from './Slideshow.OpenPictureInHoverMode.js'
+import { createAnimationResult } from './Slideshow.OpenCloseAnimation.utility.js'
 
 import triggerDomElementRender from '../utility/triggerDomElementRender.js'
 
@@ -29,12 +30,6 @@ const SCALE_PRECISION = 3
 export default class SlideshowOpenCloseAnimationFloat {
 	constructor(slideshow) {
 		this.slideshow = slideshow
-		slideshow.onCleanUp(this.cleanUp)
-	}
-
-	cleanUp = () => {
-		clearTimeout(this.openingAnimationTimeout)
-		clearTimeout(this.closingAnimationTimeout)
 	}
 
 	/**
@@ -54,7 +49,7 @@ export default class SlideshowOpenCloseAnimationFloat {
 		const {
 			animationDuration,
 			promise,
-			timeout
+			cancel
 		} = openTransition(
 			getPreferredSize(slide.picture, slideWidth).url,
 			thumbnailElement,
@@ -67,7 +62,6 @@ export default class SlideshowOpenCloseAnimationFloat {
 			this.slideshow.getMargin,
 			this.slideshow.getContainerDOMNode()
 		)
-		this.openingAnimationTimeout = timeout
 		slideElement.style.opacity = 0
 		return {
 			animationDuration,
@@ -75,7 +69,11 @@ export default class SlideshowOpenCloseAnimationFloat {
 				// { clearThumbnailOverlay }
 				// clearThumbnailImageOverlay.current = clearThumbnailOverlay
 				slideElement.style.opacity = 1
-			})
+			}),
+			cancel: () => {
+				cancel()
+				slideElement.style.opacity = 1
+			}
 		}
 	}
 
@@ -90,28 +88,31 @@ export default class SlideshowOpenCloseAnimationFloat {
 		const {
 			animationDuration,
 			promise,
-			timeout
+			cancel
 		} = closeTransition(
 			thumbnailElement,
 			slideElement,
 			slideImage,
-			this.slideshow.size.getSlideMaxWidth(this.slideshow.getCurrentSlide()),
-			this.slideshow.size.getSlideMaxHeight(this.slideshow.getCurrentSlide()),
+			this.slideshow.getSlideInitialWidth(this.slideshow.getCurrentSlide()),
+			this.slideshow.getSlideInitialHeight(this.slideshow.getCurrentSlide()),
 			this.slideshow.getContainerDOMNode()
 		)
-		this.closingAnimationTimeout = timeout
 		slideElement.style.opacity = 0
 		return {
 			animationDuration,
-			promise
+			promise,
+			cancel: () => {
+				cancel()
+				slideElement.style.opacity = 1
+			}
 		}
 	}
 
 	getSlideSize = () => {
 		return getFitSize(
 			this.slideshow.getCurrentSlide().picture,
-			this.slideshow.getMaxSlideWidth(),
-			this.slideshow.getMaxSlideHeight()
+			this.slideshow.getMaxAvailableSlideWidth(),
+			this.slideshow.getMaxAvailableSlideHeight()
 		)
 	}
 }
@@ -205,14 +206,28 @@ function openTransition(
 	// Round intervals like "123.456789ms" to "123ms".
 	animationDuration = Math.round(animationDuration)
 
-	// Create `addElement()` and `removeElement()` functions.
+	// Create `prependElementToContainer()` and `removeElementFromContainer()` functions.
 	let containerElement = containerDOMNode
 	if (!containerElement) {
 		console.error('[Slideshow.OpenCloseAnimationFloat] Slideshow container DOM Element not found. Using `<body/>` instead.')
 		containerElement = document.body
 	}
-	const addElement = (element) => prependElement(containerElement, element)
-	const removeElement = (element) => containerElement.removeChild(element)
+
+	const prependElementToContainer = (element) => {
+		prependElement(containerElement, element)
+	}
+
+	const removeElementFromContainer = (element) => {
+		containerElement.removeChild(element)
+	}
+
+	// const removeElementFromContainer = (element) => {
+	// 	if (element.parentNode === containerElement) {
+	// 		containerElement.removeChild(element)
+	// 	} else {
+	// 		console.error('[Slideshow.OpenCloseAnimationFloat] element not found when removing it')
+	// 	}
+	// }
 
 	// thumbnailElement.style.opacity = 0.25
 
@@ -232,27 +247,38 @@ function openTransition(
 	// thumbnailImagePlaceholder.style.opacity = 0.35
 	// thumbnailElement.parentNode.appendChild(thumbnailImagePlaceholder)
 
-	// A copy of thumbnail image is created and animated
-	// along with the expanded image, because without it
-	// the sudden transition between the thumbnail and
-	// the scaled down expanded image would be noticeable
-	// with the thumbnail being more blurry and the
-	// scaled down expanded image being more sharp.
-	const thumbnailImageCopy = document.createElement('img')
-	thumbnailImageCopy.width = thumbnailWidth
-	thumbnailImageCopy.height = thumbnailHeight
-	thumbnailImageCopy.src = thumbnailElement.src
-	thumbnailImageCopy.style.transform = getTranslateXY(thumbnailX, thumbnailY)
-	thumbnailImageCopy.style.transformOrigin = 'top left'
-	// `position: fixed` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// expandedImage.style.position = 'fixed'
-	thumbnailImageCopy.style.position = 'absolute'
-	thumbnailImageCopy.style.left = '0'
-	thumbnailImageCopy.style.top = '0'
-	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
+	// A copy of thumbnail image is created and animated to "float" along with the expanded image.
+	// The rationale is that without it, the change between the original compressed and blurry thumbnail
+	// and the sharp scaled down copy of the original image — `expandedImage` — would be too drastic.
+	// Because of that, it gradually fades out between the original thumbnail image
+	// and the scaled down copy of the original image as they both "float" on the screen.
+	const createThumbnailImageCopy = () => {
+		const element = document.createElement('img')
+		element.width = thumbnailWidth
+		element.height = thumbnailHeight
+		element.src = thumbnailElement.src
+		element.style.transform = getTranslateXY(thumbnailX, thumbnailY)
+		element.style.transformOrigin = 'top left'
+		// `position: fixed` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// expandedImage.style.position = 'fixed'
+		element.style.position = 'absolute'
+		element.style.left = '0'
+		element.style.top = '0'
+		element.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+		element.style.opacity = 1
+		return element
+	}
 
-	addElement(thumbnailImageCopy)
+	// The background thumbnail copy is just a background so that both
+	// `thumbnailImageCopyForeground` and `expandedImage` aren't partially transparent
+	// during the "open" animation. Otherwise it would look "glitchy"
+	// and the page content would slightly "shine through" the image while it plays the "open" animation.
+	const thumbnailImageCopyBackground = createThumbnailImageCopy()
+
+	// The foreground thumbnail copy is added for gradual morphing between
+	// the grainy low-resolution thumbnail image and the sharp high-resolution `expandedImage`.
+	const thumbnailImageCopyForeground = createThumbnailImageCopy()
 
 	// if (expandedImageElement) {
 	// 	expandedImageElement.style.opacity = 0
@@ -292,17 +318,28 @@ function openTransition(
 	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
 	// expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
 	expandedImage.style.opacity = 0
+	// It could animate `boxShadow` instead of animating `opacity`
+	// but they say that the performance of animating `box-shadow`
+	// could be low, and they suggest animating `opacity` instead.
+	// https://tobiasahlin.com/blog/how-to-animate-box-shadow/
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
+	expandedImage.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
 
-	addElement(expandedImage)
+	prependElementToContainer(thumbnailImageCopyForeground)
+	prependElementToContainer(expandedImage)
+	prependElementToContainer(thumbnailImageCopyBackground)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
-	triggerDomElementRender(thumbnailImageCopy)
+	triggerDomElementRender(thumbnailImageCopyBackground)
+	triggerDomElementRender(thumbnailImageCopyForeground)
+
 	expandedImage.style.opacity = 1
 	expandedImage.style.transform = getTranslateXY(slideX, slideY)
-	thumbnailImageCopy.style.transform =
+
+	thumbnailImageCopyForeground.style.opacity = 0
+
+	const thumbnailImageCopyTransform =
 		getScaleXY(
 			slideWidth / thumbnailWidth,
 			slideHeight / thumbnailHeight
@@ -311,25 +348,26 @@ function openTransition(
 			slideX * (thumbnailWidth / slideWidth),
 			slideY * (thumbnailHeight / slideHeight)
 		)
-	let timeout
-	const promise = new Promise((resolve) => {
-		timeout = setTimeout(() => {
-			removeElement(thumbnailImageCopy)
-			// if (expandedImageElement) {
-				removeElement(expandedImage)
-			// }
-			resolve()
-			// resolve({
-			// 	clearThumbnailOverlay: () => thumbnailElement.parentNode.removeChild(thumbnailImagePlaceholder)
-			// })
-		}, animationDuration)
-	})
 
-	return {
-		animationDuration,
-		promise,
-		timeout
+	thumbnailImageCopyBackground.style.transform = thumbnailImageCopyTransform
+	thumbnailImageCopyForeground.style.transform = thumbnailImageCopyTransform
+
+	const cleanUp = () => {
+		removeElementFromContainer(thumbnailImageCopyBackground)
+		removeElementFromContainer(thumbnailImageCopyForeground)
+		// if (expandedImageElement) {
+			removeElementFromContainer(expandedImage)
+		// }
 	}
+
+	// resolve({
+	// 	clearThumbnailOverlay: () => thumbnailElement.parentNode.removeChild(thumbnailImagePlaceholder)
+	// })
+
+	return createAnimationResult({
+		animationDuration,
+		cleanUp
+	})
 }
 
 /**
@@ -374,38 +412,64 @@ function closeTransition(
 	// Round intervals like "123.456789ms" to "123ms".
 	animationDuration = Math.round(animationDuration)
 
-	// Create `addElement()` and `removeElement()` functions.
+	// Create `prependElementToContainer()` and `removeElementFromContainer()` functions.
 	let containerElement = containerDOMNode
 	if (!containerElement) {
 		console.error('[Slideshow.OpenCloseAnimationFloat] Slideshow container DOM Element not found. Using `<body/>` instead.')
 		containerElement = document.body
 	}
-	const addElement = (element) => prependElement(containerElement, element)
-	const removeElement = (element) => containerElement.removeChild(element)
 
-	const thumbnailImageCopy = document.createElement('img')
-	thumbnailImageCopy.width = thumbnailWidth
-	thumbnailImageCopy.height = thumbnailHeight
-	thumbnailImageCopy.src = thumbnailElement.src
-	thumbnailImageCopy.style.transform =
-		getScaleXY(
-			slideWidth / thumbnailWidth,
-			slideHeight / thumbnailHeight
-		) + ' ' +
-		getTranslateXY(
-			slideX * (thumbnailWidth / slideWidth),
-			slideY * (thumbnailHeight / slideHeight)
-		)
-	thumbnailImageCopy.style.transformOrigin = 'top left'
-	// `position: fixed` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// thumbnailImageCopy.style.position = 'fixed'
-	thumbnailImageCopy.style.position = 'absolute'
-	thumbnailImageCopy.style.left = '0'
-	thumbnailImageCopy.style.top = '0'
-	thumbnailImageCopy.style.transition = `transform ${ms(animationDuration)}`
+	const prependElementToContainer = (element) => {
+		prependElement(containerElement, element)
+	}
 
-	addElement(thumbnailImageCopy)
+	const removeElementFromContainer = (element) => {
+		containerElement.removeChild(element)
+	}
+
+	// const removeElementFromContainer = (element) => {
+	// 	if (element.parentNode === containerElement) {
+	// 		containerElement.removeChild(element)
+	// 	} else {
+	// 		console.error('[Slideshow.OpenCloseAnimationFloat] element not found when removing it')
+	// 	}
+	// }
+
+	const createThumbnailImageCopy = () => {
+		const element = document.createElement('img')
+		element.width = thumbnailWidth
+		element.height = thumbnailHeight
+		element.src = thumbnailElement.src
+		element.style.transform =
+			getScaleXY(
+				slideWidth / thumbnailWidth,
+				slideHeight / thumbnailHeight
+			) + ' ' +
+			getTranslateXY(
+				slideX * (thumbnailWidth / slideWidth),
+				slideY * (thumbnailHeight / slideHeight)
+			)
+		element.style.transformOrigin = 'top left'
+		// `position: fixed` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// element.style.position = 'fixed'
+		element.style.position = 'absolute'
+		element.style.left = '0'
+		element.style.top = '0'
+		element.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+		return element
+	}
+
+	// The background thumbnail copy is just a background so that both
+	// `thumbnailImageCopyForeground` and `expandedImage` aren't partially transparent
+	// during the "open" animation. Otherwise it would look "glitchy"
+	// and the page content would slightly "shine through" the image while it plays the "open" animation.
+	const thumbnailImageCopyBackground = createThumbnailImageCopy()
+
+	// The foreground thumbnail copy is added for gradual morphing between
+	// the grainy low-resolution thumbnail image and the sharp high-resolution `expandedImage`.
+	const thumbnailImageCopyForeground = createThumbnailImageCopy()
+	thumbnailImageCopyForeground.style.opacity = 0
 
 	const expandedImage = document.createElement('img')
 	expandedImage.width = slideWidth
@@ -427,14 +491,20 @@ function closeTransition(
 	// and also for cases when `slideImage` is not defined.
 	expandedImage.style.backgroundColor = 'var(--Slideshow-Slide-backgroundColor)'
 	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${ms(animationDuration)}, box-shadow ${ms(animationDuration)}, opacity ${ms(ANIMATION_MIN_DURATION)}`
+	expandedImage.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
 
-	addElement(expandedImage)
+	prependElementToContainer(thumbnailImageCopyForeground)
+	prependElementToContainer(expandedImage)
+	prependElementToContainer(thumbnailImageCopyBackground)
 
 	// Run CSS transitions.
 	triggerDomElementRender(expandedImage)
-	triggerDomElementRender(thumbnailImageCopy)
+	triggerDomElementRender(thumbnailImageCopyBackground)
+	triggerDomElementRender(thumbnailImageCopyForeground)
+
 	expandedImage.style.opacity = 0
+	thumbnailImageCopyForeground.style.opacity = 1
+
 	expandedImage.style.transform =
 		getScaleXY(
 			thumbnailWidth / slideWidth,
@@ -444,22 +514,22 @@ function closeTransition(
 			thumbnailX * (slideWidth / thumbnailWidth),
 			thumbnailY * (slideHeight / thumbnailHeight)
 		)
-	thumbnailImageCopy.style.transform = getTranslateXY(thumbnailX, thumbnailY)
 
-	let timeout
-	const promise = new Promise((resolve) => {
-		timeout = setTimeout(() => {
-			removeElement(thumbnailImageCopy)
-			removeElement(expandedImage)
-			resolve()
-		}, animationDuration)
-	})
+	const thumbnailImageCopyTransform = getTranslateXY(thumbnailX, thumbnailY)
 
-	return {
-		animationDuration,
-		promise,
-		timeout
+	thumbnailImageCopyBackground.style.transform = thumbnailImageCopyTransform
+	thumbnailImageCopyForeground.style.transform = thumbnailImageCopyTransform
+
+	const cleanUp = () => {
+		removeElementFromContainer(thumbnailImageCopyBackground)
+		removeElementFromContainer(thumbnailImageCopyForeground)
+		removeElementFromContainer(expandedImage)
 	}
+
+	return createAnimationResult({
+		animationDuration,
+		cleanUp
+	})
 }
 
 function calculateDistance(x1, y1, x2, y2) {

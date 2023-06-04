@@ -51,7 +51,7 @@ export default function SlideshowWrapper(props) {
 	// `fullScreenFitPrecisionFactor`.
 	// `undefined` is passed as the first argument to `SlideshowSize()` constructor,
 	// because the `SlideshowCore` instance doesn't exist yet.
-	// In fact, only `.getMaxSlideWidth()` and `.getMaxSlideHeight()`
+	// In fact, only `.getMaxAvailableSlideWidth()` and `.getMaxAvailableSlideHeight()`
 	// are used when preloading picture slides.
 	window.SlideshowSize = useMemo(() => new SlideshowSize(undefined, {
 		// `inline` is supposed to be `false`.
@@ -161,13 +161,35 @@ function SlideshowComponent(props) {
 
 	const [hasBeenMeasured, setHasBeenMeasured] = useState(props.inline ? false : true)
 
-	// Uses `useLayoutEffect()` instead of `useEffect()`
-	// because it manipulates DOM Elements (animation).
+  const hasBeenOpened = useRef(false)
+
+	// Uses `useLayoutEffect()` instead of `useEffect()` here because the hook below uses it.
+	// Maybe it doesn't matter but it looks more consistent this way.
 	useLayoutEffect(() => {
-		if (!hasBeenMeasured) {
-			return
+		return () => {
+			// Reset "has been opened" status so that it re-runs the "open" animation
+			// next time the component is re-mounted.
+			// This fixes `useEffect()` hooks running twice in React's "strict" mode.
+			// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
+			if (hasBeenOpened.current) {
+				hasBeenOpened.current = false
+			}
 		}
-		slideshow.opened()
+	}, [])
+
+	// Uses `useLayoutEffect()` instead of `useEffect()` here because it manipulates
+	// DOM Elements (animation), so it's better to run it immediately after the slideshow
+	// has been opened so that there's no percievable lag. Maybe it's not that critical though.
+	useLayoutEffect(() => {
+		// React runs effects on mount twice in "strict" mode.
+		// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
+		// This workaround prevents the "open" animation from running twice on opening a slide.
+		if (!hasBeenOpened.current) {
+			if (hasBeenMeasured) {
+				hasBeenOpened.current = true
+				slideshow.onOpen()
+			}
+		}
 	}, [hasBeenMeasured])
 
 	// Emulates `forceUpdate()`
@@ -466,8 +488,8 @@ function Slideshow({
 										// // `scale` is passed as `pixelRatioMultiplier` to `<Picture/>`.
 										// scale: slideshow.getSlideScale(j),
 										onClick: slideshow.onSlideClick,
-										width: slideshow.getSlideWidth(slide) * slideshow.getSlideScale(j),
-										height: slideshow.getSlideHeight(slide) * slideshow.getSlideScale(j),
+										width: slideshow.getSlideInitialWidth(slide) * slideshow.getSlideScale(j),
+										height: slideshow.getSlideInitialHeight(slide) * slideshow.getSlideScale(j),
 										dragAndScaleMode,
 										className: classNames('Slideshow-Slide', {
 											'Slideshow-Slide--current': j === slideIndex,

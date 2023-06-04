@@ -117,7 +117,7 @@ export default class Slideshow {
 				// 			animateOverlayOpacityDurationOnSlideChange: undefined
 				// 		})
 				// 	}, animateOverlayOpacityDurationOnSlideChange)
-				// 	this.onCleanUp(() => {
+				// 	this.setCleanUpOverlayOpacityAnimation(() => {
 				// 		if (timer) {
 				// 			clearTimeout(timer)
 				// 		}
@@ -222,6 +222,16 @@ export default class Slideshow {
 		clearTimeout(this.closeTimeout)
 	}
 
+	// This function should only be called in `constructor()`s.
+	// The reason is that `.cleanUp()` might be called several times
+	// because of React's "strict" mode (which runs hooks twice on mount)
+	// so `.cleanUp()` behavior should be "idempotent".
+	// Only calling `.onCleanUp()` in `constructor()`s makes
+	// `.cleanUp()` behavior more "idempotent".
+	//
+	// The `cleanUp` argument function might be called several times
+	// and it should behave the same way every such time.
+	//
 	onCleanUp(cleanUp) {
 		this.cleanUps.push(cleanUp)
 	}
@@ -229,7 +239,10 @@ export default class Slideshow {
 	addEventListener(event, listener, options = {}) {
 		listener = { listener, options }
 		this.listeners[event].push(listener)
-		return () => this.listeners[event] = this.listeners[event].filter(_ => _ !== listener)
+		// Removes the event listener.
+		return () => {
+			this.listeners[event] = this.listeners[event].filter(_ => _ !== listener)
+		}
 	}
 
 	triggerListeners() {
@@ -739,7 +752,7 @@ export default class Slideshow {
 		const dx = offsetX - defaultOffsetX
 		const dy = offsetY - defaultOffsetY
 		const dr = Math.sqrt(dx * dx + dy * dy)
-		const dw = (this.getSlideWidth(slide) * (scale - 1))
+		const dw = (this.getSlideInitialWidth(slide) * (scale - 1))
 		const animationOffset = dr + dw / 2
 		const animationDuration = scaleAnimationDuration * (0.7 + 0.5 * animationOffset / 1000)
 
@@ -909,8 +922,8 @@ export default class Slideshow {
 			scaleOriginPrevRatio,
 			scaleOriginPrevScale
 		} = this
-		const nonScaledWidth = this.getSlideWidth(slide)
-		const nonScaledHeight = this.getSlideHeight(slide)
+		const nonScaledWidth = this.getSlideInitialWidth(slide)
+		const nonScaledHeight = this.getSlideInitialHeight(slide)
 		// // The math:
 		// const newWidth = nonScaledWidth * scale
 		// const prevWidth = nonScaledWidth * prevScale
@@ -939,12 +952,14 @@ export default class Slideshow {
 
 	getDefaultSlideOffset(i, { ignoreDragAndScaleMode, scaleFactor } = {}) {
 		const { offsetSlideIndex } = this.state
+
 		if (offsetSlideIndex === i) {
 			const {
 				scale,
-				slideOriginX,
-				slideOriginY
+				offsetSlideOriginX,
+				offsetSlideOriginY
 			} = this.state
+
 			if (this.isDragAndScaleMode() && !ignoreDragAndScaleMode) {
 				// Don't fit the slide on screen in "Drag and Scale" mode.
 			} else {
@@ -952,11 +967,12 @@ export default class Slideshow {
 					this.getSlide(i),
 					// this.getSlideScale(i),
 					scaleFactor === undefined ? scale : scale * scaleFactor,
-					slideOriginX,
-					slideOriginY
+					offsetSlideOriginX,
+					offsetSlideOriginY
 				)
 			}
 		}
+
 		return [0, 0]
 	}
 
@@ -975,9 +991,9 @@ export default class Slideshow {
 		}
 		// debug('Scale', scale)
 		const slide = this.getSlide(j)
-		const width = this.getSlideWidth(slide) * scale
-		const height = this.getSlideHeight(slide) * scale
-		// debug('Default width', this.getSlideWidth(slide))
+		const width = this.getSlideInitialWidth(slide) * scale
+		const height = this.getSlideInitialHeight(slide) * scale
+		// debug('Default width', this.getSlideInitialWidth(slide))
 		// debug('Width', width)
 		let [offsetX, offsetY] = this.getDefaultSlideOffset(j, {
 			scaleFactor,
@@ -1341,7 +1357,7 @@ export default class Slideshow {
 		this.closeTimeout = setTimeout(this._close, duration)
 	}
 
-	opened() {
+	onOpen() {
 		this.unlock()
 		this.triggerListeners('open')
 	}

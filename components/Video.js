@@ -13,7 +13,7 @@ import {
 import { px } from 'web-browser-style'
 
 import AspectRatioWrapper from './AspectRatioWrapper.js'
-import ButtonOrLink from './ButtonOrLink.js'
+import ButtonLink from './ButtonLink.js'
 
 import Picture, { getMaxFitSize } from './Picture.js'
 import VideoDuration from './VideoDuration.js'
@@ -572,6 +572,16 @@ function Video({
 		}
 	}
 
+	const buttonLinkComponentProps = useMemo(() => ({
+		url: getUrl(video),
+		onClick,
+		tabIndex
+	}), [
+		video,
+		onClick,
+		tabIndex
+	])
+
 	if (showPreview) {
 		return (
 			<Picture
@@ -579,10 +589,8 @@ function Video({
 				ref={previewRef}
 				border={border}
 				picture={video.picture}
-				component={ButtonOrLink}
-				url={getUrl(video)}
-				onClick={onClick}
-				tabIndex={tabIndex}
+				component={ButtonLink}
+				componentProps={buttonLinkComponentProps}
 				width={expand ? undefined : width}
 				height={expand ? undefined : height}
 				maxWidth={expand ? getMaxSize(video).width : getMaxWidth()}

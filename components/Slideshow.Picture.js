@@ -116,8 +116,8 @@ export function preloadPictureSlide(slide) {
 		getFitSize(
 			slide.picture,
 			// `inline` property is supposed to be `false`.
-			slideshowSize.getMaxSlideWidth(),
-			slideshowSize.getMaxSlideHeight()
+			slideshowSize.getMaxAvailableSlideWidth(),
+			slideshowSize.getMaxAvailableSlideHeight()
 		)
 	).url)
 }

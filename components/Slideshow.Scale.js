@@ -37,7 +37,13 @@ export default class SlideshowScale {
 	 * @return {number}
 	 */
 	getInitialScaleForSlide(slide) {
-		const scale = this._getInitialScaleForSlide(slide)
+		// This feature was used for video slides when the native `<video/>` player didn't handle
+		// very low width of the player by screwing up the playback controls.
+		// Chrome web browser seems to have fixed the native `<video/>` player to be "responsive" since then,
+		// so this workaround seems no longer required.
+		// const scale = this._getInitialScaleForSlide(slide)
+		const scale = 1
+
 		const i = this.slideshow.getCurrentSlideIndex()
 
 		const {
@@ -51,7 +57,7 @@ export default class SlideshowScale {
 				// If a slide's size is the same (or nearly the same) as its thumbnail size,
 				// then artificially enlarge such slide, so that the user isn't confused
 				// on whether they have clicked the thumbnail or not (in "hover" picture mode).
-				const slideScaleRelativeToThumbnail = this.slideshow.getSlideWidth(slide) / imageElementCoords.width
+				const slideScaleRelativeToThumbnail = this.slideshow.getSlideInitialWidth(slide) / imageElementCoords.width
 				if (slideScaleRelativeToThumbnail < minSlideScaleRelativeToThumbnail) {
 					return Math.max(scale, minSlideScaleRelativeToThumbnail / slideScaleRelativeToThumbnail)
 				}
@@ -62,28 +68,58 @@ export default class SlideshowScale {
 		return scale
 	}
 
-	_getInitialScaleForSlide(slide) {
-		const plugin = this.slideshow.getPluginForSlide(slide)
-
-		const minInitialScale = plugin.minInitialScale
-		if (!minInitialScale) {
-			return 1
-		}
-
-		const maxWidth = this.slideshow.getMaxSlideWidth()
-		const maxHeight = this.slideshow.getMaxSlideHeight()
-		const width = this.slideshow.getSlideWidth(slide)
-		const height = this.slideshow.getSlideHeight(slide)
-		const widthRatio = width / maxWidth
-		const heightRatio = height / maxHeight
-		const ratio = Math.min(widthRatio, heightRatio)
-		if (ratio < minInitialScale) {
-			const largerScale = minInitialScale / ratio
-			const maxScale = 1 / Math.max(widthRatio, heightRatio)
-			return Math.min(largerScale, maxScale)
-		}
-		return 1
-	}
+	/**
+	 * Returns an initial scale for a slide.
+	 * If the corresponding plugin has `minInitialSizeRatioRelativeToMaxSizeAvailable` property defined,
+	 * the initial scale of the slide is gonna be smaller than `1`, if applicable.
+	 * This feature was used for video slides when the native `<video/>` player didn't handle
+	 * very low width of the player by screwing up the playback controls.
+	 * Chrome web browser seems to have fixed the native `<video/>` player to be "responsive" since then,
+	 * so this workaround seems no longer required.
+	 * @param  {Slide} slide
+	 * @return {number}
+	 */
+	// _getInitialScaleForSlide(slide) {
+	// 	const plugin = this.slideshow.getPluginForSlide(slide)
+	//
+	// 	const minInitialSizeRatioRelativeToMaxSizeAvailable = plugin.minInitialSizeRatioRelativeToMaxSizeAvailable
+	// 	if (!minInitialSizeRatioRelativeToMaxSizeAvailable) {
+	// 		return 1
+	// 	}
+	//
+	// 	// Maximum possible dimensions for a slide that fits into the viewport's width.
+	// 	const maxAvailableSlideWidth = this.slideshow.getMaxAvailableSlideWidth()
+	// 	const maxAvailableSlideHeight = this.slideshow.getMaxAvailableSlideHeight()
+	//
+	// 	// Maximum possible dimensions for this `slide` so that it fits into the viewport.
+	// 	const maxWidth = this.slideshow.getSlideInitialWidth(slide)
+	// 	const maxHeight = this.slideshow.getSlideInitialHeight(slide)
+	//
+	// 	// Calculate the slide's scale ratio so that it fits into the viewport.
+	// 	const widthRatio = maxWidth / maxAvailableSlideWidth
+	// 	const heightRatio = maxHeight / maxAvailableSlideHeight
+	// 	const ratio = Math.min(widthRatio, heightRatio)
+	//
+	// 	// Sometimes a slide is disproportionately long by one of the dimensions
+	// 	// resulting in it being disproportionately short by the other dimension.
+	// 	// Such cases could be worked around by setting the minimum allowed
+	// 	// ratio of a slide by any of the dimensions via
+	// 	// `minInitialSizeRatioRelativeToMaxSizeAvailable` property on a plugin.
+	// 	//
+	// 	// If the scale ratio required to fit the slide into the viewport as a whole
+	// 	// is too low then attempt make it larger until both of the slide's dimensions
+	// 	// start to not fit into the viewport.
+	// 	//
+	// 	if (ratio < minInitialSizeRatioRelativeToMaxSizeAvailable) {
+	// 		const minPreferredScale = minInitialSizeRatioRelativeToMaxSizeAvailable / ratio
+	// 		const maxScaleAtWhichAtLeastOneDimensionStillFits = 1 / Math.max(widthRatio, heightRatio)
+	// 		return Math.min(minPreferredScale, maxScaleAtWhichAtLeastOneDimensionStillFits)
+	// 	}
+	//
+	// 	// Otherwise, the slide fits into the viewport
+	// 	// so no initial scaling is required.
+	// 	return 1
+	// }
 
 	_scaleUp(scale, scaleStep, { restrict = true } = {}) {
 		scale *= 1 + scaleStep
@@ -124,8 +160,8 @@ export default class SlideshowScale {
 	}
 
 	getSlideMaxScale(slide) {
-		const fullScreenWidthScale = this.slideshow.getMaxSlideWidth() / this.slideshow.getSlideWidth(slide)
-		const fullScreenHeightScale = this.slideshow.getMaxSlideHeight() / this.slideshow.getSlideHeight(slide)
+		const fullScreenWidthScale = this.slideshow.getMaxAvailableSlideWidth() / this.slideshow.getSlideInitialWidth(slide)
+		const fullScreenHeightScale = this.slideshow.getMaxAvailableSlideHeight() / this.slideshow.getSlideInitialHeight(slide)
 		return Math.min(fullScreenWidthScale, fullScreenHeightScale)
 	}
 
@@ -142,7 +178,7 @@ export default class SlideshowScale {
 		const slide = this.slideshow.getCurrentSlide()
 		if (i === initialSlideIndex) {
 			if (imageElementCoords) {
-				const slideScaleRelativeToThumbnail = this.slideshow.getSlideWidth(slide) / imageElementCoords.width
+				const slideScaleRelativeToThumbnail = this.slideshow.getSlideInitialWidth(slide) / imageElementCoords.width
 				return Math.min(minSlideScaleRelativeToThumbnail / slideScaleRelativeToThumbnail, 1)
 			}
 		}
@@ -151,8 +187,8 @@ export default class SlideshowScale {
 		// 		return 1
 		// 	}
 		// }
-		const slideWidthRatio = this.slideshow.getSlideWidth(slide) / this.slideshow.getMaxSlideWidth()
-		const slideHeightRatio = this.slideshow.getSlideHeight(slide) / this.slideshow.getMaxSlideHeight()
+		const slideWidthRatio = this.slideshow.getSlideInitialWidth(slide) / this.slideshow.getMaxAvailableSlideWidth()
+		const slideHeightRatio = this.slideshow.getSlideInitialHeight(slide) / this.slideshow.getMaxAvailableSlideHeight()
 		// Averaged ratio turned out to work better than "min" ratio.
 		// const slideRatio = Math.min(slideWidthRatio, slideHeightRatio)
 		const slideRatio = (slideWidthRatio + slideHeightRatio) / 2
@@ -216,11 +252,11 @@ export default class SlideshowScale {
 		// Measure stuff used when exiting "Drag and Scale" mode on fast zoom out.
 		// // Measure stuff used when closing the slideshow on fast zoom out.
 		const slide = this.slideshow.getCurrentSlide()
-		const maxSlideWidth = this.slideshow.getMaxSlideWidth()
-		const maxSlideHeight = this.slideshow.getMaxSlideHeight()
+		const maxSlideWidth = this.slideshow.getMaxAvailableSlideWidth()
+		const maxSlideHeight = this.slideshow.getMaxAvailableSlideHeight()
 		const maxSlideSizeRatio = maxSlideWidth / maxSlideHeight
-		const slideWidth = this.slideshow.getSlideWidth(slide)
-		const slideHeight = this.slideshow.getSlideHeight(slide)
+		const slideWidth = this.slideshow.getSlideInitialWidth(slide)
+		const slideHeight = this.slideshow.getSlideInitialHeight(slide)
 		const slideRatio = slideWidth / slideHeight
 		if (slideRatio >= maxSlideSizeRatio) {
 			this.interactiveZoomMaxWidth = maxSlideWidth
@@ -392,7 +428,7 @@ export default class SlideshowScale {
 			// Getting `scale` from `transform` in real time would return a matrix.
 			// https://stackoverflow.com/questions/5603615/get-the-scale-value-of-an-element
 			// const scale = getSlideDOMNode().style.transform
-			const scale = getSlideDOMNode().getBoundingClientRect().width / this.slideshow.getSlideWidth(slide)
+			const scale = getSlideDOMNode().getBoundingClientRect().width / this.slideshow.getSlideInitialWidth(slide)
 			const { onScaleChange } = this.slideshow.props
 			// Apply the current scale in slideshow state.
 			if (onScaleChange) {

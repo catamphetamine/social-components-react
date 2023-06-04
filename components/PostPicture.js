@@ -18,7 +18,7 @@ export default function PostPicture({
 	align,
 	border,
 	spoilerLabel,
-	link,
+	linkToUrl,
 	onClick,
 	className
 }) {
@@ -37,11 +37,11 @@ export default function PostPicture({
 				expand={expand}
 				expandToTheFullest={expandToTheFullest}
 				spoilerLabel={spoilerLabel}
-				url={link}
+				linkToUrl={linkToUrl}
 				border={border}
-				onClick={link ? undefined : onClick}/>
+				onClick={linkToUrl ? undefined : onClick}/>
 			{picture.title &&
-				<PostEmbeddedAttachmentTitle link={link || picture.url}>
+				<PostEmbeddedAttachmentTitle link={linkToUrl || picture.url}>
 					{picture.title}
 				</PostEmbeddedAttachmentTitle>
 			}
@@ -51,7 +51,7 @@ export default function PostPicture({
 
 PostPicture.propTypes = {
 	attachment: pictureAttachment.isRequired,
-	link: PropTypes.string,
+	linkToUrl: PropTypes.string,
 	onClick: PropTypes.func,
 	maxHeight: PropTypes.number,
 	expand: PropTypes.bool,

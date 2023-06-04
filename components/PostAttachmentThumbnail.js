@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FadeInOut, ActivityIndicator } from 'react-responsive-ui'
 
-import ButtonOrLink from './ButtonOrLink.js'
+import ButtonLink from './ButtonLink.js'
 import { preloadPictureSlide } from './Slideshow.Picture.js'
 import SlideshowSize from './Slideshow.Size.js'
 import Picture from './Picture.js'
@@ -25,10 +25,8 @@ import {
 import './PostAttachmentThumbnail.css'
 
 export default function PostAttachmentThumbnail({
-	url,
+	linkToUrl,
 	onClick,
-	component: Component,
-	componentProps,
 	attachment,
 	spoilerLabel,
 	expand,
@@ -91,6 +89,11 @@ export default function PostAttachmentThumbnail({
 		onClick
 	])
 
+	// `<ButtonLink/>` component requires an `onClick` property.
+	const onPictureClickIgnore = useCallback(() => {
+		// Ignore.
+	}, [])
+
 	useEffect(() => {
 		return () => {
 			if (slideshowOpenRequest.current) {
@@ -116,10 +119,9 @@ export default function PostAttachmentThumbnail({
 	// redundant, pointless and distracting to a user.
 
 	return (
-		<Component
-			{...componentProps}
-			url={url || getAttachmentUrl(attachment)}
-			onClick={onClick ? onPictureClick : undefined}
+		<ButtonLink
+			url={linkToUrl || getAttachmentUrl(attachment)}
+			onClick={onClick ? onPictureClick : onPictureClickIgnore}
 			className={classNames(
 				className,
 				'PostAttachmentThumbnail', {
@@ -200,7 +202,7 @@ export default function PostAttachmentThumbnail({
 					</span>
 				}
 			</Picture>
-		</Component>
+		</ButtonLink>
 	)
 }
 
@@ -209,9 +211,7 @@ PostAttachmentThumbnail.propTypes = {
 		pictureAttachment,
 		videoAttachment
 	]).isRequired,
-	component: PropTypes.elementType.isRequired,
-	componentProps: PropTypes.object,
-	url: PropTypes.string,
+	linkToUrl: PropTypes.string,
 	onClick: PropTypes.func,
 	spoilerLabel: PropTypes.string,
 	maxSize: PropTypes.number,
@@ -227,10 +227,6 @@ PostAttachmentThumbnail.propTypes = {
 	moreAttachmentsCount: PropTypes.number,
 	fixAttachmentPictureSize: PropTypes.bool,
 	className: PropTypes.string
-}
-
-PostAttachmentThumbnail.defaultProps = {
-	component: ButtonOrLink
 }
 
 // export default React.forwardRef(PostAttachment)

@@ -9,7 +9,7 @@ const PluginType = PropTypes.shape({
 	getAspectRatio: PropTypes.func.isRequired,
 	getOtherActions: PropTypes.func,
 	preload: PropTypes.func,
-	minInitialScale: PropTypes.number,
+	minInitialSizeRatioRelativeToMaxSizeAvailable: PropTypes.number,
 	allowChangeSlideOnClick: PropTypes.bool,
 	// isScaleDownAllowed: PropTypes.func.isRequired,
 	canOpenExternalLink: PropTypes.func,
@@ -201,9 +201,9 @@ export const SlideshowStateTypes = {
 	hasStartedClosing: PropTypes.bool,
 	hasFinishedClosing: PropTypes.bool,
 
-	slideOriginX: PropTypes.number,
-	slideOriginY: PropTypes.number,
 	offsetSlideIndex: PropTypes.number,
+	offsetSlideOriginX: PropTypes.number,
+	offsetSlideOriginY: PropTypes.number,
 
 	openAnimationDuration: PropTypes.number,
 	closeAnimationDuration: PropTypes.number

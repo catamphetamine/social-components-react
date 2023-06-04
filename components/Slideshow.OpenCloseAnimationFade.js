@@ -6,6 +6,8 @@ import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
 import { px, scaleFactor, ms } from 'web-browser-style'
 
+import { createAnimationResult } from './Slideshow.OpenCloseAnimation.utility.js'
+
 import triggerDomElementRender from '../utility/triggerDomElementRender.js'
 
 const SCALE = 0.95
@@ -20,8 +22,10 @@ export default class OpenCloseAnimationFade {
 	onOpen(slideElement, { imageElement, slideOffsetX, slideOffsetY }) {
 		const useLongerOpenCloseAnimation = false
 		const animationDuration = useLongerOpenCloseAnimation ? ANIMATION_DURATION_LONG : ANIMATION_DURATION
+
 		const animateOpenSlideAndBackgroundSeparately = useLongerOpenCloseAnimation ? true : false
-		if (animateOpenSlideAndBackgroundSeparately) {
+		const shouldAnimateOpen = animateOpenSlideAndBackgroundSeparately
+		if (shouldAnimateOpen) {
 			this.animateOpen(slideElement, {
 				slideOffsetX,
 				slideOffsetY,
@@ -29,15 +33,17 @@ export default class OpenCloseAnimationFade {
 				useLongerOpenCloseAnimation
 			})
 		}
-		// Return animation duration and a `Promise`.
-		return {
-			animationDuration,
-			promise: timeoutPromise(animationDuration).then(() => {
-				if (animateOpenSlideAndBackgroundSeparately) {
-					slideElement.style.transition = 'none'
-				}
-			})
+
+		const cleanUp = () => {
+			if (shouldAnimateOpen) {
+				slideElement.style.transition = 'none'
+			}
 		}
+
+		return createAnimationResult({
+			animationDuration,
+			cleanUp
+		})
 	}
 
 	animateOpen(slideElement, {
@@ -80,19 +86,23 @@ export default class OpenCloseAnimationFade {
 
 	onClose(slideElement, { useLongerOpenCloseAnimation }) {
 		const animationDuration = useLongerOpenCloseAnimation ? ANIMATION_DURATION_LONG : ANIMATION_DURATION
+
 		const animateOpenSlideAndBackgroundSeparately = useLongerOpenCloseAnimation ? true : false
-		if (animateOpenSlideAndBackgroundSeparately) {
+		const shouldAnimateOpen = animateOpenSlideAndBackgroundSeparately
+		if (shouldAnimateOpen) {
 			this.animateClose(slideElement, { animationDuration, useLongerOpenCloseAnimation })
 		}
-		// Return animation duration and a `Promise`.
-		return {
-			animationDuration,
-			promise: timeoutPromise(animationDuration).then(() => {
-				if (animateOpenSlideAndBackgroundSeparately) {
-					slideElement.style.transition = 'none'
-				}
-			})
+
+		const cleanUp = () => {
+			if (shouldAnimateOpen) {
+				slideElement.style.transition = 'none'
+			}
 		}
+
+		return createAnimationResult({
+			animationDuration,
+			cleanUp
+		})
 	}
 
 	animateClose(slideElement, { animationDuration, useLongerOpenCloseAnimation }) {
@@ -117,8 +127,4 @@ export default class OpenCloseAnimationFade {
 		}
 		slideElement.style.opacity = 0
 	}
-}
-
-function timeoutPromise(duration) {
-	return new Promise(resolve => setTimeout(resolve, duration))
 }

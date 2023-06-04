@@ -7,6 +7,13 @@ import {
 export default class SlideshowFullscreen {
 	constructor(slideshow) {
 		this.slideshow = slideshow
+
+		this.slideshow.onCleanUp(() => {
+			if (this.exitFullScreen) {
+				this.exitFullScreen()
+				this.exitFullScreen = undefined
+			}
+		})
 	}
 
 	enterFullscreen = (container) => {
@@ -15,10 +22,10 @@ export default class SlideshowFullscreen {
 				// Re-render the current slide.
 				this.slideshow.showSlide(this.slideshow.getState().i)
 			})
-			this.slideshow.onCleanUp(() => {
+			this.exitFullScreen = () => {
 				exitFullScreen()
 				unlistenFullScreen()
-			})
+			}
 			return true
 		}
 	}

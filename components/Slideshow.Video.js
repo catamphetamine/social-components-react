@@ -7,7 +7,22 @@ import Video, { getMaxSize, getUrl } from './Video.js'
 import { isKeyCombination } from 'web-browser-input'
 
 export default {
-	minInitialScale: 0.65,
+	// Chrome web browser seems to have fixed the native `<video/>` player controls
+	// when its width is very short, so this workaround seems no longer required.
+	//
+	// // Sometimes a slide is disproportionately long by one of the dimensions
+	// // resulting in it being disproportionately short by the other dimension.
+	// // Such cases could be worked around by setting the minimum allowed
+	// // ratio of a slide by any of the dimensions via
+	// // `minInitialSizeRatioRelativeToMaxSizeAvailable` property on a plugin.
+	// //
+	// // Because native `<video/>` player is used to play video slides,
+	// // when its width becomes too short, its controls start looking not pretty,
+	// // so a minimum acceptable width is set for a `<video/>` player
+	// // by setting the minumum initial slide size.
+	// //
+	// minInitialSizeRatioRelativeToMaxSizeAvailable: 0.65,
+	//
 	// showCloseButtonForSingleSlide: true,
 	getMaxSize(slide) {
 		return getMaxSize(slide.video)

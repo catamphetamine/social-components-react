@@ -7,6 +7,29 @@ export default class SlideshowOpenPictureInHoverMode {
 		this.slideshow = slideshow
 	}
 
+	resetSlideOffsetState() {
+		this.slideshow.setState({
+			offsetSlideIndex: undefined,
+			offsetSlideOriginX: undefined,
+			offsetSlideOriginY: undefined
+		})
+	}
+
+	cleanUp = () => {
+		if (this.resetSlideOffset) {
+			this.resetSlideOffset()
+			this.resetSlideOffset = undefined
+		}
+		if (this.isSlideOffsetApplied()) {
+			this.resetSlideOffsetState()
+		}
+	}
+
+	isSlideOffsetApplied() {
+		const { offsetSlideIndex } = this.slideshow.getState()
+		return offsetSlideIndex !== undefined
+	}
+
 	static getInitialProps(props) {
 		// Get `imageElement`.
 		let { imageElement } = props
@@ -28,48 +51,44 @@ export default class SlideshowOpenPictureInHoverMode {
 	getSlideSize = () => {
 		return getFitSize(
 			this.slideshow.getCurrentSlide().picture,
-			this.slideshow.getMaxSlideWidth(),
-			this.slideshow.getMaxSlideHeight()
+			this.slideshow.getMaxAvailableSlideWidth(),
+			this.slideshow.getMaxAvailableSlideHeight()
 		)
 	}
 
 	applySlideOffset = () => {
 		const { getSlideDOMNode } = this.slideshow.props
-		this.slideshow.onSlideChange(() => {
-			const { offsetSlideIndex } = this.slideshow.getState()
-			if (offsetSlideIndex !== undefined) {
-				this.slideshow.setState(NO_OFFSET_STATE)
-			}
-		}, { once: true })
-		this.slideshow.onResize(() => {
-			// // Reset slide offset on window resize.
-			// getSlideDOMNode().style.transform = 'none'
-			// this.slideshow.setState(NO_OFFSET_STATE)
-		})
+
+		// this.slideshow.onResize(() => {
+		// 	// // Reset slide offset on window resize.
+		// 	// getSlideDOMNode().style.transform = 'none'
+		// 	// this.slideshow.setState(NO_SLIDE_OFFSET_STATE)
+		// })
+
 		return this.calculateAndApplySlideOffset(getSlideDOMNode())
 	}
 
 	/**
 	 * @return {number[]} `[x, y]`
 	 */
-	applySlideOrigin() {
+	updateSlideOffset() {
 		const { initialSlideIndex, imageElementCoords } = this.slideshow.props
 		const { x, y, width, height } = imageElementCoords
 		const originX = x + width / 2
 		const originY = y + height / 2
 		this.slideshow.setState({
 			offsetSlideIndex: initialSlideIndex,
-			slideOriginX: originX,
-			slideOriginY: originY
+			offsetSlideOriginX: originX,
+			offsetSlideOriginY: originY
 		})
-		return [originX, originY]
+		return { originX, originY }
 	}
 
 	/**
 	 * @return {number[]} `[offsetX, offsetY]`
 	 */
 	calculateAndApplySlideOffset(slideDOMNode) {
-		const [originX, originY] = this.applySlideOrigin()
+		const { originX, originY } = this.updateSlideOffset()
 		const slideCoords = slideDOMNode.getBoundingClientRect()
 		const [slideOffsetX, slideOffsetY] = calculateSlideOffset(
 			originX,
@@ -83,6 +102,9 @@ export default class SlideshowOpenPictureInHoverMode {
 			this.slideshow.getMargin
 		)
 		slideDOMNode.style.transform = `translateX(${px(slideOffsetX)}) translateY(${px(slideOffsetY)})`
+		this.resetSlideOffset = () => {
+			slideDOMNode.style.transform = 'none'
+		}
 		return [slideOffsetX, slideOffsetY]
 	}
 }
@@ -151,10 +173,4 @@ export function calculateSlideCoordinates(
 		slideY = (slideshowHeight - getMargin('bottom')) - slideHeight
 	}
 	return [slideX, slideY]
-}
-
-const NO_OFFSET_STATE = {
-	offsetSlideIndex: undefined,
-	slideOriginX: undefined,
-	slideOriginY: undefined
 }

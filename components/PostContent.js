@@ -50,12 +50,16 @@ function PostContent({
 	messages,
 	className
 }, ref) {
+	if (onPostContentRendered) {
+		throw new Error('`onPostContentRendered` property was removed')
+	}
+
 	const [showPreview, setShowPreview] = useState(initialExpandContent ? false : true)
 	// Re-renders the post element when its content changes by `loadResourceLinks()`.
 	const [postContentChanged, setPostContentChanged] = useState()
 
 	const isMounted = useIsMounted()
-	const resourceLinkLoader = useRef()
+	const cancelLoadingResourceLinks = useRef()
 
 	const onExpandContent = useCallback(() => {
 		setShowPreview(false)
@@ -96,7 +100,7 @@ function PostContent({
 		onRenderedContentDidChange
 	])
 
-	const waitingForPostContentToRender = useRef()
+	// const resourceLinkLoaderHasChangedPostContent = useRef()
 
 	const attachments = post.attachments
 	const content = showPreview && post.contentPreview || post.content
@@ -109,7 +113,8 @@ function PostContent({
 	})
 
 	const loadAllResourceLinks = useCallback(() => {
-		return loadResourceLinks(post, {
+		// Returns an object having a `.cancel()` function.
+		const { cancel } = loadResourceLinks(post, {
 			youTubeApiKey,
 			cache: resourceCache,
 			messages: resourceMessages,
@@ -128,7 +133,7 @@ function PostContent({
 			// but for some reason React doesn't apply the `style` changes to the DOM.
 			// It's most likely a bug in React.
 			// https://github.com/facebook/react/issues/16357
-			// `<PostAttachment/>` does pass the correct `style` to `<ButtonOrLink/>`
+			// `<PostAttachment/>` does pass the correct `style` to `<ButtonLink/>`
 			// but the `style` doesn't get applied in the DOM.
 			//
 			// Returns a list of `Promise`s.
@@ -140,7 +145,7 @@ function PostContent({
 				return []
 			} : undefined,
 			onContentChange: () => {
-				waitingForPostContentToRender.current = post
+				// resourceLinkLoaderHasChangedPostContent.current = post
 				if (onPostContentChange) {
 					onPostContentChange(post)
 				}
@@ -149,6 +154,7 @@ function PostContent({
 				}
 			}
 		})
+		return cancel
 	}, [post])
 
 	useLayoutEffectSkipMount(() => {
@@ -162,22 +168,31 @@ function PostContent({
 		}
 	}, [expandAttachments])
 
-	// Load resource link on initial mount and on each `post` property change.
+	// Load resource links on initial mount.
 	useLayoutEffect(() => {
-		resourceLinkLoader.current = loadAllResourceLinks()
+		cancelLoadingResourceLinks.current = loadAllResourceLinks()
+		return () => {
+			if (cancelLoadingResourceLinks.current) {
+				cancelLoadingResourceLinks.current()
+				cancelLoadingResourceLinks.current = undefined
+			}
+		}
 	}, [])
 
 	useLayoutEffectSkipMount(() => {
 		// console.log('~ New `post` property passed to `<PostContent/>` ~')
-		if (resourceLinkLoader.current) {
-			resourceLinkLoader.current.cancel()
-			if (waitingForPostContentToRender.current) {
-				const post = waitingForPostContentToRender.current
-				waitingForPostContentToRender.current = undefined
-				if (onPostContentRendered) {
-					onPostContentRendered(post, { cancel: true })
-				}
-			}
+		if (cancelLoadingResourceLinks.current) {
+			cancelLoadingResourceLinks.current()
+			cancelLoadingResourceLinks.current = undefined
+			// I dunno what `onPostContentRendered()` function did.
+			// It doesn't seem to be used anymore.
+			// if (resourceLinkLoaderHasChangedPostContent.current) {
+			// 	const post = resourceLinkLoaderHasChangedPostContent.current
+			// 	resourceLinkLoaderHasChangedPostContent.current = undefined
+			// 	// if (onPostContentRendered) {
+			// 	// 	onPostContentRendered(post, { cancel: true })
+			// 	// }
+			// }
 		}
 		// The post height did change due to a new `post` property
 		// being passed, so the post height should be re-measured.
@@ -186,7 +201,8 @@ function PostContent({
 		if (onRenderedContentDidChange) {
 			onRenderedContentDidChange()
 		}
-		resourceLinkLoader.current = loadAllResourceLinks()
+		// Load resource links every time `post` content property changes.
+		cancelLoadingResourceLinks.current = loadAllResourceLinks()
 	}, [post])
 
 	useLayoutEffectSkipMount(() => {
@@ -197,9 +213,9 @@ function PostContent({
 		if (onRenderedContentDidChange) {
 			onRenderedContentDidChange()
 		}
-		if (onPostContentRendered) {
-			onPostContentRendered(post)
-		}
+		// if (onPostContentRendered) {
+		// 	onPostContentRendered(post)
+		// }
 	}, [postContentChanged])
 
 	const startsWithText = content && (

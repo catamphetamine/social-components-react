@@ -154,7 +154,7 @@ export default function PostContentBlock({
 						attachment={attachment}
 						spoilerLabel={spoilerLabel}
 						maxHeight={maxHeight}
-						link={content.link}
+						linkToUrl={content.link}
 						onClick={onAttachmentClick ?
 							(event) => {
 								event.preventDefault()

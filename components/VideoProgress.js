@@ -26,10 +26,12 @@ export default function VideoProgress({
 	const isShown = useRef()
 	const progressUpdateFrame = useRef()
 	const afterHideTimer = useRef()
+
 	// const [progress, setProgress] = useState()
 	function roundProgressValue(value) {
 		return Math.round(value * 1000) / 1000
 	}
+
 	const setProgress = useCallback((value) => {
 		// Show the progress.
 		const showDuration = 100
@@ -66,6 +68,7 @@ export default function VideoProgress({
 			}, hideDuration)
 		}, hideDelay)
 	}, [])
+
 	useLayoutEffect(() => {
 		// Add "on keyboard seek" listener.
 		onKeyboardSeek.current = setProgress
@@ -76,6 +79,7 @@ export default function VideoProgress({
 			cancelAnimationFrame(progressUpdateFrame.current)
 		}
 	}, [])
+
 	return (
 		<div
 			ref={element}

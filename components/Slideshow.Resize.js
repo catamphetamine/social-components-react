@@ -2,6 +2,7 @@ import { throttle } from 'lodash-es'
 
 export default class SlideshowResize {
 	listeners = []
+
 	constructor(slideshow) {
 		slideshow.onInit(() => {
 			let width = slideshow.getSlideshowWidth()
@@ -19,10 +20,16 @@ export default class SlideshowResize {
 				}
 			}, 100)
 			window.addEventListener('resize', onWindowResize)
-			slideshow.onCleanUp(() => {
-				window.removeEventListener('resize', onWindowResize)
-			})
+			this.unlistenWindowResize = () => window.removeEventListener('resize', onWindowResize)
 		})
+
+		slideshow.onCleanUp(() => {
+			if (this.unlistenWindowResize) {
+				this.unlistenWindowResize()
+				this.unlistenWindowResize = undefined
+			}
+		})
+
 		slideshow.onResize = (listener) => {
 			this.listeners.push(listener)
 		}

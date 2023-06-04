@@ -19,7 +19,10 @@ export default class SlideshowTouch {
 	}
 
 	cleanUp = () => {
-		clearTimeout(this.tapEventTimeout)
+		if (this.tapEventTimeout) {
+			clearTimeout(this.tapEventTimeout)
+			this.tapEventTimeout = undefined
+		}
 	}
 
 	getTouch() {

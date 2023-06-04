@@ -136,7 +136,7 @@ function fixReactThumbnailElementSize(thumbnailSize, thumbnailSizeUrl) {
 	// but for some reason React doesn't apply the `style` changes to the DOM.
 	// It's most likely a bug in React.
 	// https://github.com/facebook/react/issues/16357
-	// `<PostAttachment/>` does pass the correct `style` to `<ButtonOrLink/>`
+	// `<PostAttachment/>` does pass the correct `style` to `<ButtonLink/>`
 	// but the `style` doesn't get applied in the DOM.
 	// This is a workaround for that bug: applies the changes to the DOM
 	// that aren't applied by React (React will apply the changes on subsequent updates).

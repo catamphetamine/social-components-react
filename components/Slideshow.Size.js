@@ -14,21 +14,31 @@ export default class SlideshowSize {
 			slideshow.getSlideshowWidth = this.getSlideshowWidth
 			slideshow.getSlideshowHeight = this.getSlideshowHeight
 
-			slideshow.getMaxSlideWidth = this.getMaxSlideWidth
-			slideshow.getMaxSlideHeight = this.getMaxSlideHeight
+			slideshow.getMaxAvailableSlideWidth = this.getMaxAvailableSlideWidth
+			slideshow.getMaxAvailableSlideHeight = this.getMaxAvailableSlideHeight
 
-			slideshow.getSlideWidth = this.getSlideWidth
-			slideshow.getSlideHeight = this.getSlideHeight
+			slideshow.getSlideInitialWidth = this.getSlideMaxInitialWidth
+			slideshow.getSlideInitialHeight = this.getSlideMaxInitialHeight
 
 			slideshow.getMargin = this.getMargin
 		}
 	}
 
-	getMaxSlideWidth = () => {
+	/**
+	 * Returns a maximum possible width for a slide that fits into the viewport's width.
+	 * Doesn't account for slide scale.
+	 * @return {number}
+	 */
+	getMaxAvailableSlideWidth = () => {
 		return this.getSlideshowWidth() - this.getMargin('left') - this.getMargin('right')
 	}
 
-	getMaxSlideHeight = () => {
+	/**
+	 * Returns a maximum possible height for a slide that fits into the viewport's height.
+	 * Doesn't account for slide scale.
+	 * @return {number}
+	 */
+	getMaxAvailableSlideHeight = () => {
 		return this.getSlideshowHeight() - this.getMargin('top') - this.getMargin('bottom')
 	}
 
@@ -75,42 +85,30 @@ export default class SlideshowSize {
 		return inline
 	}
 
-	getSlideMaxWidth = (slide) => {
+	/**
+	 * Returns a maximum possible width for a `slide` so that it fits into the viewport.
+	 * If upscaling slides is not allowed then it will account for that too.
+	 * Doesn't account for slide scale.
+	 * @param  {Slide} slide
+	 * @return {number}
+	 */
+	getSlideMaxInitialWidth = (slide) => {
 		return Math.min(
-			this.getMaxSlideHeight() * this.getSlideAspectRatio(slide),
-			this.getMaxSlideWidth(),
+			this.getMaxAvailableSlideHeight() * this.getSlideAspectRatio(slide),
+			this.getMaxAvailableSlideWidth(),
 			this.shouldUpscaleSmallSlides() ? Number.MAX_VALUE : this.getSlideMaxAvailableSize(slide).width
 		)
 	}
 
-	getSlideMaxHeight = (slide) => {
-		return this.getSlideMaxWidth(slide) / this.getSlideAspectRatio(slide)
-	}
-
 	/**
-	 * Returns max slide width.
+	 * Returns a maximum possible height for a `slide` so that it fits into the viewport.
+	 * If upscaling slides is not allowed then it will account for that too.
 	 * Doesn't account for slide scale.
-	 * @param  {number} i — Slide index.
+	 * @param  {Slide} slide
 	 * @return {number}
 	 */
-	getSlideWidth = (slide) => {
-		return Math.min(
-			this.getSlideMaxWidth(slide),
-			this.getSlideMaxHeight(slide) * this.getSlideAspectRatio(slide)
-		)
-	}
-
-	/**
-	 * Returns max slide height.
-	 * Doesn't account for slide scale.
-	 * @param  {number} i — Slide index.
-	 * @return {number}
-	 */
-	getSlideHeight = (slide) => {
-		return Math.min(
-			this.getSlideMaxHeight(slide),
-			this.getSlideMaxWidth(slide) / this.getSlideAspectRatio(slide)
-		)
+	getSlideMaxInitialHeight = (slide) => {
+		return this.getSlideMaxInitialWidth(slide) / this.getSlideAspectRatio(slide)
 	}
 
 	getSlideAspectRatio(slide) {
@@ -152,8 +150,8 @@ export default class SlideshowSize {
 		const fitFactor = precise ? 1 : fullScreenFitPrecisionFactor
 		const slide = this.slideshow.getCurrentSlide()
 		const maxSize = this.getSlideMaxAvailableSize(slide)
-		return maxSize.width >= this.getMaxSlideWidth() * fitFactor ||
-			maxSize.height >= this.getMaxSlideHeight() * fitFactor
+		return maxSize.width >= this.getMaxAvailableSlideWidth() * fitFactor ||
+			maxSize.height >= this.getMaxAvailableSlideHeight() * fitFactor
 	}
 
 	/**
@@ -165,10 +163,10 @@ export default class SlideshowSize {
 	 * @return {number[]} [offsetX, offsetY]
 	 */
 	getFittedSlideOffset = (slide, scale, originX, originY) => {
-		const scaledWidth = scale * this.getSlideWidth(slide)
-		const scaledHeight = scale * this.getSlideHeight(slide)
-		const shouldOffsetX = scaledWidth < this.getMaxSlideWidth()
-		const shouldOffsetY = scaledHeight < this.getMaxSlideHeight()
+		const scaledWidth = scale * this.getSlideMaxInitialWidth(slide)
+		const scaledHeight = scale * this.getSlideMaxInitialHeight(slide)
+		const shouldOffsetX = scaledWidth < this.getMaxAvailableSlideWidth()
+		const shouldOffsetY = scaledHeight < this.getMaxAvailableSlideHeight()
 		// const originX = this.getSlideshowWidth() / 2 + initialOffsetX
 		// const originY = this.getSlideshowHeight() / 2 + initialOffsetY
 		let offsetX = 0
