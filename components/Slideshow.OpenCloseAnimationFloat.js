@@ -249,7 +249,7 @@ function openTransition(
 
 	// A copy of thumbnail image is created and animated to "float" along with the expanded image.
 	// The rationale is that without it, the change between the original compressed and blurry thumbnail
-	// and the sharp scaled down copy of the original image — `expandedImage` — would be too drastic.
+	// and the sharp scaled down copy of the original image — `largeImageCopy` — would be too drastic.
 	// Because of that, it gradually fades out between the original thumbnail image
 	// and the scaled down copy of the original image as they both "float" on the screen.
 	const createThumbnailImageCopy = () => {
@@ -261,24 +261,17 @@ function openTransition(
 		element.style.transformOrigin = 'top left'
 		// `position: fixed` was used when appending this DOM Element to `<body/>`.
 		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-		// expandedImage.style.position = 'fixed'
+		// largeImageCopy.style.position = 'fixed'
 		element.style.position = 'absolute'
 		element.style.left = '0'
 		element.style.top = '0'
 		element.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
-		element.style.opacity = 1
 		return element
 	}
 
-	// The background thumbnail copy is just a background so that both
-	// `thumbnailImageCopyForeground` and `expandedImage` aren't partially transparent
-	// during the "open" animation. Otherwise it would look "glitchy"
-	// and the page content would slightly "shine through" the image while it plays the "open" animation.
+	// The background thumbnail copy is added for gradual morphing between
+	// the grainy low-resolution thumbnail image and the sharp high-resolution `largeImageCopy`.
 	const thumbnailImageCopyBackground = createThumbnailImageCopy()
-
-	// The foreground thumbnail copy is added for gradual morphing between
-	// the grainy low-resolution thumbnail image and the sharp high-resolution `expandedImage`.
-	const thumbnailImageCopyForeground = createThumbnailImageCopy()
 
 	// if (expandedImageElement) {
 	// 	expandedImageElement.style.opacity = 0
@@ -294,50 +287,51 @@ function openTransition(
 	// By creating a copy of the current slide image
 	// `z-index`es are automatically correct
 	// (both elements are appended to `<body/>`).
-	const expandedImage = document.createElement('img')
-	expandedImage.width = slideWidth
-	expandedImage.height = slideHeight
-	expandedImage.src = expandedPictureUrl // expandedPictureSize.url
-	expandedImage.style.transform =
-		getScaleXY(
-			thumbnailWidth / slideWidth,
-			thumbnailHeight / slideHeight
-		) + ' ' +
-		getTranslateXY(
-			thumbnailX * (slideWidth / thumbnailWidth),
-			thumbnailY * (slideHeight / thumbnailHeight)
-		)
-	expandedImage.style.transformOrigin = 'top left'
-	// `position: fixed` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// expandedImage.style.position = 'fixed'
-	expandedImage.style.position = 'absolute'
-	expandedImage.style.left = '0'
-	expandedImage.style.top = '0'
-	// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
-	expandedImage.style.opacity = 0
-	// It could animate `boxShadow` instead of animating `opacity`
-	// but they say that the performance of animating `box-shadow`
-	// could be low, and they suggest animating `opacity` instead.
-	// https://tobiasahlin.com/blog/how-to-animate-box-shadow/
-	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+	const createLargeImageCopy = () => {
+		const element = document.createElement('img')
+		element.width = slideWidth
+		element.height = slideHeight
+		element.src = expandedPictureUrl // expandedPictureSize.url
+		element.style.transform =
+			getScaleXY(
+				thumbnailWidth / slideWidth,
+				thumbnailHeight / slideHeight
+			) + ' ' +
+			getTranslateXY(
+				thumbnailX * (slideWidth / thumbnailWidth),
+				thumbnailY * (slideHeight / thumbnailHeight)
+			)
+		element.style.transformOrigin = 'top left'
+		// `position: fixed` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// element.style.position = 'fixed'
+		element.style.position = 'absolute'
+		element.style.left = '0'
+		element.style.top = '0'
+		// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// element.style.zIndex = 'var(--Slideshow-zIndex)'
+		element.style.opacity = 0
+		// It could animate `boxShadow` instead of animating `opacity`
+		// but they say that the performance of animating `box-shadow`
+		// could be low, and they suggest animating `opacity` instead.
+		// https://tobiasahlin.com/blog/how-to-animate-box-shadow/
+		element.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
+		element.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+		return element
+	}
 
-	prependElementToContainer(thumbnailImageCopyForeground)
-	prependElementToContainer(expandedImage)
+	const largeImageCopy = createLargeImageCopy()
+
+	prependElementToContainer(largeImageCopy)
 	prependElementToContainer(thumbnailImageCopyBackground)
 
 	// Run CSS transitions.
-	triggerDomElementRender(expandedImage)
+	triggerDomElementRender(largeImageCopy)
 	triggerDomElementRender(thumbnailImageCopyBackground)
-	triggerDomElementRender(thumbnailImageCopyForeground)
 
-	expandedImage.style.opacity = 1
-	expandedImage.style.transform = getTranslateXY(slideX, slideY)
-
-	thumbnailImageCopyForeground.style.opacity = 0
+	largeImageCopy.style.opacity = 1
+	largeImageCopy.style.transform = getTranslateXY(slideX, slideY)
 
 	const thumbnailImageCopyTransform =
 		getScaleXY(
@@ -350,13 +344,11 @@ function openTransition(
 		)
 
 	thumbnailImageCopyBackground.style.transform = thumbnailImageCopyTransform
-	thumbnailImageCopyForeground.style.transform = thumbnailImageCopyTransform
 
 	const cleanUp = () => {
 		removeElementFromContainer(thumbnailImageCopyBackground)
-		removeElementFromContainer(thumbnailImageCopyForeground)
 		// if (expandedImageElement) {
-			removeElementFromContainer(expandedImage)
+			removeElementFromContainer(largeImageCopy)
 		// }
 	}
 
@@ -460,52 +452,47 @@ function closeTransition(
 		return element
 	}
 
-	// The background thumbnail copy is just a background so that both
-	// `thumbnailImageCopyForeground` and `expandedImage` aren't partially transparent
-	// during the "open" animation. Otherwise it would look "glitchy"
-	// and the page content would slightly "shine through" the image while it plays the "open" animation.
+	// The background thumbnail copy is added for gradual morphing between
+	// the grainy low-resolution thumbnail image and the sharp high-resolution `largeImageCopy`.
 	const thumbnailImageCopyBackground = createThumbnailImageCopy()
 
-	// The foreground thumbnail copy is added for gradual morphing between
-	// the grainy low-resolution thumbnail image and the sharp high-resolution `expandedImage`.
-	const thumbnailImageCopyForeground = createThumbnailImageCopy()
-	thumbnailImageCopyForeground.style.opacity = 0
+	const createLargeImageCopy = () => {
+		const element = document.createElement('img')
+		element.width = slideWidth
+		element.height = slideHeight
+		element.src = slideImage ? slideImage.src : TRANSPARENT_PIXEL
+		element.style.transform = getTranslateXY(slideX, slideY)
+		element.style.transformOrigin = 'top left'
+		// `position: fixed` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// element.style.position = 'fixed'
+		element.style.position = 'absolute'
+		element.style.left = '0'
+		element.style.top = '0'
+		// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
+		// Not this DOM Element is prepended to the slideshow container DOM Element instead.
+		// element.style.zIndex = 'var(--Slideshow-zIndex)'
+		element.style.opacity = 1
+		// `backgroundColor` is required for transparent PNGs
+		// and also for cases when `slideImage` is not defined.
+		element.style.backgroundColor = 'var(--Slideshow-Slide-backgroundColor)'
+		element.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
+		element.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+		return element
+	}
 
-	const expandedImage = document.createElement('img')
-	expandedImage.width = slideWidth
-	expandedImage.height = slideHeight
-	expandedImage.src = slideImage ? slideImage.src : TRANSPARENT_PIXEL
-	expandedImage.style.transform = getTranslateXY(slideX, slideY)
-	expandedImage.style.transformOrigin = 'top left'
-	// `position: fixed` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// expandedImage.style.position = 'fixed'
-	expandedImage.style.position = 'absolute'
-	expandedImage.style.left = '0'
-	expandedImage.style.top = '0'
-	// `z-index: var(--Slideshow-zIndex)` was used when appending this DOM Element to `<body/>`.
-	// Not this DOM Element is prepended to the slideshow container DOM Element instead.
-	// expandedImage.style.zIndex = 'var(--Slideshow-zIndex)'
-	expandedImage.style.opacity = 1
-	// `backgroundColor` is required for transparent PNGs
-	// and also for cases when `slideImage` is not defined.
-	expandedImage.style.backgroundColor = 'var(--Slideshow-Slide-backgroundColor)'
-	expandedImage.style.boxShadow = 'var(--Slideshow-Slide-boxShadow)'
-	expandedImage.style.transition = `transform ${ms(animationDuration)}, opacity ${ms(animationDuration)}`
+	const largeImageCopy = createLargeImageCopy()
 
-	prependElementToContainer(thumbnailImageCopyForeground)
-	prependElementToContainer(expandedImage)
+	prependElementToContainer(largeImageCopy)
 	prependElementToContainer(thumbnailImageCopyBackground)
 
 	// Run CSS transitions.
-	triggerDomElementRender(expandedImage)
+	triggerDomElementRender(largeImageCopy)
 	triggerDomElementRender(thumbnailImageCopyBackground)
-	triggerDomElementRender(thumbnailImageCopyForeground)
 
-	expandedImage.style.opacity = 0
-	thumbnailImageCopyForeground.style.opacity = 1
+	largeImageCopy.style.opacity = 0
 
-	expandedImage.style.transform =
+	largeImageCopy.style.transform =
 		getScaleXY(
 			thumbnailWidth / slideWidth,
 			thumbnailHeight / slideHeight
@@ -518,12 +505,10 @@ function closeTransition(
 	const thumbnailImageCopyTransform = getTranslateXY(thumbnailX, thumbnailY)
 
 	thumbnailImageCopyBackground.style.transform = thumbnailImageCopyTransform
-	thumbnailImageCopyForeground.style.transform = thumbnailImageCopyTransform
 
 	const cleanUp = () => {
 		removeElementFromContainer(thumbnailImageCopyBackground)
-		removeElementFromContainer(thumbnailImageCopyForeground)
-		removeElementFromContainer(expandedImage)
+		removeElementFromContainer(largeImageCopy)
 	}
 
 	return createAnimationResult({
