@@ -1,27 +1,38 @@
+:root {
+	--PostAttachments-marginTop--afterPostContent: var(--Post-paddingTop);
+
+	--PostAttachment-marginTop: var(--PostContent-marginTop);
+	--PostAttachment-marginRight: var(--PostContent-marginTop);
+
+	--PostAttachment-marginTop--compact: var(--PostContent-marginTop--compact);
+	--PostAttachment-marginRight--compact: var(--PostContent-marginTop--compact);
+}
+
 .PostAttachments {
 	--PostAttachments-marginTop: 0px;
-	margin-top: calc(var(--PostAttachments-marginTop) - var(--PostContent-marginTop));
+	margin-top: calc(var(--PostAttachments-marginTop) - var(--PostAttachment-marginTop));
 }
 
 .PostAttachments--compact {
-	--PostContent-marginTop: var(--PostContent-marginTop--compact);
+	--PostAttachment-marginTop: var(--PostAttachment-marginTop--compact);
+	--PostAttachment-marginRight: var(--PostAttachment-marginRight--compact);
 }
 
 .PostContent + .PostAttachments {
 	/* Add vertical spacing between post content and attachments. */
-	--PostAttachments-marginTop: var(--Post-paddingTop);
+	--PostAttachments-marginTop: var(--PostAttachments-marginTop--afterPostContent);
 }
 
 .PostAttachments-thumbnails {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	margin-right: calc(-1 * var(--PostContent-marginTop));
+	margin-right: calc(-1 * var(--PostAttachment-marginRight));
 	/* `.PostAttachmentThumbnail` is also used in `post-link` quotes,
 	   where `margin`s aren't required. */
 	.PostAttachmentThumbnail {
-		margin-top: var(--PostContent-marginTop);
-		margin-right: var(--PostContent-marginTop);
+		margin-top: var(--PostAttachment-marginTop);
+		margin-right: var(--PostAttachment-marginRight);
 	}
 }
 
@@ -31,9 +42,10 @@
    which is `.PostAttachments-pictureStack`. */
 .PostAttachments-thumbnails--showOnlyFirstAttachmentThumbnail {
 	.PostAttachments-pictureStack {
-		margin-top: var(--PostContent-marginTop);
+		margin-top: var(--PostAttachment-marginTop);
 		.PostAttachmentThumbnail {
-			margin: 0;
+			margin-top: 0;
+			margin-right: 0;
 		}
 	}
 }
