@@ -149,90 +149,98 @@ export default function PostAttachments({
 			'PostAttachments--compact': compact,
 			'PostAttachments--onlyPostThumbnail': attachmentsCount === 1 && picturesAndVideos.length === 1 && picturesAndVideos[0] === postThumbnailAttachment
 		})}>
-			{expandAttachments &&
-				picturesAndVideos.map((pictureOrVideo, i) => {
-					switch (pictureOrVideo.type) {
-						case 'picture':
-							return (
-								<PostPicture
-									key={i}
-									expand
-									align={align}
-									attachment={pictureOrVideo}
-									spoilerLabel={spoilerLabel}
-									onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
-							)
-						case 'video':
-							return (
-								<PostVideo
-									key={i}
-									expand
-									align={align}
-									attachment={pictureOrVideo}
-									spoilerLabel={spoilerLabel}
-									onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
-							)
+			<div className="PostAttachments-cancelsAttachmentMarginTop">
+				<div className="PostAttachments-marginCollapseBorder">
+					{expandAttachments &&
+						picturesAndVideos.map((pictureOrVideo, i) => {
+							switch (pictureOrVideo.type) {
+								case 'picture':
+									return (
+										<PostPicture
+											key={i}
+											expand
+											align={align}
+											attachment={pictureOrVideo}
+											spoilerLabel={spoilerLabel}
+											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
+									)
+								case 'video':
+									return (
+										<PostVideo
+											key={i}
+											expand
+											align={align}
+											attachment={pictureOrVideo}
+											spoilerLabel={spoilerLabel}
+											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
+									)
+							}
+						})
 					}
-				})
-			}
-			{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'picture' &&
-				<Container count={allPicturesAndVideos.length}>
-					<PostPicture
-						align={align}
-						attachment={titlePictureOrVideo}
-						spoilerLabel={spoilerLabel}
-						onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
-				</Container>
-			}
-			{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'video' &&
-				<Container count={allPicturesAndVideos.length}>
-					<PostVideo
-						align={align}
-						attachment={titlePictureOrVideo}
-						spoilerLabel={spoilerLabel}
-						onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
-				</Container>
-			}
-			{!expandAttachments && picturesAndVideos.length > 0 &&
-				<div className={classNames('PostAttachments-thumbnails', {
-					'PostAttachments-thumbnails--showOnlyFirstAttachmentThumbnail': showOnlyFirstAttachmentThumbnail
-				})}>
-					{picturesAndVideos.map((pictureOrVideo, i) => {
-						return (
-							<Container
-								key={`picture-or-video-${i}`}
-								count={allPicturesAndVideos.length}
-								pictureStackClassName={classNames('PostAttachments-pictureStack', {
-									'PostAttachments-pictureStack--postThumbnail': pictureOrVideo === postThumbnailAttachment
-								})}>
-								<PostAttachmentThumbnail
-									border
-									attachment={pictureOrVideo}
-									useSmallestThumbnail={useSmallestThumbnails}
-									maxSize={getAttachmentThumbnailSize(attachmentThumbnailSize)}
-									spoilerLabel={spoilerLabel}
-									onClick={onAttachmentClick ? createOnAttachmentClick(i + (titlePictureOrVideo ? 1 : 0)) : undefined}
-									moreAttachmentsCount={i === picturesAndVideos.length - 1 ? picturesAndVideosMoreCount : undefined}
-									className={classNames({
-										'PostAttachmentThumbnail--postThumbnail': pictureOrVideo === postThumbnailAttachment
-									})}/>
-							</Container>
-						)
-					})}
+					{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'picture' &&
+						<Container count={allPicturesAndVideos.length}>
+							<PostPicture
+								align={align}
+								attachment={titlePictureOrVideo}
+								spoilerLabel={spoilerLabel}
+								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
+						</Container>
+					}
+					{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'video' &&
+						<Container count={allPicturesAndVideos.length}>
+							<PostVideo
+								align={align}
+								attachment={titlePictureOrVideo}
+								spoilerLabel={spoilerLabel}
+								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
+						</Container>
+					}
+					{!expandAttachments && picturesAndVideos.length > 0 &&
+						<div className={classNames('PostAttachmentThumbnails', {
+							'PostAttachmentThumbnails--showOnlyFirstAttachmentThumbnail': showOnlyFirstAttachmentThumbnail
+						})}>
+							<div className="PostAttachmentThumbnails-list">
+								{picturesAndVideos.map((pictureOrVideo, i) => {
+									return (
+										<Container
+											key={`picture-or-video-${i}`}
+											count={allPicturesAndVideos.length}
+											pictureStackClassName={classNames('PostAttachments-pictureStack', {
+												'PostAttachments-pictureStack--postThumbnail': pictureOrVideo === postThumbnailAttachment
+											})}>
+											<PostAttachmentThumbnail
+												border
+												attachment={pictureOrVideo}
+												useSmallestThumbnail={useSmallestThumbnails}
+												maxSize={getAttachmentThumbnailSize(attachmentThumbnailSize)}
+												spoilerLabel={spoilerLabel}
+												onClick={onAttachmentClick ? createOnAttachmentClick(i + (titlePictureOrVideo ? 1 : 0)) : undefined}
+												moreAttachmentsCount={i === picturesAndVideos.length - 1 ? picturesAndVideosMoreCount : undefined}
+												className={classNames({
+													'PostAttachmentThumbnail--postThumbnail': pictureOrVideo === postThumbnailAttachment
+												})}/>
+										</Container>
+									)
+								})}
+							</div>
+						</div>
+					}
+					{audios.length > 0 && audios.map((audio, i) => (
+						<PostAudio key={i} audio={audio}/>
+					))}
+					{links.length > 0 && links.map((link, i) => (
+						<PostLinkBlock key={i} link={link}/>
+					))}
+					{files.length > 0 && files.map((file, i) => (
+						<PostFile key={i} file={file}/>
+					))}
+					{/* If a user selects the attachments portion of the page and then copies it
+					    into the clipboard, this dummy `<div/>` will insert a "new line" after attachments
+					    in the copied text. */}
+					<div style={POSITION_ABSOLUTE}>
+						<br/>
+					</div>
 				</div>
-			}
-			{audios.length > 0 && audios.map((audio, i) => (
-				<PostAudio key={i} audio={audio}/>
-			))}
-			{links.length > 0 && links.map((link, i) => (
-				<PostLinkBlock key={i} link={link}/>
-			))}
-			{files.length > 0 && files.map((file, i) => (
-				<PostFile key={i} file={file}/>
-			))}
-			{/* Insert a "new line" after attachments when copy-pasting selected content */}
-			<div style={POSITION_ABSOLUTE}>
-				<br/>
 			</div>
 		</div>
 	)

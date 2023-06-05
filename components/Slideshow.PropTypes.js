@@ -77,8 +77,8 @@ export default {
 	minScaledSlideRatio: PropTypes.number.isRequired,
 	mouseWheelScaleFactor: PropTypes.number.isRequired,
 	//
-	// `minSlideScaleRelativeToThumbnail` property controls the mininum size of a slide:
-	// a slide's size can't be less than `minSlideScaleRelativeToThumbnail` of its thumbnail size.
+	// `minSlideScaleFactorRelativeToThumbnailSize` property controls the mininum size of a slide:
+	// a slide's size can't be less than `minSlideScaleFactorRelativeToThumbnailSize` of its thumbnail size.
 	//
 	// For example, if a thumbnail has width `100px`, and the original image is `100px` too,
 	// then the slideshow will automatically enlarge the original image to `125px`
@@ -96,7 +96,7 @@ export default {
 	// and if the original image was of the same (or nearly the same) size as the thumbnail
 	// then the user would get confused on whether the slide is already "opened" or not.
 	//
-	minSlideScaleRelativeToThumbnail: PropTypes.number.isRequired,
+	minSlideScaleFactorRelativeToThumbnailSize: PropTypes.number.isRequired,
 
 	showPagination: PropTypes.bool,
 
@@ -173,7 +173,7 @@ export const defaultProps = {
 	scaleAnimationDuration: 120,
 	minScaledSlideRatio: 0.1,
 	mouseWheelScaleFactor: 0.33,
-	minSlideScaleRelativeToThumbnail: 1.25,
+	minSlideScaleFactorRelativeToThumbnailSize: 1.25,
 
 	showPagination: true,
 

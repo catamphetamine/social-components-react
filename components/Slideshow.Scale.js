@@ -49,7 +49,7 @@ export default class SlideshowScale {
 		const {
 			initialSlideIndex,
 			imageElementCoords,
-			minSlideScaleRelativeToThumbnail
+			minSlideScaleFactorRelativeToThumbnailSize
 		} = this.slideshow.props
 
 		if (i === initialSlideIndex) {
@@ -57,14 +57,24 @@ export default class SlideshowScale {
 				// If a slide's size is the same (or nearly the same) as its thumbnail size,
 				// then artificially enlarge such slide, so that the user isn't confused
 				// on whether they have clicked the thumbnail or not (in "hover" picture mode).
-				const slideScaleRelativeToThumbnail = this.slideshow.getSlideInitialWidth(slide) / imageElementCoords.width
-				if (slideScaleRelativeToThumbnail < minSlideScaleRelativeToThumbnail) {
-					return Math.max(scale, minSlideScaleRelativeToThumbnail / slideScaleRelativeToThumbnail)
+				// (unless the slide becomes too large to fit on the screen).
+				const slideWidth = this.slideshow.getSlideInitialWidth(slide)
+				const slideHeight = this.slideshow.getSlideInitialHeight(slide)
+				const slideScaleFactorRelativeToThumbnail = slideWidth / imageElementCoords.width
+				if (slideScaleFactorRelativeToThumbnail < minSlideScaleFactorRelativeToThumbnailSize) {
+					const enlargeBy = minSlideScaleFactorRelativeToThumbnailSize / slideScaleFactorRelativeToThumbnail
+					const enlargedWidth = slideWidth * enlargeBy
+					const enlargedHeight = slideHeight * enlargeBy
+					if (
+						enlargedWidth <= this.slideshow.getMaxAvailableSlideWidth() &&
+						enlargedHeight <= this.slideshow.getMaxAvailableSlideHeight()
+					) {
+						return Math.max(scale, enlargeBy)
+					}
 				}
 			}
 		}
 
-		// Return the scale.
 		return scale
 	}
 
@@ -172,23 +182,27 @@ export default class SlideshowScale {
 			minScaledSlideRatio,
 			initialSlideIndex,
 			imageElementCoords,
-			minSlideScaleRelativeToThumbnail
+			minSlideScaleFactorRelativeToThumbnailSize
 		} = this.slideshow.props
+
 		const { i } = this.slideshow.getState()
 		const slide = this.slideshow.getCurrentSlide()
 		if (i === initialSlideIndex) {
 			if (imageElementCoords) {
-				const slideScaleRelativeToThumbnail = this.slideshow.getSlideInitialWidth(slide) / imageElementCoords.width
-				return Math.min(minSlideScaleRelativeToThumbnail / slideScaleRelativeToThumbnail, 1)
+				const slideScaleFactorRelativeToThumbnail = this.slideshow.getSlideInitialWidth(slide) / imageElementCoords.width
+				return Math.min(minSlideScaleFactorRelativeToThumbnailSize / slideScaleFactorRelativeToThumbnail, 1)
 			}
 		}
+
 		// if (this.getPluginForSlide().isScaleDownAllowed) {
 		// 	if (!this.getPluginForSlide().isScaleDownAllowed(this.getCurrentSlide())) {
 		// 		return 1
 		// 	}
 		// }
+
 		const slideWidthRatio = this.slideshow.getSlideInitialWidth(slide) / this.slideshow.getMaxAvailableSlideWidth()
 		const slideHeightRatio = this.slideshow.getSlideInitialHeight(slide) / this.slideshow.getMaxAvailableSlideHeight()
+
 		// Averaged ratio turned out to work better than "min" ratio.
 		// const slideRatio = Math.min(slideWidthRatio, slideHeightRatio)
 		const slideRatio = (slideWidthRatio + slideHeightRatio) / 2

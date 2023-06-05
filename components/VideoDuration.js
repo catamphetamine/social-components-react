@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
@@ -7,13 +7,25 @@ import PictureBadge from './PictureBadge.js'
 import './VideoDuration.css'
 
 export default function VideoDuration({ duration }) {
+	const integerDuration = useMemo(() => {
+		// `if (typeof video.duration === 'number')` check could be used here
+		// instead of just `if (video.duration)` because `video.duration` could be `0`.
+		// But showing a `0:00` duration wouldn't make sense either,
+		// so just `if (video.duration)` check is used here.
+		if (duration) {
+			// Convert `video.duration` from a floating-point number to an integer,
+			// because `getDuration()` will be rendered on a video thumbnail.
+			return Math.ceil(duration)
+		}
+	}, [duration])
+
 	return (
 		<PictureBadge
 			placement="bottom-right"
 			className={classNames('VideoDuration', {
-				//'VideoDuration--time': duration
+				//'VideoDuration--time': integerDuration
 			})}>
-			{duration ? formatVideoDuration(duration) : <VideoDurationPlayIcon/>}
+			{integerDuration ? formatVideoDuration(integerDuration) : <VideoDurationPlayIcon/>}
 		</PictureBadge>
 	)
 }

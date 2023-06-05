@@ -1,4 +1,5 @@
 :root {
+	--PostAttachments-marginTop: 0px;
 	--PostAttachments-marginTop--afterPostContent: var(--Post-paddingTop);
 
 	--PostAttachment-marginTop: var(--PostContent-marginTop);
@@ -9,8 +10,21 @@
 }
 
 .PostAttachments {
-	--PostAttachments-marginTop: 0px;
-	margin-top: calc(var(--PostAttachments-marginTop) - var(--PostAttachment-marginTop));
+	margin-top: var(--PostAttachments-marginTop);
+}
+
+.PostAttachments-cancelsAttachmentMarginTop {
+	margin-top: calc(-1 * var(--PostAttachment-marginTop));
+}
+
+.PostAttachments {
+	.PostAttachmentThumbnails,
+	.PostVideo,
+	.PostAudio,
+	.PostLinkBlock,
+	.PostFile {
+		margin-top: var(--PostAttachment-marginTop);
+	}
 }
 
 .PostAttachments--compact {
@@ -23,11 +37,26 @@
 	--PostAttachments-marginTop: var(--PostAttachments-marginTop--afterPostContent);
 }
 
-.PostAttachments-thumbnails {
+.PostAttachments-marginCollapseBorder {
+	/* Prevents "margin collapse" from leaking outside of `.PostAttachmentThumbnails-list`.
+		 Attachment thumbnails list utilizes the "margin collapse" feature for the "tiles" layout.
+		 While being useful in such scenarios, the "margin collapse" feature
+	   might result in "weird" and "glitchy" behavior if it leaks over the boundaries
+	   of the container element so this `display: flex` trick contains it inside the `.PostAttachmentThumbnails`. */
+	/* https://stackoverflow.com/questions/19718634/how-to-disable-margin-collapsing */
+	display: flex;
+	flex-direction: column;
+}
+
+.PostAttachmentThumbnails-list {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
+
+	/* Negates the effect of individual `.PostAttachmentThumbnail`s in the list. */
+	margin-top: calc(-1 * var(--PostAttachment-marginTop));
 	margin-right: calc(-1 * var(--PostAttachment-marginRight));
+
 	/* `.PostAttachmentThumbnail` is also used in `post-link` quotes,
 	   where `margin`s aren't required. */
 	.PostAttachmentThumbnail {
@@ -40,9 +69,10 @@
    when it's being shown as a `<PictureStack/>`,
    so the `margin` is moved to its container
    which is `.PostAttachments-pictureStack`. */
-.PostAttachments-thumbnails--showOnlyFirstAttachmentThumbnail {
+.PostAttachmentThumbnails--showOnlyFirstAttachmentThumbnail {
 	.PostAttachments-pictureStack {
 		margin-top: var(--PostAttachment-marginTop);
+		margin-right: 0;
 		.PostAttachmentThumbnail {
 			margin-top: 0;
 			margin-right: 0;
@@ -64,4 +94,7 @@
 	/*--PostAttachment-shadow--focus: 0 0 3px var(--PostAttachment-shadowColor--focus);*/
 	/* Video attachments have a `position: absolute` duration placed in bottom right corner. */
 	position: relative;
+
+	/* If an attachment's thumbnail is too large, don't overflow the page because of it. */
+	overflow: hidden;
 }
