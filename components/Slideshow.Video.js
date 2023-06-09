@@ -6,6 +6,8 @@ import Video, { getMaxSize, getUrl } from './Video.js'
 
 import { isKeyCombination } from 'web-browser-input'
 
+import { getFullScreenElement } from 'web-browser-window'
+
 export default {
 	// Chrome web browser seems to have fixed the native `<video/>` player controls
 	// when its width is very short, so this workaround seems no longer required.
@@ -65,11 +67,45 @@ export default {
 	// 			return false
 	// 	}
 	// },
-	onKeyDown(event) {
-		// Capture Spacebar (Play/Pause).
+	shouldIgnoreKeyDownEvent(event, { getSlideElement }) {
+		// When `<Video/>` handles Spacebar key events natively,
+		// it doesn't call `event.preventDefault()` on them.
+		// For example, native `<video/>` player toggles Play/Pause on Spacebar
+		// but doesn't call `event.preventDefault()`.
+		// That would result in Slideshow also handling the `keydown` event
+		// for the Spacebar, going to the next slide.
+		// Returning `true` from this function tells Slideshow to ignore
+		// such Spacebar events and not go to next slide.
 		if (isKeyCombination(event, ['Space'])) {
 			// Spacebar is always handled by the `<Video/>` which is focused.
 			return true
+		}
+		// When a native `<video/>` player is in fullscreen mode
+		// and the user hits PageUp or PageDown key, the Slideshow
+		// goes to a next or previous slide and stops the used-to-be-current
+		// slide's `<Video/>` resulting in the `<video/>` player no longer being rendered
+		// due to a preview image being rendered instead.
+		// As a result of the `<video/>` player DOM element being no longer present
+		// on the page, the web browser exits fullscreen mode and "loses" the focus
+		// because the previously focused element — the `<video/>` player — is no longer found.
+		// "Losing" the focus results in the user not being able to navigate the slides
+		// via Left/Right or PageUp/PageDown keys.
+		// To prevent the web browser from losing the focus due to unmounting of
+		// the `<video/>` player, the Slideshow Video plugin tells the Slideshow
+		// to ignore PageUp/PageDown keys while playing a native `<video/>` in fullscreen.
+		if (
+			isKeyCombination(event, ['PageDown']) ||
+			isKeyCombination(event, ['PageUp'])
+		) {
+			if (
+				getFullScreenElement() &&
+				getSlideElement() &&
+				getSlideElement().contains(getFullScreenElement()) &&
+				getSlideElement() !== getFullScreenElement()
+			) {
+				// Ignore PageUp/PageDown keys in fullscreen when playing a video.
+				return true
+			}
 		}
 	},
 	canOpenExternalLink(slide) {

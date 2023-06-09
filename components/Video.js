@@ -6,8 +6,10 @@ import { video } from './PropTypes.js'
 import getVideoUrl from 'social-components/utility/video/getVideoUrl.js'
 
 import {
-	enterFullScreen as _enterFullScreen,
-	exitFullScreen as _exitFullScreen
+	// enterFullScreen,
+	exitFullScreen,
+	toggleFullScreen,
+	isFullScreen
 } from 'web-browser-window'
 
 import { px } from 'web-browser-style'
@@ -87,11 +89,25 @@ function Video({
 		}
 	}, [])
 
-	const previewRef = useRef()
-	const playerRef = useRef()
-	const playerContainerInnerRef = useRef()
-	const isFullScreen = useRef()
+	const previewElement = useRef()
+	const playerElement = useRef()
+	const playerWrapperElement = useRef()
+
 	const playState = useRef(Promise.resolve())
+
+	function getPlayerElementForFullScreenMode() {
+		// If focus is initially not inside the element being promoted to
+		// fullscreen then the focus will be lost upon entering fullscreen.
+		if (canUsePlayerElementForHandlingKeyboardEvents(video)) {
+			if (playerElement.current) {
+				const element = getPlayerElement(playerElement.current, video)
+				if (element) {
+					return element
+				}
+			}
+		}
+		return playerWrapperElement.current
+	}
 
 	// YouTube hides the embedded video progress bar while playing.
 	// On open, the embedded YouTube video player itself is not focused
@@ -119,8 +135,10 @@ function Video({
 		if (video.provider === 'YouTube') {
 			loadYouTubeVideoPlayerApi()
 		}
+		// Exit fullscreen mode on unmount.
 		return () => {
-			if (isFullScreen.current) {
+			if (isFullScreen()) {
+				// Can reject a `Promise` with an error.
 				exitFullScreen()
 			}
 		}
@@ -198,8 +216,8 @@ function Video({
 	}))
 
 	function play() {
-		if (playerRef.current && playerRef.current.play) {
-			const result = playerRef.current.play()
+		if (playerElement.current && playerElement.current.play) {
+			const result = playerElement.current.play()
 			// HTML `<video/>` `.play()` returns a `Promise`.
 			// https://developers.google.com/web/updates/2017/06/play-request-was-interrupted
 			if (result && typeof result.then === 'function') {
@@ -210,25 +228,25 @@ function Video({
 	}
 
 	function pause() {
-		if (playerRef.current && playerRef.current.pause) {
-			playerRef.current.pause()
+		if (playerElement.current && playerElement.current.pause) {
+			playerElement.current.pause()
 			return true
 		}
 	}
 
 	function stop() {
-		if (playerRef.current) {
+		if (playerElement.current) {
 			// Exit fullscreen on stop.
 			// For example, when watching slides in a slideshow
 			// and the current slide is video and it's in fullscreen mode
 			// and then the user pushes "Left" or "Right" key
 			// to move to another slide that next slide should be focused
 			// which wouldn't be possible until the fullscreen mode is exited from.
-			if (isFullScreen.current) {
+			if (isFullScreen()) {
 				exitFullScreen()
 			}
-			if (playerRef.current.stop) {
-				playerRef.current.stop()
+			if (playerElement.current.stop) {
+				playerElement.current.stop()
 				return true
 			}
 			// `<VideoHtml/>` doesn't have a `.stop()` method.
@@ -250,26 +268,26 @@ function Video({
 	}
 
 	function isPaused() {
-		if (playerRef.current && playerRef.current.isPaused) {
-			return playerRef.current.isPaused()
+		if (playerElement.current && playerElement.current.isPaused) {
+			return playerElement.current.isPaused()
 		}
 	}
 
 	function hasStarted() {
-		if (playerRef.current && playerRef.current.hasStarted) {
-			return playerRef.current.hasStarted()
+		if (playerElement.current && playerElement.current.hasStarted) {
+			return playerElement.current.hasStarted()
 		}
 	}
 
 	function hasEnded() {
-		if (playerRef.current && playerRef.current.hasEnded) {
-			return playerRef.current.hasEnded()
+		if (playerElement.current && playerElement.current.hasEnded) {
+			return playerElement.current.hasEnded()
 		}
 	}
 
 	function getCurrentTime() {
-		if (playerRef.current && playerRef.current.getCurrentTime) {
-			return playerRef.current.getCurrentTime()
+		if (playerElement.current && playerElement.current.getCurrentTime) {
+			return playerElement.current.getCurrentTime()
 		}
 	}
 
@@ -281,30 +299,30 @@ function Video({
 	}
 
 	function seekTo(seconds) {
-		if (playerRef.current && playerRef.current.seekTo) {
-			playerRef.current.seekTo(seconds)
+		if (playerElement.current && playerElement.current.seekTo) {
+			playerElement.current.seekTo(seconds)
 			return true
 		}
 	}
 
 	function setVolume(volume) {
-		if (playerRef.current && playerRef.current.setVolume) {
-			playerRef.current.setVolume(volume)
+		if (playerElement.current && playerElement.current.setVolume) {
+			playerElement.current.setVolume(volume)
 			return true
 		}
 	}
 
 	function getVolume() {
-		if (playerRef.current && playerRef.current.getVolume) {
-			return playerRef.current.getVolume()
+		if (playerElement.current && playerElement.current.getVolume) {
+			return playerElement.current.getVolume()
 		}
 	}
 
 	function getDuration() {
 		// Even if `video` didn't contain `duration`
 		// YouTube player can return its duration.
-		if (playerRef.current && playerRef.current.getDuration) {
-			return playerRef.current.getDuration()
+		if (playerElement.current && playerElement.current.getDuration) {
+			return playerElement.current.getDuration()
 		}
 		return video.duration
 	}
@@ -318,22 +336,22 @@ function Video({
 	}
 
 	function mute() {
-		if (playerRef.current && playerRef.current.mute) {
-			playerRef.current.mute()
+		if (playerElement.current && playerElement.current.mute) {
+			playerElement.current.mute()
 			return true
 		}
 	}
 
 	function unMute() {
-		if (playerRef.current && playerRef.current.unMute) {
-			playerRef.current.unMute()
+		if (playerElement.current && playerElement.current.unMute) {
+			playerElement.current.unMute()
 			return true
 		}
 	}
 
 	function isMuted() {
-		if (playerRef.current && playerRef.current.isMuted) {
-			return playerRef.current.isMuted()
+		if (playerElement.current && playerElement.current.isMuted) {
+			return playerElement.current.isMuted()
 		}
 	}
 
@@ -349,12 +367,15 @@ function Video({
 
 	function focus() {
 		if (showPreview) {
-			previewRef.current.focus()
-		} else if (shouldFocusPlayer(video) &&
-			playerRef.current && playerRef.current.focus) {
-			playerRef.current.focus()
+			previewElement.current.focus()
+		} else if (
+			canUsePlayerElementForHandlingKeyboardEvents(video) &&
+			playerElement.current &&
+			playerElement.current.focus
+		) {
+			playerElement.current.focus()
 		} else {
-			playerContainerInnerRef.current.focus()
+			playerWrapperElement.current.focus()
 		}
 	}
 
@@ -395,6 +416,7 @@ function Video({
 		if (event.ctrlKey || event.altKey || event.metaKey) {
 			return
 		}
+
 		if (event.shiftKey) {
 			switch (event.keyCode) {
 				// Left arrow.
@@ -407,6 +429,27 @@ function Video({
 					return
 			}
 		}
+
+		// // If some keyboard keys should be ignored in fullscreen mode
+		// // then ignore such keys.
+		// if (ignoredKeyboardKeysInFullScreenMode) {
+		// 	if (isFullScreenElement(getPlayerElementForFullScreenMode())) {
+		// 		for (const key of ignoredKeyboardKeysInFullScreenMode) {
+		// 			if (event.keyCode === key) {
+		// 				event.preventDefault()
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// 	// PageUp: 33
+		// 	// PageDown: 34
+		// 	case 33:
+		// 	case 34:
+		// 		if (isFullScreenElement()) {
+		// 			event.preventDefault()
+		// 		}
+		// 		break
+
 		switch (event.keyCode) {
 			// Pause/Play on Spacebar.
 			case 32:
@@ -518,33 +561,12 @@ function Video({
 			// Toggle fullscreen on "F" key.
 			case 70:
 				if (!showPreview) {
-					let node
-					// If focus is not inside the element being promoted to
-					// fullscreen then the focus is lost upon entering fullscreen.
-					if (shouldFocusPlayer(video)) {
-						node = playerRef.current && getPlayerNode(playerRef.current, video)
-					}
-					node = node || playerContainerInnerRef.current
-					if (isFullScreen.current) {
-						exitFullScreen()
-					} else {
-						enterFullScreen(node)
-					}
 					event.preventDefault()
+					// Can reject a `Promise` with an error.
+					toggleFullScreen(getPlayerElementForFullScreenMode())
 				}
 				break
 		}
-	}
-
-	function enterFullScreen(node) {
-		if (_enterFullScreen(node)) {
-			isFullScreen.current = true
-		}
-	}
-
-	function exitFullScreen() {
-		_exitFullScreen()
-		isFullScreen.current = false
 	}
 
 	function addBorder(dimension) {
@@ -599,7 +621,7 @@ function Video({
 		return (
 			<Picture
 				{...rest}
-				ref={previewRef}
+				ref={previewElement}
 				border={border}
 				picture={video.picture}
 				component={ButtonLink}
@@ -640,24 +662,24 @@ function Video({
 	return (
 		<AspectRatioWrapper
 			{...rest}
-			innerRef={playerContainerInnerRef}
+			innerRef={playerWrapperElement}
 			onKeyDown={onKeyDown}
 			aspectRatio={getAspectRatio(video)}
-			innerTabIndex={!shouldFocusPlayer(video) ? tabIndex : -1}
+			innerTabIndex={canUsePlayerElementForHandlingKeyboardEvents(video) ? -1 : tabIndex}
 			innerClassName="Video-playerContainerInner"
 			style={style ? { ...style, ...getContainerStyle() } : getContainerStyle()}
 			className={classNames(className, 'Video', {
-				'Video--border': !shouldFocusPlayer(video) && border
+				'Video--border': border && !canUsePlayerElementForHandlingKeyboardEvents(video)
 			})}>
 			<VideoPlayer
-				ref={playerRef}
+				ref={playerElement}
 				video={video}
 				showPreview={showPreview}
 				autoPlay={autoPlay}
-				tabIndex={shouldFocusPlayer(video) ? tabIndex : undefined}
+				tabIndex={canUsePlayerElementForHandlingKeyboardEvents(video) ? tabIndex : undefined}
 				onClick={onClick}
 				className={classNames({
-					'Video--border': shouldFocusPlayer(video) && border
+					'Video--border': border && canUsePlayerElementForHandlingKeyboardEvents(video)
 				})}
 			/>
 			{video.provider === 'YouTube' &&
@@ -714,28 +736,32 @@ Video.defaultProps = {
 
 export default Video
 
-function getPlayerNode(playerRef, video) {
+function getPlayerElement(playerElement, video) {
 	if (video.provider === 'Vimeo') {
-		return playerRef
+		return playerElement
 	}
 	if (video.provider === 'YouTube') {
 		// YouTube video could be shown in a YouTube player
 		// or as an `<iframe/>` (as a fallback).
-		if (playerRef instanceof VideoYouTube) {
-			return playerRef.getDOMNode()
+		if (playerElement instanceof VideoYouTube) {
+			return playerElement.getDOMNode()
 		}
-		return playerRef
+		return playerElement
 	}
 	if (!video.provider) {
-		return playerRef.getDOMNode()
+		return playerElement.getDOMNode()
 	}
 }
 
-function shouldFocusPlayer(video) {
-	// HTML `<video/>` player is focusable
-	// and it doesn't consume `keydown` events.
-	// `<iframes/>` aren't interactive elements
-	// and also they don't bubble `keydown` events.
+function canUsePlayerElementForHandlingKeyboardEvents(video) {
+	// Native HTML `<video/>` player is focusable.
+	// Also it doesn't consume `keydown` events so those events do "bubble".
+	//
+	// Third-party providers' video players are rendered in an `<iframe/>`
+	// and one can't programmatically focus those players' elements.
+	// Instead, the `<div/>` wrapping that `<iframe/>` is focused and handles `keydown` events.
+	// Also, `keydown` events wouldn't "bubble" from inside an `<iframe/>`.
+	//
 	return !video.provider
 }
 

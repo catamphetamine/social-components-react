@@ -10,9 +10,9 @@ export default class SlideshowKeyboard {
 		if (this.locked) {
 			return event.preventDefault()
 		}
-		if (this.slideshow.getPluginForSlide().onKeyDown) {
-			if (this.slideshow.getPluginForSlide().onKeyDown(event, {
-				// slide: this.slideshow.getCurrentSlide()
+		if (this.slideshow.getPluginForSlide().shouldIgnoreKeyDownEvent) {
+			if (this.slideshow.getPluginForSlide().shouldIgnoreKeyDownEvent(event, {
+				getSlideElement: () => this.slideshow.props.getSlideDOMNode()
 			}) === true) {
 				return
 			}
