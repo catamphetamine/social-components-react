@@ -21,7 +21,7 @@ export default function PostFile({ file }) {
 				href={file.url}>
 				{`${file.name || ''}${file.ext || ''}`}
 			</a>
-			{file.size &&
+			{typeof file.size === 'number' &&
 				<span className="PostFile-size">
 					{filesize(file.size)}
 				</span>
