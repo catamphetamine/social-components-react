@@ -378,6 +378,19 @@ function Video({
 		}
 	}
 
+	function onPreviewKeyDown(event) {
+		if (event.ctrlKey || event.altKey || event.metaKey) {
+			return
+		}
+		switch (event.keyCode) {
+			// Play on Spacebar.
+			case 32:
+				setShowPreviewOrAutoPlay('autoPlay')
+				event.preventDefault()
+				break
+		}
+	}
+
 	function onKeyDown(event) {
 		if (event.ctrlKey || event.altKey || event.metaKey) {
 			return
@@ -595,6 +608,7 @@ function Video({
 				height={expand ? undefined : height}
 				maxWidth={expand ? getMaxSize(video).width : getMaxWidth()}
 				maxHeight={expand ? undefined : maxHeight}
+				onKeyDown={onPreviewKeyDown}
 				aria-hidden
 				style={style}
 				className={classNames(
