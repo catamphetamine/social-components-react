@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useCallback, useEffect, useImperative
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { ActivityIndicator, FadeInOut } from 'react-responsive-ui'
+import { isEqual } from 'lodash-es'
 
 import { px } from 'web-browser-style'
 
@@ -56,6 +57,7 @@ function Picture({
 	showLoadingIndicator,
 	loadingIndicatorFadeInDuration,
 	loadingIndicatorFadeOutDuration,
+	preload,
 	// pixelRatioMultiplier,
 	blur,
 	style,
@@ -103,7 +105,7 @@ function Picture({
 	const isMounted = useIsMounted()
 
 	const [size, setSize] = useState(initialImageSize.current)
-	const [imageStatus, setImageStatus] = useState('LOADING')
+	const [imageStatus, setImageStatus] = useState(preload ? 'LOADING' : 'READY')
 
 	useEffect(() => {
 		if (!window.interactiveResize) {
@@ -179,8 +181,19 @@ function Picture({
 		}
 	}, [])
 
+	const prevPicture = useRef(picture)
+
 	useEffectSkipMount(() => {
-		renderAppropriateSize({ reloadImage: true })
+		// Sometimes an application might supply the same picture object structure
+		// but having a different "object reference".
+		// For example, consider an application that reads image data object from a file.
+		// It might reload the image data from the file periodically ("refresh")
+		// and it shouldn't re-fetch the image if it actualy stays the same.
+		const isDifferentPicture = !isEqual(picture, prevPicture.current)
+		prevPicture.current = picture
+		if (isDifferentPicture) {
+			renderAppropriateSize({ reloadImage: true })
+		}
 	}, [picture])
 
 	useImperativeHandle(ref, () => ({
@@ -311,7 +324,7 @@ function Picture({
 			cancelLoadingImageSize.current()
 		}
 		let wasCancelled
-		setImageStatus('LOADING')
+		setImageStatus(preload ? 'LOADING' : 'READY')
 		preloadImage(newSize.url).then(
 			() => {
 				if (wasCancelled) {
@@ -319,7 +332,9 @@ function Picture({
 				}
 				cancelLoadingImageSize.current = undefined
 				if (isMounted()) {
-					setImageStatus('READY')
+					if (preload) {
+						setImageStatus('READY')
+					}
 				}
 			},
 			(error) => {
@@ -537,6 +552,18 @@ Picture.propTypes = {
 	loadingIndicatorFadeInDuration: PropTypes.number.isRequired,
 	loadingIndicatorFadeOutDuration: PropTypes.number.isRequired,
 
+	// The `preload` flag controls whether it should preload the image before showing it.
+	//
+	// * When `preload` is `true` (default), it will show a "loading" placeholder
+	//   until it loads the image. If the image couldn't be loaded, it will show a
+	//   "not found" placeholder.
+	//
+	// * When `preload` if `false`, it will show the image immediately but it will
+	//   still check if the image exists and will show a "not found" placeholder
+	//   if the image couldn't be loaded.
+	//
+	preload: PropTypes.bool,
+
 	// Set to `true` to show a border around the image.
 	border: PropTypes.bool
 }
@@ -547,6 +574,7 @@ Picture.defaultProps = {
 	showLoadingPlaceholder: true,
 	loadingIndicatorFadeInDuration: 3000,
 	loadingIndicatorFadeOutDuration: 300,
+	preload: true,
 	// pixelRatioMultiplier: 1
 }
 
