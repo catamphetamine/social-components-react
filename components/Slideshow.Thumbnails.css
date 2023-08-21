@@ -1,0 +1,36 @@
+.Slideshow-Thumbnails {
+	display: flex;
+
+	position: absolute;
+	bottom: var(--Slideshow-Thumbnail-marginBottom);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.Slideshow-Thumbnail {
+	max-width: var(--Slideshow-Thumbnail-maxWidth);
+	height: var(--Slideshow-Thumbnail-maxHeight);
+
+	display: flex;
+	align-items: center;
+}
+
+.Slideshow-Thumbnail-picture {
+	box-shadow: var(--Slideshow-Thumbnail-boxShadow);
+}
+
+.Slideshow-Thumbnail--noThumbnail {
+	width: var(--Slideshow-Thumbnail-maxWidth);
+	height: var(--Slideshow-Thumbnail-maxHeight);
+
+	background-color: var(--Slideshow-Thumbnail-backgroundColor--noThumbnail);
+	border: 1px solid var(--Slideshow-Thumbnail-borderColor--noThumbnail);
+}
+
+.Slideshow-Thumbnail {
+	margin-right: var(--Slideshow-Thumbnail-marginRight);
+
+	&:last-child {
+		margin-right: 0;
+	}
+}

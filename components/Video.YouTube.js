@@ -27,9 +27,17 @@ function VideoYouTube({
 	// So it's unclear whether using `useLayoutEffect()`
 	// instead of `useEffect()` here makes any difference.
 	useLayoutEffect(() => {
-		// `player.current` won't have the instance methods
-		// until it's in the "ready" state.
-		player.current = new YT.Player(node.current, {
+		// * The `player` instance returned from `new YT.Player()` won't have any
+		//   instance methods until the player is in the "ready" state.
+		//
+		// * On June 16, 2023, I've discovered that even after the `player` instance
+		//   returned from the `new YT.Player()` call is "ready",
+		//   it still doesn't have any instance methods.
+		//   Seems like a bug in YouTube API, so instead I just changed it to use
+		//   the player instance from the `onReady` event.
+		//
+		// player.current = new YT.Player(node.current, {
+		new YT.Player(node.current, {
 			width,
 			height,
 			videoId: video.id,
@@ -51,6 +59,11 @@ function VideoYouTube({
 			events: {
 				onReady: (event) => {
 					isReady.current = true
+					// For some weird reason, the result of `new YT.Player()`
+					// started returning an object that doesn't have any functions.
+					// So instead of using `const player = new YT.Player()`
+					// it just stores the reference to the player instance from the `event`.
+					player.current = event.target
 					if (autoPlay) {
 						event.target.playVideo()
 					}

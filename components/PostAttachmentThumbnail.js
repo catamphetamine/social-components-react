@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { FadeInOut, ActivityIndicator } from 'react-responsive-ui'
 
 import ButtonLink from './ButtonLink.js'
+import LoadingEllipsis from './LoadingEllipsis.js'
 import { preloadPictureSlide } from './Slideshow.Picture.js'
 import SlideshowSize from './Slideshow.Size.js'
 import Picture from './Picture.js'
@@ -50,7 +51,6 @@ export default function PostAttachmentThumbnail({
 	const [loadOnClick, isLoading, setIsLoading] = useLoadOnClick(attachment, fixAttachmentPictureSize, thumbnailElement, isMounted)
 
 	const picture = getPicture(attachment)
-	const isLandscape = picture.width >= picture.height
 
 	// This `onClick(event)` function is not `async`
 	// because an `async` function results in a React warning
@@ -102,15 +102,22 @@ export default function PostAttachmentThumbnail({
 		}
 	}, [])
 
-	// Either `maxSize` should be set,
-	// or `maxWidth`/`maxHeight`,
-	// or `width`/`height`.
+	// In order for the thumbnail dimensions to be defined,
+	// one of the following should be set:
+	// * `maxSize`
+	// * `maxWidth` or `maxHeight`
+	// * `width` or `height`
 	if (
 		(maxWidth === undefined && maxHeight === undefined) &&
 		(width === undefined && height === undefined)
 	) {
-		maxSize = ATTACHMENT_THUMBNAIL_SIZE
+		if (!maxSize) {
+			maxSize = ATTACHMENT_THUMBNAIL_DEFAULT_SIZE
+		}
 	}
+
+	const maxWidth_ = maxWidth || (picture.width >= picture.height ? maxSize : undefined)
+	const maxHeight_ = maxHeight || (picture.width >= picture.height ? undefined : maxSize)
 
 	// Could also set some default `title` on an attachment here for ARIA purposes.
 	// For example, to some `contentTypeLabels.picture` or `contentTypeLabels.video`,
@@ -148,7 +155,7 @@ export default function PostAttachmentThumbnail({
 						? picture.width
 						: Math.min(
 							picture.width,
-							maxWidth || (isLandscape ? maxSize : undefined)
+							maxWidth_
 						)
 					)
 				}
@@ -158,7 +165,7 @@ export default function PostAttachmentThumbnail({
 						? undefined
 						: Math.min(
 							picture.height,
-							maxHeight || (!isLandscape ? maxSize : undefined)
+							maxHeight_
 						)
 					)
 				}
@@ -166,7 +173,7 @@ export default function PostAttachmentThumbnail({
 				useSmallestSizeExactDimensions={expand || expandToTheFullest ? undefined : (
 					useSmallestThumbnail
 						? (
-							(maxWidth === undefined && maxHeight === undefined) &&
+							(maxWidth_ === undefined && maxHeight_ === undefined) &&
 							(width === undefined && height === undefined)
 						)
 						: undefined
@@ -177,7 +184,7 @@ export default function PostAttachmentThumbnail({
 						{/* `<span/>` is used instead of a `<div/>`
 						    because a `<div/>` isn't supposed to be inside a `<button/>`. */}
 						<span className="PostAttachmentThumbnail__loading">
-							<ActivityIndicator className="PostAttachmentThumbnail__loading-indicator"/>
+							<LoadingEllipsis className="PostAttachmentThumbnail__loading-indicator"/>
 						</span>
 					</FadeInOut>
 				}
@@ -317,8 +324,8 @@ async function preloadPicture(attachment, { fixAttachmentPictureSize }) {
 	// await new Promise(_ => setTimeout(_, 3000))
 }
 
-export const ATTACHMENT_THUMBNAIL_SIZE = 250
+export const ATTACHMENT_THUMBNAIL_DEFAULT_SIZE = 250
 
 export function getAttachmentThumbnailSize(attachmentThumbnailSize) {
-	return attachmentThumbnailSize || ATTACHMENT_THUMBNAIL_SIZE
+	return attachmentThumbnailSize || ATTACHMENT_THUMBNAIL_DEFAULT_SIZE
 }

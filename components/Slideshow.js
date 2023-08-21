@@ -14,24 +14,26 @@ import { ms } from 'web-browser-style'
 
 import { isTouchDevice } from '../hooks/useDeviceInfo.js'
 
-import SlideshowCore, { getPluginForSlide } from './Slideshow.Core.js'
+import SlideshowCore from './Slideshow.Core.js'
 import SlideshowSize from './Slideshow.Size.js'
 import SlideshowControls from './Slideshow.Controls.js'
-import { roundScale, getDragAndScaleModeButtonClassName } from './Slideshow.DragAndScaleModeControls.js'
+import SlideshowThumbnails from './Slideshow.Thumbnails.js'
+import { roundScale, getPanAndZoomModeButtonClassName } from './Slideshow.PanAndZoomModeControls.js'
 import SlideshowPropTypes, { defaultProps as SlideshowDefaultProps, SlideshowStateTypes } from './Slideshow.PropTypes.js'
+import { getViewerForSlide } from './Slideshow.Viewer.js'
 
-import PicturePlugin from './Slideshow.Picture.js'
-import VideoPlugin from './Slideshow.Video.js'
+import PictureViewer from './Slideshow.Viewer.Picture.js'
+import VideoViewer from './Slideshow.Viewer.Video.js'
 
 import './Slideshow.css'
-import './Slideshow.Pan.css'
-import './Slideshow.Picture.css'
+import './Slideshow.Drag.css'
 import './Slideshow.Scale.css'
-import './Slideshow.Video.css'
+import './Slideshow.Viewer.Picture.css'
+import './Slideshow.Viewer.Video.css'
 
-const PLUGINS = [
-	VideoPlugin,
-	PicturePlugin
+const VIEWERS = [
+	PictureViewer,
+	VideoViewer
 ]
 
 export default function SlideshowWrapper(props) {
@@ -42,7 +44,7 @@ export default function SlideshowWrapper(props) {
 		headerHeight: props.header && props.header.offsetHeight,
 		footerHeight: props.footer && props.footer.offsetHeight
 	}
-	// `window.SlideshowSize` is used in `preloadPictureSlide()` in `Slideshow.Picture.js`.
+	// `window.SlideshowProps` are used in `preloadPictureSlide()` in `Slideshow.Picture.js`.
 	// To preload a picture slide, it should know the exact size of the picture
 	// that will be loaded when the slideshow opens, not larger, not smaller.
 	// `SlideshowSize` should be available before the slideshow is rendered,
@@ -53,14 +55,9 @@ export default function SlideshowWrapper(props) {
 	// because the `SlideshowCore` instance doesn't exist yet.
 	// In fact, only `.getMaxAvailableSlideWidth()` and `.getMaxAvailableSlideHeight()`
 	// are used when preloading picture slides.
-	window.SlideshowSize = useMemo(() => new SlideshowSize(undefined, {
-		// `inline` is supposed to be `false`.
-		margin: props.margin,
-		minMargin: props.minMargin
-	}), [
-		props.margin,
-		props.minMargin
-	])
+	if (typeof window !== 'undefined') {
+		window.SlideshowProps = props
+	}
 	if (props.isOpen) {
 		return <SlideshowComponent {...props}/>
 	}
@@ -77,7 +74,7 @@ SlideshowWrapper.propTypes = {
 
 SlideshowWrapper.defaultProps = {
 	...SlideshowDefaultProps,
-	plugins: PLUGINS
+	viewers: VIEWERS
 }
 
 function SlideshowComponent(props) {
@@ -118,12 +115,12 @@ function SlideshowComponent(props) {
 			getContainerDOMNode: () => container.current,
 			getSlideDOMNode: () => currentSlideRef.current && currentSlideContainerRef.current.firstChild,
 			// getSlideElement: () => currentSlideRef.current && currentSlideRef.current.getDOMNode && currentSlideRef.current.getDOMNode(),
-			onPanStart: () => container.current.classList.add('Slideshow--panning'),
-			onPanEnd: () => container.current.classList.remove('Slideshow--panning'),
+			onDragStart: () => container.current.classList.add('Slideshow--dragging'),
+			onDragEnd: () => container.current.classList.remove('Slideshow--dragging'),
 			setOverlayTransitionDuration: (duration) => container.current.style.transition = duration ? `background-color ${ms(duration)}` : null,
 			setOverlayBackgroundColor: (color) => container.current.style.backgroundColor = color,
-			setSlideRollTransitionDuration: (duration) => slidesRef.current.style.transitionDuration = ms(duration),
-			setSlideRollTransform: (transform) => slidesRef.current.style.transform = transform,
+			setSlideshowPanTransitionDuration: (duration) => slidesRef.current.style.transitionDuration = ms(duration),
+			setSlideshowPanTransform: (transform) => slidesRef.current.style.transform = transform,
 			isRendered: () => slidesRef.current ? true : false,
 			getWidth: () => slidesRef.current.clientWidth,
 			getHeight: () => slidesRef.current.clientHeight,
@@ -132,22 +129,22 @@ function SlideshowComponent(props) {
 			isTouchDevice,
 			isButton,
 			focus,
-			onDragAndScaleModeChange: (isEnabled) => {
-				const dragAndScaleModeButton = document.querySelector('.Slideshow-DragAndScaleModeButton')
-				if (dragAndScaleModeButton) {
+			onPanAndZoomModeChange: (isEnabled) => {
+				const panAndZoomModeButton = document.querySelector('.Slideshow-PanAndZoomModeButton')
+				if (panAndZoomModeButton) {
 					if (isEnabled) {
-						dragAndScaleModeButton.classList.remove('Slideshow-DragAndScaleModeButton--hidden')
+						panAndZoomModeButton.classList.remove('Slideshow-PanAndZoomModeButton--hidden')
 					} else {
-						dragAndScaleModeButton.classList.add('Slideshow-DragAndScaleModeButton--hidden')
+						panAndZoomModeButton.classList.add('Slideshow-PanAndZoomModeButton--hidden')
 					}
 				}
 			},
 			onScaleChange: (scale) => {
-				const dragAndScaleModeButton = document.querySelector('.Slideshow-DragAndScaleModeButton')
-				if (dragAndScaleModeButton) {
+				const panAndZoomModeButton = document.querySelector('.Slideshow-PanAndZoomModeButton')
+				if (panAndZoomModeButton) {
 					const roundedScale = roundScale(scale)
-					dragAndScaleModeButton.className = getDragAndScaleModeButtonClassName(roundedScale, slideshow.isDragAndScaleMode())
-					const scaleValue = document.querySelector('.Slideshow-DragAndScaleModeButtonScaleValue')
+					panAndZoomModeButton.className = getPanAndZoomModeButtonClassName(roundedScale, slideshow.panAndZoomMode.isPanAndZoomMode())
+					const scaleValue = document.querySelector('.Slideshow-PanAndZoomModeButtonScaleValue')
 					if (scaleValue) {
 						scaleValue.innerText = roundedScale
 					}
@@ -159,38 +156,25 @@ function SlideshowComponent(props) {
 	const [slideshowState, setSlideshowState] = useState(slideshow.getState())
 	slideshow.onSetState(setSlideshowState)
 
-	const [hasBeenMeasured, setHasBeenMeasured] = useState(props.inline ? false : true)
-
-  const hasBeenOpened = useRef(false)
-
-	// Uses `useLayoutEffect()` instead of `useEffect()` here because the hook below uses it.
-	// Maybe it doesn't matter but it looks more consistent this way.
-	useLayoutEffect(() => {
-		return () => {
-			// Reset "has been opened" status so that it re-runs the "open" animation
-			// next time the component is re-mounted.
-			// This fixes `useEffect()` hooks running twice in React's "strict" mode.
-			// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
-			if (hasBeenOpened.current) {
-				hasBeenOpened.current = false
+	// Makes plugin-specific measurements.
+	const getPluginSpecificMeasurements = () => {
+		let measurements = {}
+		if (SlideshowThumbnails.shouldRender({
+			hasBeenMeasured: true,
+			showThumbnails: props.showThumbnails,
+			slides: props.slides
+		})) {
+			measurements = {
+				...measurements,
+				thumbnails: SlideshowThumbnails.measure()
 			}
 		}
-	}, [])
+		return measurements
+	}
 
-	// Uses `useLayoutEffect()` instead of `useEffect()` here because it manipulates
-	// DOM Elements (animation), so it's better to run it immediately after the slideshow
-	// has been opened so that there's no percievable lag. Maybe it's not that critical though.
-	useLayoutEffect(() => {
-		// React runs effects on mount twice in "strict" mode.
-		// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
-		// This workaround prevents the "open" animation from running twice on opening a slide.
-		if (!hasBeenOpened.current) {
-			if (hasBeenMeasured) {
-				hasBeenOpened.current = true
-				slideshow.onOpen()
-			}
-		}
-	}, [hasBeenMeasured])
+	const hasBeenMeasuredInitially = props.inline ? false : true
+	const [hasBeenMeasured, setHasBeenMeasured] = useState(hasBeenMeasuredInitially)
+	const [measurements, setMeasurements] = useState(hasBeenMeasuredInitially ? getPluginSpecificMeasurements() : {})
 
 	// Emulates `forceUpdate()`
 	const [unusedState, setUnusedState] = useState()
@@ -199,16 +183,18 @@ function SlideshowComponent(props) {
 	const prevSlideshowState = useRef(slideshowState)
 	const prevSlideshowStateImmediate = useRef(slideshowState)
 
+	// Calls `handleStateUpdate()` on state change.
 	useEffect(() => {
 		if (slideshowState !== prevSlideshowState.current) {
-			slideshow.handleRender(slideshowState, prevSlideshowState.current)
+			slideshow.handleStateUpdate(slideshowState, prevSlideshowState.current)
 			prevSlideshowState.current = slideshowState
 		}
 	}, [slideshowState])
 
+	// Calls `handleStateUpdate()` immediately on state change.
 	useLayoutEffect(() => {
 		if (slideshowState !== prevSlideshowStateImmediate.current) {
-			slideshow.handleRender(slideshowState, prevSlideshowStateImmediate.current, { immediate: true })
+			slideshow.handleStateUpdate(slideshowState, prevSlideshowStateImmediate.current, { immediate: true })
 			prevSlideshowStateImmediate.current = slideshowState
 		}
 	}, [slideshowState])
@@ -220,13 +206,15 @@ function SlideshowComponent(props) {
 	// If the slideshow was fullscreen-only then this subsequent
 	// re-render wouldn't be required. But for an `inline` slideshow it would.
 	useLayoutEffect(() => {
-		// `slidesRef.current` is now available for `this.getSlideshowWidth()`.
-		// Also updates container padding-right for scrollbar width compensation.
-		setHasBeenMeasured(true)
+		if (!hasBeenMeasuredInitially) {
+			// `slidesRef.current` is now available for `this.getSlideshowWidth()`.
+			// Also updates container padding-right for scrollbar width compensation.
+			setHasBeenMeasured(true)
+			setMeasurements(getPluginSpecificMeasurements())
+		}
 	}, [])
 
 	useEffect(() => {
-		const { fullScreen } = props
 		// Focus is now handled by `react-focus-lock`.
 		// if (document.activeElement) {
 		// 	this.returnFocusTo = document.activeElement
@@ -253,11 +241,12 @@ function SlideshowComponent(props) {
 		// 		}
 		// 	})
 		// }
-		if (fullScreen) {
-			slideshow.fullscreen.enterFullscreen(container.current)
-		}
-		slideshow.init({ container: container.current })
 		slideshow.rerender = forceUpdate
+		slideshow.initialize({ container: container.current })
+		const { fullScreen } = props
+		if (fullScreen) {
+			slideshow.enterFullscreen(container.current)
+		}
 		return () => {
 			// Focus is now handled by `react-focus-lock`.
 			// if (this.returnFocusTo) {
@@ -275,11 +264,16 @@ function SlideshowComponent(props) {
 		}
 	}, [])
 
+	useOpenEffect(() => {
+		slideshow.hasOpened()
+	}, [hasBeenMeasured])
+
 	return (
 		<Slideshow
 			slideshow={slideshow}
 			slideshowState={slideshowState}
 			hasBeenMeasured={hasBeenMeasured}
+			measurements={measurements}
 			container={container}
 			slidesRef={slidesRef}
 			currentSlideRef={currentSlideRef}
@@ -302,6 +296,7 @@ function Slideshow({
 	slideshow,
 	slideshowState,
 	hasBeenMeasured,
+	measurements,
 	// refs.
 	container,
 	slidesRef,
@@ -316,13 +311,12 @@ function Slideshow({
 		autoPlay,
 		animateOpen,
 		animateOpenSlideAndBackgroundSeparately,
-		// overlayOpacity,
 		showScaleButtons,
 		showControls: _showControls,
 		highContrastControls,
 		useCardsForSlidesMaxOverlayOpacity,
-		scaleAnimationDuration,
 		paginationDotsMaxSlidesCount,
+		showThumbnails,
 		messages,
 		goToSource,
 		slides
@@ -337,19 +331,16 @@ function Slideshow({
 		animateClose,
 		animateCloseSlideAndBackgroundSeparately,
 		// animateOverlayOpacityDurationOnSlideChange,
-		hasStartedOpening,
-		hasFinishedOpening,
-		hasStartedClosing,
-		hasFinishedClosing,
 		openAnimationDuration,
-		closeAnimationDuration
+		closeAnimationDuration,
+		openClosePhase
 	} = slideshowState
 
 	const showPagination = slideshow.shouldShowPagination()
 
-	const overlayOpacity = slideshow.getMaxOverlayOpacity()
+	const overlayOpacity = slideshow.getOverlayOpacityForCurrentSlide()
 
-	const dragAndScaleMode = slideshow.isDragAndScaleMode()
+	const panAndZoomMode = slideshow.panAndZoomMode.isPanAndZoomMode()
 
 	// `react-focus-lock` doesn't focus `<video/>` when cycling the Tab key.
 	// https://github.com/theKashey/react-focus-lock/issues/61
@@ -362,51 +353,59 @@ function Slideshow({
 	// onPointerMove={slideshow.onPointerMove}
 	// onPointerOut={slideshow.onPointerOut}
 
-	// React doesn't support setting up non-passive listeners.
+	// React doesn't support setting up "non-passive" listeners like "touchmove" or "wheel" ones.
 	// https://github.com/facebook/react/issues/14856
 	// onTouchMove={slideshow.onTouchMove}
 	// onWheel={slideshow.onWheel}>
 
-	const overlayOpacityForAnimation =
-		hasStartedOpening ?
-			(hasFinishedOpening ?
-				(hasStartedClosing && animateClose ? 0 : overlayOpacity) :
-				overlayOpacity
-			) :
-			(animateOpen ? 0 : overlayOpacity)
+	function getValueForAnimation({
+		default: defaultValue,
+		animateOpen: animateOpenValue,
+		animateClose: animateCloseValue
+	}) {
+		switch (openClosePhase) {
+			case 'closed':
+				if (animateOpen) {
+					return animateOpenValue
+				}
+				return defaultValue
+			case 'opening':
+				return defaultValue
+			case 'open':
+				return defaultValue
+			case 'closing':
+				if (animateClose) {
+					return animateCloseValue
+				}
+				return defaultValue
+		}
+	}
 
-	const slideshowOpacityForAnimation =
-		hasStartedOpening ?
-			(hasFinishedOpening ?
-				(hasStartedClosing && animateClose ? 0 : 1) :
-				1
-			) :
-			(animateOpen ? 0 : 1)
-
-	const animateOpenCloseSlideAndBackgroundSeparately =
-		hasStartedOpening ?
-			(hasFinishedOpening ?
-				(hasStartedClosing ? animateCloseSlideAndBackgroundSeparately : undefined) :
-				animateOpenSlideAndBackgroundSeparately
-			) :
-			animateOpenSlideAndBackgroundSeparately
-
-	const openCloseAnimationDuration =
-		hasStartedOpening ?
-			(hasFinishedOpening ?
-				(hasStartedClosing && animateClose ? closeAnimationDuration : undefined) :
-				openAnimationDuration
-			) :
-			undefined
-
-	const showActions = _showControls && (
-		hasStartedOpening ?
-			(hasFinishedOpening ?
-				(hasStartedClosing && animateClose ? false : true) :
-				true
-			) :
-			(animateOpen ? false : true)
-	)
+	const overlayOpacityForAnimation = getValueForAnimation({
+		default: overlayOpacity,
+		animateOpen: 0,
+		animateClose: 0
+	})
+	const slideshowOpacityForAnimation = getValueForAnimation({
+		default: 1,
+		animateOpen: 0,
+		animateClose: 0
+	})
+	const animateOpenCloseSlideAndBackgroundSeparately = getValueForAnimation({
+		default: animateOpenSlideAndBackgroundSeparately,
+		animateOpen: animateOpenSlideAndBackgroundSeparately,
+		animateClose: animateCloseSlideAndBackgroundSeparately
+	})
+	const openCloseAnimationDuration = getValueForAnimation({
+		default: undefined,
+		animateOpen: openAnimationDuration,
+		animateClose: closeAnimationDuration
+	})
+	const showActions = getValueForAnimation({
+		default: true,
+		animateOpen: false,
+		animateClose: false
+	})
 
 	// `tabIndex={ -1 }` makes the `<div/>` focusable.
 	return (
@@ -465,7 +464,7 @@ function Slideshow({
 							// 30ms a couple of times sequentially causing a visual lag.
 							willChange: 'transform',
 							// transitionDuration: hasBeenMeasured ? slideshow.getSlideRollTransitionDuration() : undefined,
-							transform: hasBeenMeasured ? slideshow.getSlideRollTransform(slideIndex) : undefined,
+							transform: hasBeenMeasured ? slideshow.getSlideshowPanTransform({ slideIndex }) : undefined,
 							opacity: hasBeenMeasured ? 1 : 0
 						}}
 						className="Slideshow-Slides">
@@ -476,8 +475,8 @@ function Slideshow({
 								className={classNames('Slideshow-SlideWrapper', {
 									'Slideshow-SlideWrapper--current': j === slideIndex
 								})}>
-								{slidesShown[j] && slideshow.getPluginForSlide(slide) &&
-									slideshow.getPluginForSlide(slide).render({
+								{slidesShown[j] && slideshow.getViewerForSlide(slide) &&
+									slideshow.getViewerForSlide(slide).render({
 										slide,
 										ref: j === slideIndex ? currentSlideRef : undefined,
 										tabIndex: j === slideIndex ? 0 : -1,
@@ -490,7 +489,7 @@ function Slideshow({
 										onClick: slideshow.onSlideClick,
 										width: slideshow.getSlideInitialWidth(slide) * slideshow.getSlideScale(j),
 										height: slideshow.getSlideInitialHeight(slide) * slideshow.getSlideScale(j),
-										dragAndScaleMode,
+										panAndZoomMode,
 										className: classNames('Slideshow-Slide', {
 											'Slideshow-Slide--current': j === slideIndex,
 											'Slideshow-Slide--card': overlayOpacity < useCardsForSlidesMaxOverlayOpacity && !slideshow.isTransparentBackground(slideshow.getSlide(j))
@@ -519,22 +518,17 @@ function Slideshow({
 											//
 											// Therefore, for a non-current slide, `transition` and `opacity` should be set.
 											//
-											transition: j === slideIndex ? undefined : (
-												hasStartedOpening ?
-													(hasFinishedOpening ?
-														(hasStartedClosing && animateClose ? `opacity ${ms(closeAnimationDuration)}` : undefined) :
-														`opacity ${ms(openAnimationDuration)}`
-													) :
-													undefined
-											),
-											opacity: j === slideIndex ? undefined : (
-												hasStartedOpening ?
-													(hasFinishedOpening ?
-														(hasStartedClosing && animateClose ? 0 : undefined) :
-														1
-													) :
-													(animateOpen ? 0 : undefined)
-											)
+											transition: j === slideIndex ? undefined : getValueForAnimation({
+												default: undefined,
+												animateOpen: !isNaN(openAnimationDuration) && `opacity ${ms(openAnimationDuration)}`,
+												animateClose: !isNaN(closeAnimationDuration) && `opacity ${ms(closeAnimationDuration)}`
+											}),
+											opacity: j === slideIndex ? undefined : getValueForAnimation({
+												default: undefined,
+												animateOpen: 0,
+												animateClose: 0
+												// 'opening': 1
+											})
 										}
 									})
 								}
@@ -542,17 +536,31 @@ function Slideshow({
 						))}
 					</div>
 
+					{SlideshowThumbnails.shouldRender({
+						hasBeenMeasured,
+						showThumbnails,
+						slides
+					}) &&
+						<SlideshowThumbnails
+							slideshow={slideshow}
+							slides={slides}
+							slideIndex={slideIndex}
+							messages={messages}
+							measurements={measurements.thumbnails}
+						/>
+					}
+
 					<SlideshowControls
 						slideshow={slideshow}
 						slides={slides}
 						slideIndex={slideIndex}
 						scale={scale}
 						messages={messages}
-						dragAndScaleMode={dragAndScaleMode}
+						panAndZoomMode={panAndZoomMode}
 						showActions={showActions}
 						showScaleButtons={showScaleButtons}
 						showMoreControls={showMoreControls}
-						showPagination={showPagination && !hasStartedClosing}
+						showPagination={showPagination && openClosePhase !== 'closing'}
 						goToSource={goToSource}
 						closeButtonRef={closeButtonRef}
 						previousButtonRef={previousButtonRef}
@@ -631,7 +639,42 @@ window.Slideshow = {
 }
 
 export function isSlideSupported(slide) {
-	if (getPluginForSlide(slide, PLUGINS)) {
+	if (getViewerForSlide(slide, VIEWERS)) {
 		return true
 	}
+}
+
+function useOpenEffect(onOpen, [hasBeenMeasured]) {
+  const hasBeenOpened = useRef(false)
+
+	// // Uses `useLayoutEffect()` instead of `useEffect()` here because the hook below uses it.
+	// // Maybe it doesn't matter but it looks more consistent this way.
+	useEffect(() => {
+		return () => {
+			// Reset "has been opened" status so that it re-runs the "open" animation
+			// next time the component is re-mounted.
+			// This fixes `useEffect()` hooks running twice in React's "strict" mode.
+			// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
+			if (hasBeenOpened.current) {
+				hasBeenOpened.current = false
+			}
+		}
+	}, [])
+
+	// // Uses `useLayoutEffect()` instead of `useEffect()` here because it manipulates
+	// // DOM Elements (animation), so it's better to run it immediately after the slideshow
+	// // has been opened so that there's no percievable delay until the animation starts.
+	// // Maybe it's not that critical though.
+	useEffect(() => {
+		// React runs effects on mount twice in "strict" mode.
+		// https://legacy.reactjs.org/docs/strict-mode.html#ensuring-reusable-state
+		// This workaround prevents the "open" animation from running twice on opening a slide:
+		// `hasBeenMeasured` will be `false` when React calls this effect for the first time.
+		if (!hasBeenOpened.current) {
+			if (hasBeenMeasured) {
+				hasBeenOpened.current = true
+				onOpen()
+			}
+		}
+	}, [hasBeenMeasured])
 }

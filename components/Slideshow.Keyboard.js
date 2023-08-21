@@ -1,18 +1,24 @@
 import { isKeyCombination, belongsToClickableElement } from 'web-browser-input'
 
 export default class SlideshowKeyboard {
-	constructor(slideshow) {
+	constructor(slideshow, { getSlideDOMNode }) {
 		this.slideshow = slideshow
-		slideshow.onKeyDown = this.onKeyDown
+		this.getSlideDOMNode = getSlideDOMNode
+	}
+
+	getFunctions() {
+		return {
+			onKeyDown: this.onKeyDown
+		}
 	}
 
 	onKeyDown = (event) => {
 		if (this.locked) {
 			return event.preventDefault()
 		}
-		if (this.slideshow.getPluginForSlide().shouldIgnoreKeyDownEvent) {
-			if (this.slideshow.getPluginForSlide().shouldIgnoreKeyDownEvent(event, {
-				getSlideElement: () => this.slideshow.props.getSlideDOMNode()
+		if (this.slideshow.getViewerForSlide().shouldIgnoreKeyDownEvent) {
+			if (this.slideshow.getViewerForSlide().shouldIgnoreKeyDownEvent(event, {
+				getSlideElement: this.getSlideDOMNode
 			}) === true) {
 				return
 			}
@@ -31,12 +37,13 @@ export default class SlideshowKeyboard {
 		}
 	}
 
-	getMatchingControl(event) {
-		// Handle "Drag and Scale" mode keyboard interaction.
-		const dragAndScaleMode = this.slideshow.isDragAndScaleMode()
-		for (const control of KEYBOARD_CONTROLS) {
-			if (control.dragAndScaleMode && !dragAndScaleMode) {
-				continue
+	getMatchingControls(event) {
+		// Handle "Pan and Zoom" mode keyboard interaction.
+		const isPanAndZoomMode = this.slideshow.panAndZoomMode.isPanAndZoomMode()
+
+		return KEYBOARD_CONTROLS.filter((control) => {
+			if (control.panAndZoomMode && !isPanAndZoomMode) {
+				return false
 			}
 			let keyCombinations = control.keys
 			if (!Array.isArray(keyCombinations[0])) {
@@ -44,68 +51,127 @@ export default class SlideshowKeyboard {
 			}
 			for (const keys of keyCombinations) {
 				if (isKeyCombination.call(this, event, keys)) {
-					return control
+					return true
 				}
 			}
-		}
+		})
 	}
 
 	handleKey(event) {
-		const control = this.getMatchingControl(event)
-		if (!control) {
-			return
+		const controls = this.getMatchingControls(event)
+		if (controls.length === 0) {
+			return false
 		}
-		event.preventDefault()
-		if (this.slideshow.locked) {
-			return
+		// For some weird reason, in Chrome, as of Jul 2023,
+		// even though `event.defaultPrevented` is `true` here,
+		// it's `false` in `Video.js` in `onKeyDown()` handler.
+		// The bug could be observed by opening a video slide,
+		// enlarging it to Pan & Zoom mode and then shifting it
+		// via arrow keys.
+		if (this.slideshow.isLocked()) {
+			return false
 		}
-		control.action(this.slideshow)
+		let result
+		for (const control of controls) {
+			result = control.action(this.slideshow)
+			if (result === false) {
+				continue
+			}
+			return true
+		}
+		if (result === false) {
+			return false
+		}
 		return true
 	}
 }
 
-const KEYBOARD_CONTROLS = [
+const KEYBOARD_CONTROLS_PAN_AND_ZOOM_MODE = [
 	// Move right.
 	{
-		dragAndScaleMode: true,
+		panAndZoomMode: true,
 		keys: ['Right'],
 		action: slideshow => {
-			slideshow.pan.dragOffsetX += slideshow.getDragAndScaleModeMoveStep()
-			slideshow.onDragOffsetChange({ animate: true })
+			slideshow.drag.setDragOffsetX(slideshow.drag.getDragOffsetX() + slideshow.panAndZoomMode.getPanAndZoomModeMoveStep())
+			slideshow.drag.onDragOffsetChange({ animate: true })
 		}
 	},
 	// Move left.
 	{
-		dragAndScaleMode: true,
+		panAndZoomMode: true,
 		keys: ['Left'],
 		action: slideshow => {
-			slideshow.pan.dragOffsetX -= slideshow.getDragAndScaleModeMoveStep()
-			slideshow.onDragOffsetChange({ animate: true })
+			slideshow.drag.setDragOffsetX(slideshow.drag.getDragOffsetX() - slideshow.panAndZoomMode.getPanAndZoomModeMoveStep())
+			slideshow.drag.onDragOffsetChange({ animate: true })
 		}
 	},
 	// Move up.
 	{
-		dragAndScaleMode: true,
+		panAndZoomMode: true,
 		keys: ['Up'],
 		action: slideshow => {
-			slideshow.pan.dragOffsetY -= slideshow.getDragAndScaleModeMoveStep()
-			slideshow.onDragOffsetChange({ animate: true })
+			slideshow.drag.setDragOffsetY(slideshow.drag.getDragOffsetY() - slideshow.panAndZoomMode.getPanAndZoomModeMoveStep())
+			slideshow.drag.onDragOffsetChange({ animate: true })
 		}
 	},
 	// Move down.
 	{
-		dragAndScaleMode: true,
+		panAndZoomMode: true,
 		keys: ['Down'],
 		action: slideshow => {
-			slideshow.pan.dragOffsetY += slideshow.getDragAndScaleModeMoveStep()
-			slideshow.onDragOffsetChange({ animate: true })
+			slideshow.drag.setDragOffsetY(slideshow.drag.getDragOffsetY() + slideshow.panAndZoomMode.getPanAndZoomModeMoveStep())
+			slideshow.drag.onDragOffsetChange({ animate: true })
 		}
 	},
 	// Close.
 	{
-		dragAndScaleMode: true,
+		panAndZoomMode: true,
 		keys: ['Esc'],
-		action: slideshow => slideshow.exitDragAndScaleMode()
+		action: slideshow => {
+			// Exit pinch-zoom emulation mode.
+			if (CAN_EMULATE_PINCH_ZOOM_MODE) {
+				if (slideshow.pinchZoom.stopPinchZoom()) {
+					return true
+				}
+			}
+			// Exit "Pan and Zoom" mode.
+			slideshow.panAndZoomMode.exitPanAndZoomMode()
+		}
+	}
+]
+
+// To emulate pinch-zoom mode, set this flag to `true`
+// and then press Ctrl + Shift + Z keys to enter pinch-zoom emulation mode.
+// Then move the mouse cursor to pinch-zoom.
+// To exit pinch-zoom mode, press Esc key.
+const CAN_EMULATE_PINCH_ZOOM_MODE = true
+
+const KEYBOARD_CONTROLS = [
+	...KEYBOARD_CONTROLS_PAN_AND_ZOOM_MODE,
+	// Enter pinch-zoom emulation mode.
+	{
+		keys: ['Ctrl', 'Shift', 'Z'],
+		action: slideshow => {
+			// Debugging multi-touch zoom.
+			// DevTools doesn't provide the means to test multi-touch.
+			if (CAN_EMULATE_PINCH_ZOOM_MODE) {
+				if (!slideshow.pinchZoom.enterPinchZoomEmulationMode()) {
+					return false
+				}
+			}
+		}
+	},
+	// Exit pinch-zoom emulation mode.
+	{
+		keys: ['Esc'],
+		action: slideshow => {
+			if (CAN_EMULATE_PINCH_ZOOM_MODE) {
+				if (slideshow.pinchZoom.stopPinchZoom()) {
+					return true
+				}
+			}
+			return false
+		}
 	},
 	// Show previous slide.
 	{
@@ -126,12 +192,12 @@ const KEYBOARD_CONTROLS = [
 	// Scale up.
 	{
 		keys: [['Up'], ['Shift', 'Up']],
-		action: slideshow => slideshow.onScaleUp(event)
+		action: slideshow => slideshow.scale.onScaleUp(event)
 	},
 	// Scale down.
 	{
 		keys: [['Down'], ['Shift', 'Down']],
-		action: slideshow => slideshow.onScaleDown(event)
+		action: slideshow => slideshow.scale.onScaleDown(event)
 	},
 	// Close.
 	{

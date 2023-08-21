@@ -1,0 +1,5 @@
+.Slideshow-Picture {
+	--PictureStatus-color: var(--SocialComponents-color-300);
+
+	cursor: pointer;
+}

@@ -25,11 +25,15 @@ const ANIMATION_MIN_DURATION = 120
 // This is a workaround for browsers not playing a CSS transition.
 const CSS_TRANSITION_DELAY = 30
 
-const SCALE_PRECISION = 3
+// const SCALE_PRECISION = 3
 
 export default class SlideshowOpenCloseAnimationFloat {
 	constructor(slideshow) {
 		this.slideshow = slideshow
+	}
+
+	shouldAnimateCloseSlideAndBackgroundSeparately() {
+		return true
 	}
 
 	/**

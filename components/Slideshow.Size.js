@@ -1,27 +1,41 @@
 import { getViewportWidth, getViewportHeightWithScrollbar } from 'web-browser-window'
 
+import { getViewerForSlide } from './Slideshow.Viewer.js'
+
 export default class SlideshowSize {
 	constructor(slideshow, props) {
 		this.slideshow = slideshow
 		this.props = props
+	}
 
-		this.extraMargin = {
-			top: props.headerHeight,
-			bottom: props.footerHeight
+	getFunctions() {
+		return {
+			getSlideshowWidth: this.getSlideshowWidth,
+			getSlideshowHeight: this.getSlideshowHeight,
+
+			getMaxAvailableSlideWidth: this.getMaxAvailableSlideWidth,
+			getMaxAvailableSlideHeight: this.getMaxAvailableSlideHeight,
+
+			getSlideInitialWidth: this.getSlideMaxInitialWidth,
+			getSlideInitialHeight: this.getSlideMaxInitialHeight,
+
+			getSlideMaxWidthToFit: this.getSlideMaxWidthToFit,
+			getSlideMaxHeightToFit: this.getSlideMaxHeightToFit,
+
+			getMargin: this.getMargin
 		}
+	}
 
-		if (slideshow) {
-			slideshow.getSlideshowWidth = this.getSlideshowWidth
-			slideshow.getSlideshowHeight = this.getSlideshowHeight
+	getExtraMargin = () => {
+		return getExtraMargin(this.props)
+	}
 
-			slideshow.getMaxAvailableSlideWidth = this.getMaxAvailableSlideWidth
-			slideshow.getMaxAvailableSlideHeight = this.getMaxAvailableSlideHeight
+	getSlideshowWidth = () => {
+		return getSlideshowWidth(this.props)
+	}
 
-			slideshow.getSlideInitialWidth = this.getSlideMaxInitialWidth
-			slideshow.getSlideInitialHeight = this.getSlideMaxInitialHeight
-
-			slideshow.getMargin = this.getMargin
-		}
+	getSlideshowHeight = () => {
+		return getSlideshowHeight(this.props)
 	}
 
 	/**
@@ -30,7 +44,7 @@ export default class SlideshowSize {
 	 * @return {number}
 	 */
 	getMaxAvailableSlideWidth = () => {
-		return this.getSlideshowWidth() - this.getMargin('left') - this.getMargin('right')
+		return getMaxAvailableSlideWidth(this.props)
 	}
 
 	/**
@@ -39,50 +53,11 @@ export default class SlideshowSize {
 	 * @return {number}
 	 */
 	getMaxAvailableSlideHeight = () => {
-		return this.getSlideshowHeight() - this.getMargin('top') - this.getMargin('bottom')
-	}
-
-	getSlideshowWidth = () => {
-		const {
-			isRendered,
-			getWidth,
-			inline
-		} = this.props
-		if (!inline) {
-			// This won't reflect page zoom in iOS Safari,
-			// but there isn't supposed to be any page zoom on mobile devices.
-			return getViewportWidth()
-		}
-		if (isRendered() && getWidth) {
-			return getWidth()
-		}
-		throw new Error('Slideshow not rendered')
-	}
-
-	getSlideshowHeight = () => {
-		const {
-			isRendered,
-			getHeight,
-			inline
-		} = this.props
-		if (!inline) {
-			// There aren't supposed to be any horizontal scrollbars,
-			// and there isn't supposed to be any page zoom on mobile devices,
-			// so `getViewportHeightIncludingScaleAndScrollbar()`
-			// will behave same as `getViewportHeight()`.
-			// The regular `getViewportHeight()` won't work with iOS Safari's
-			// auto-hide/show top/bottom bars feature.
-			return getViewportHeightWithScrollbar()
-		}
-		if (isRendered() && getHeight) {
-			return getHeight()
-		}
-		throw new Error('Slideshow not rendered')
+		return getMaxAvailableSlideHeight(this.props)
 	}
 
 	shouldUpscaleSmallSlides() {
-		const { inline } = this.props
-		return inline
+		return shouldUpscaleSmallSlides(this.props)
 	}
 
 	/**
@@ -93,11 +68,7 @@ export default class SlideshowSize {
 	 * @return {number}
 	 */
 	getSlideMaxInitialWidth = (slide) => {
-		return Math.min(
-			this.getMaxAvailableSlideHeight() * this.getSlideAspectRatio(slide),
-			this.getMaxAvailableSlideWidth(),
-			this.shouldUpscaleSmallSlides() ? Number.MAX_VALUE : this.getSlideMaxAvailableSize(slide).width
-		)
+		return getSlideMaxInitialWidth(slide, this.props)
 	}
 
 	/**
@@ -108,30 +79,27 @@ export default class SlideshowSize {
 	 * @return {number}
 	 */
 	getSlideMaxInitialHeight = (slide) => {
-		return this.getSlideMaxInitialWidth(slide) / this.getSlideAspectRatio(slide)
+		return getSlideMaxInitialHeight(slide, this.props)
+	}
+
+	getSlideMaxWidthToFit = (slide) => {
+		return getSlideMaxWidthToFit(slide, this.props)
+	}
+
+	getSlideMaxHeightToFit = (slide) => {
+		return getSlideMaxHeightToFit(slide, this.props)
 	}
 
 	getSlideAspectRatio(slide) {
-		return this.slideshow.getPluginForSlide(slide).getAspectRatio(slide)
+		return getSlideAspectRatio(slide, this.props)
 	}
 
 	getSlideMaxAvailableSize(slide) {
-		return this.slideshow.getPluginForSlide(slide).getMaxSize(slide)
+		return getSlideMaxAvailableSize(slide, this.props)
 	}
 
 	getMargin = (edge) => {
-		const { inline, margin: marginRatio, minMargin } = this.props
-		if (inline) {
-			return 0
-		}
-		const extraMargin = edge ? this.extraMargin[edge] || 0 : 0
-		return Math.max(
-			marginRatio * Math.min(
-				this.getSlideshowWidth(),
-				this.getSlideshowHeight()
-			),
-			minMargin + extraMargin
-		)
+		return getMargin(edge, this.props)
 	}
 
 	/**
@@ -140,7 +108,7 @@ export default class SlideshowSize {
 	 * @param  {Boolean} precise — The slide must be at least as large as one of the slideshow's dimensions.
 	 * @return {Boolean} [isMaxSizeSlide]
 	 */
-	isMaxSizeSlide(precise = true) {
+	isMaxSizeSlide = ({ precise = true } = {}) => {
 		const { isRendered, fullScreenFitPrecisionFactor } = this.props
 		// No definite answer (`true` or `false`) could be
 		// given until slideshow dimensions are known.
@@ -153,53 +121,119 @@ export default class SlideshowSize {
 		return maxSize.width >= this.getMaxAvailableSlideWidth() * fitFactor ||
 			maxSize.height >= this.getMaxAvailableSlideHeight() * fitFactor
 	}
+}
 
-	/**
-	 * Fits the slide on screen (also introduces some margins).
-	 * @param  {object} slide — Slide.
-	 * @param  {number} scale — Slide scale.
-	 * @param  {number} originX — "Gravitate to origin" X.
-	 * @param  {number} originY — "Gravitate to origin" Y.
-	 * @return {number[]} [offsetX, offsetY]
-	 */
-	getFittedSlideOffset = (slide, scale, originX, originY) => {
-		const scaledWidth = scale * this.getSlideMaxInitialWidth(slide)
-		const scaledHeight = scale * this.getSlideMaxInitialHeight(slide)
-		const shouldOffsetX = scaledWidth < this.getMaxAvailableSlideWidth()
-		const shouldOffsetY = scaledHeight < this.getMaxAvailableSlideHeight()
-		// const originX = this.getSlideshowWidth() / 2 + initialOffsetX
-		// const originY = this.getSlideshowHeight() / 2 + initialOffsetY
-		let offsetX = 0
-		let offsetY = 0
-		if (shouldOffsetX) {
-			let deltaX = 0
-			const left = originX - scaledWidth / 2
-			const right = originX + scaledWidth / 2
-			if (left < this.getMargin('left')) {
-				deltaX = this.getMargin('left') - left
-			}
-			if (right > this.getSlideshowWidth() - this.getMargin('right')) {
-				deltaX = this.getSlideshowWidth() - this.getMargin('right') - right
-			}
-			const targetOffsetX = originX - this.getSlideshowWidth() / 2
-			offsetX = targetOffsetX + deltaX
-		}
-		if (shouldOffsetY) {
-			let deltaY = 0
-			const top = originY - scaledHeight / 2
-			const bottom = originY + scaledHeight / 2
-			if (top < this.getMargin('top')) {
-				deltaY = this.getMargin('top') - top
-			}
-			if (bottom > this.getSlideshowHeight() - this.getMargin('bottom')) {
-				deltaY = this.getSlideshowHeight() - this.getMargin('bottom') - bottom
-			}
-			const targetOffsetY = originY - this.getSlideshowHeight() / 2
-			offsetY = targetOffsetY + deltaY
-		}
-		return [
-			offsetX,
-			offsetY
-		]
+export function getSlideshowWidth(props) {
+	const {
+		isRendered,
+		getWidth,
+		inline
+	} = props
+
+	if (!inline) {
+		// This won't reflect page zoom in iOS Safari,
+		// but there isn't supposed to be any page zoom on mobile devices.
+		return getViewportWidth()
 	}
+
+	if (isRendered() && getWidth) {
+		return getWidth()
+	}
+
+	throw new Error('Slideshow not rendered')
+}
+
+export function getSlideshowHeight(props) {
+	const {
+		isRendered,
+		getHeight,
+		inline
+	} = props
+
+	if (!inline) {
+		// There aren't supposed to be any horizontal scrollbars,
+		// and there isn't supposed to be any page zoom on mobile devices,
+		// so `getViewportHeightIncludingScaleAndScrollbar()`
+		// will behave same as `getViewportHeight()`.
+		// The regular `getViewportHeight()` won't work with iOS Safari's
+		// auto-hide/show top/bottom bars feature.
+		return getViewportHeightWithScrollbar()
+	}
+
+	if (isRendered() && getHeight) {
+		return getHeight()
+	}
+
+	throw new Error('Slideshow not rendered')
+}
+
+function getMargin(edge, props) {
+	const { inline, margin: marginRatio, minMargin } = props
+	if (inline) {
+		return 0
+	}
+	const extraMargin = edge ? getExtraMargin(props)[edge] || 0 : 0
+	return Math.max(
+		marginRatio * Math.min(
+			getSlideshowWidth(props),
+			getSlideshowHeight(props)
+		),
+		minMargin + extraMargin
+	)
+}
+
+function getExtraMargin(props) {
+	const {
+		headerHeight,
+		footerHeight
+	} = props
+	return {
+		top: headerHeight,
+		bottom: footerHeight
+	}
+}
+
+function shouldUpscaleSmallSlides(props) {
+	const { inline } = props
+	return inline
+}
+
+export function getMaxAvailableSlideWidth(props) {
+	return getSlideshowWidth(props) - getMargin('left', props) - getMargin('right', props)
+}
+
+export function getMaxAvailableSlideHeight(props) {
+	return getSlideshowHeight(props) - getMargin('top', props) - getMargin('bottom', props)
+}
+
+function getSlideAspectRatio(slide, props) {
+	const { viewers } = props
+	return getViewerForSlide(slide, viewers).getAspectRatio(slide)
+}
+
+function getSlideMaxAvailableSize(slide, props) {
+	const { viewers } = props
+	return getViewerForSlide(slide, viewers).getMaxSize(slide)
+}
+
+function getSlideMaxWidthToFit(slide, props) {
+	return Math.min(
+		getMaxAvailableSlideHeight(props) * getSlideAspectRatio(slide, props),
+		getMaxAvailableSlideWidth(props)
+	)
+}
+
+export function getSlideMaxInitialWidth(slide, props) {
+	return Math.min(
+		getSlideMaxWidthToFit(slide, props),
+		shouldUpscaleSmallSlides(props) ? Number.MAX_VALUE : getSlideMaxAvailableSize(slide, props).width
+	)
+}
+
+function getSlideMaxHeightToFit(slide, props) {
+	return getSlideMaxWidthToFit(slide, props) / getSlideAspectRatio(slide, props)
+}
+
+export function getSlideMaxInitialHeight(slide, props) {
+	return getSlideMaxInitialWidth(slide, props) / getSlideAspectRatio(slide, props)
 }

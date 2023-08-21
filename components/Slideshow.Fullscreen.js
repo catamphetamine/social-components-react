@@ -7,13 +7,21 @@ import {
 export default class SlideshowFullscreen {
 	constructor(slideshow) {
 		this.slideshow = slideshow
+	}
 
+	addEventListeners() {
 		this.slideshow.onCleanUp(() => {
 			if (this.exitFullScreen) {
 				this.exitFullScreen()
 				this.exitFullScreen = undefined
 			}
 		})
+	}
+
+	getFunctions() {
+		return {
+			enterFullscreen: this.enterFullscreen
+		}
 	}
 
 	enterFullscreen = (container) => {

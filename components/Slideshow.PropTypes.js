@@ -41,12 +41,9 @@ export default {
 	closeOnOverlayClick: PropTypes.bool,
 	closeOnSlideClick: PropTypes.bool,
 
-	animateOpenClose: PropTypes.oneOf([true, 'float']),
-	animateOpenCloseOnSmallScreen: PropTypes.oneOf([true, 'float']),
-	// A picture is open in "hover" mode when it's expanded
-	// centered above its thumbnail.
-	animateOpenClosePictureInHoverMode: PropTypes.oneOf([false, 'float']),
-	animateCloseOnPanOut: PropTypes.bool,
+	animateOpenClose: PropTypes.oneOf(['fade', 'float']),
+	animateOpenCloseOnSmallScreen: PropTypes.oneOf(['fade', 'float']),
+	animateCloseOnPanOut: PropTypes.oneOf(['fade']),
 
 	// What's the criterion of a "small" screen.
 	smallScreenMaxWidth: PropTypes.number,
@@ -57,7 +54,7 @@ export default {
 
 	// How much should a user move a mouse cursor when dragging
 	// in order to activate "pan" mode.
-	panOffsetThreshold: PropTypes.number.isRequired,
+	dragOffsetThreshold: PropTypes.number.isRequired,
 	// Emulate pan resistance on slideshow left-most and right-most sides.
 	emulatePanResistanceOnFirstAndLastSlides: PropTypes.bool,
 	// The duration of a "slide in" animation when a user
@@ -97,8 +94,10 @@ export default {
 	// then the user would get confused on whether the slide is already "opened" or not.
 	//
 	minSlideScaleFactorRelativeToThumbnailSize: PropTypes.number.isRequired,
+	minSlideSizeWhenScaledDown: PropTypes.number.isRequired,
 
 	showPagination: PropTypes.bool,
+	showThumbnails: PropTypes.bool,
 
 	fullScreenFitPrecisionFactor: PropTypes.number.isRequired,
 	margin: PropTypes.number.isRequired,
@@ -116,7 +115,7 @@ export default {
 
 	imageElement: PropTypes.any, // `Element` is not defined on server side. // PropTypes.instanceOf(Element),
 
-	plugins: PropTypes.arrayOf(PluginType).isRequired,
+	viewers: PropTypes.arrayOf(PluginType).isRequired,
 
 	messages: PropTypes.shape({
 		actions: PropTypes.shape({
@@ -131,7 +130,7 @@ export default {
 			close: PropTypes.string,
 			previous: PropTypes.string,
 			next: PropTypes.string,
-			exitDragAndScaleMode: PropTypes.string
+			exitPanAndZoomMode: PropTypes.string
 		}).isRequired,
 		// The template for outputting the current scale value:
 		// "{scaleValueBefore}1.23x{scaleValueAfter}".
@@ -155,12 +154,11 @@ export const defaultProps = {
 
 	closeOnOverlayClick: true,
 
-	animateOpenClose: true,
-	animateOpenClosePictureInHoverMode: 'float',
+	animateCloseOnPanOut: 'fade',
 
 	openPictureInHoverMode: true,
 
-	panOffsetThreshold: 5,
+	dragOffsetThreshold: 5,
 	emulatePanResistanceOnFirstAndLastSlides: false,
 	panSlideInAnimationDuration: 500,
 	panSlideInAnimationDurationMin: 150,
@@ -174,8 +172,10 @@ export const defaultProps = {
 	minScaledSlideRatio: 0.1,
 	mouseWheelScaleFactor: 0.33,
 	minSlideScaleFactorRelativeToThumbnailSize: 1.25,
+	minSlideSizeWhenScaledDown: 64,
 
 	showPagination: true,
+	showThumbnails: false,
 
 	fullScreenFitPrecisionFactor: 0.875,
 	margin: 0.025, // %
@@ -196,14 +196,23 @@ export const defaultProps = {
 }
 
 export const SlideshowStateTypes = {
-	hasStartedOpening: PropTypes.bool,
-	hasFinishedOpening: PropTypes.bool,
-	hasStartedClosing: PropTypes.bool,
-	hasFinishedClosing: PropTypes.bool,
+	openClosePhase: PropTypes.oneOf([
+		'closed',
+		'opening',
+		'open',
+		'closing'
+	]).isRequired,
 
-	offsetSlideIndex: PropTypes.number,
-	offsetSlideOriginX: PropTypes.number,
-	offsetSlideOriginY: PropTypes.number,
+	// By default, slides don't have any offset, i.e. their "origin" point is the center of the screen.
+	// Sometimes, the app might prefer to introduce custom offset for a given slide.
+	// For example, when a user clicks an slide's thumbnail somewhere on a page,
+	// the app might prefer to show an enlarged picture of the slide right above
+	// the thumbnail the user has clicked.
+	// In such cases, that particular slide will have "custom" offset
+	// and these properties will be set in Slideshow `state`.
+	slideWithCustomOffsetIndex: PropTypes.number,
+	slideWithCustomOffsetOriginX: PropTypes.number,
+	slideWithCustomOffsetOriginY: PropTypes.number,
 
 	openAnimationDuration: PropTypes.number,
 	closeAnimationDuration: PropTypes.number

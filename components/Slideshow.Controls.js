@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import SlideshowPagination from './Slideshow.Pagination.js'
 import SlideshowActions from './Slideshow.Actions.js'
-import DragAndScaleModeControls from './Slideshow.DragAndScaleModeControls.js'
+import PanAndZoomModeControls from './Slideshow.PanAndZoomModeControls.js'
 import SlideshowPropTypes from './Slideshow.PropTypes.js'
 
 import Button from './Button.js'
@@ -25,7 +25,7 @@ export default function SlideshowControls({
 	slideIndex,
 	scale,
 	messages,
-	dragAndScaleMode,
+	panAndZoomMode,
 	showActions,
 	showScaleButtons,
 	showMoreControls,
@@ -40,11 +40,11 @@ export default function SlideshowControls({
 	const RightArrowCounterForm = highContrastControls ? RightArrowCounterformThickStroke : RightArrowCounterform
 	return (
 		<div className="Slideshow-Controls">
-			<DragAndScaleModeControls
+			<PanAndZoomModeControls
 				slideshow={slideshow}
 				messages={messages}
 				scale={scale}
-				dragAndScaleMode={dragAndScaleMode}/>
+				panAndZoomMode={panAndZoomMode}/>
 
 			{showActions &&
 				<SlideshowActions
@@ -99,7 +99,7 @@ SlideshowControls.propTypes = {
 	scale: PropTypes.number.isRequired,
 	showActions: PropTypes.bool,
 	messages: SlideshowPropTypes.messages,
-	dragAndScaleMode: PropTypes.bool,
+	panAndZoomMode: PropTypes.bool,
 	showScaleButtons: PropTypes.bool,
 	showMoreControls: PropTypes.bool,
 	showPagination: PropTypes.bool,

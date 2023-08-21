@@ -1,8 +1,8 @@
-.Slideshow--panning {
+.Slideshow--dragging {
 	cursor: grabbing;
 }
 
 /* Overrides "cursor: pointer" on a picture slide. */
-.Slideshow--panning .Slideshow-Picture {
+.Slideshow--dragging .Slideshow-Picture {
 	cursor: grabbing;
 }

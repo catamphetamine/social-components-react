@@ -42,6 +42,24 @@ export default function SlideshowActions({
 		goToSource(slides[slideIndex])
 	}, [goToSource, slides, slideIndex])
 
+	const onScaleUp = useCallback((event) => {
+		if (!slideshow.isLocked()) {
+			slideshow.scale.onScaleUp(event)
+		}
+	}, [slideshow])
+
+	const onScaleDown = useCallback((event) => {
+		if (!slideshow.isLocked()) {
+			slideshow.scale.onScaleDown(event)
+		}
+	}, [slideshow])
+
+	const onScaleToggle = useCallback((event) => {
+		if (!slideshow.isLocked()) {
+			slideshow.scale.onScaleToggle()
+		}
+	}, [slideshow])
+
 	return (
 		<ul className="Slideshow-Actions">
 			{slideshow.shouldShowMoreControls() && slideshow.shouldShowScaleButtons() &&
@@ -51,21 +69,21 @@ export default function SlideshowActions({
 					{showScaleButtons &&
 						<Button
 							title={messages.actions.scaleDown}
-							onClick={slideshow.onScaleDown}
+							onClick={onScaleDown}
 							className="Slideshow-Action">
 							<Minus className="Slideshow-ActionIcon"/>
 						</Button>
 					}
 					<Button
 						title={messages.actions.scaleReset}
-						onClick={slideshow.onScaleToggle}
+						onClick={onScaleToggle}
 						className="Slideshow-Action">
 						<ScaleFrame className="Slideshow-ActionIcon"/>
 					</Button>
 					{showScaleButtons &&
 						<Button
 							title={messages.actions.scaleUp}
-							onClick={slideshow.onScaleUp}
+							onClick={onScaleUp}
 							className="Slideshow-Action">
 							<Plus className="Slideshow-ActionIcon"/>
 						</Button>
@@ -79,7 +97,7 @@ export default function SlideshowActions({
 						target="_blank"
 						title={messages.actions.openExternalLink}
 						onKeyDown={clickTheLinkOnSpacebar}
-						href={slideshow.getPluginForSlide().getExternalLink(slideshow.getCurrentSlide())}
+						href={slideshow.getViewerForSlide().getExternalLink(slideshow.getCurrentSlide())}
 						className="Slideshow-Action Slideshow-Action--link">
 						<ExternalIcon className="Slideshow-ActionIcon"/>
 					</a>
@@ -93,7 +111,7 @@ export default function SlideshowActions({
 						target="_blank"
 						title={messages.actions.download}
 						onKeyDown={clickTheLinkOnSpacebar}
-						href={slideshow.getPluginForSlide().getDownloadUrl(slideshow.getCurrentSlide())}
+						href={slideshow.getViewerForSlide().getDownloadUrl(slideshow.getCurrentSlide())}
 						className="Slideshow-Action Slideshow-Action--link">
 						<Download className="Slideshow-ActionIcon"/>
 					</a>

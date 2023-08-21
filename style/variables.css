@@ -217,6 +217,13 @@
 	--Slideshow-Control-margin: var(--unit);
 	/* `--Slideshow-Control-paddingLeft` is used on "wide" action buttons. */
 	--Slideshow-Control-paddingLeft: calc((var(--Slideshow-Control-height) - 1em) / 2);
-	--Slideshow-DragAndScaleModeButton-height: calc(var(--unit) * 3);
-	--Slideshow-DragAndScaleModeButton-marginBottom: 0px;
+	--Slideshow-PanAndZoomModeButton-height: calc(var(--unit) * 3);
+	--Slideshow-PanAndZoomModeButton-marginBottom: 0px;
+	--Slideshow-Thumbnail-maxWidth: calc(var(--unit) * 8);
+	--Slideshow-Thumbnail-maxHeight: var(--Slideshow-Thumbnail-maxWidth);
+	--Slideshow-Thumbnail-marginRight: var(--unit);
+	--Slideshow-Thumbnail-marginBottom: var(--unit);
+	--Slideshow-Thumbnail-backgroundColor--noThumbnail: var(--SocialComponents-color-100);
+	--Slideshow-Thumbnail-borderColor--noThumbnail: var(--SocialComponents-color-900);
+	--Slideshow-Thumbnail-boxShadow: 0 0px 12px rgba(0,0,0,0.3);
 }

@@ -34,7 +34,7 @@
 			"showControls": "Show controls",
 			"hideControls": "Hide controls",
 			"openExternalLink": "Open external link",
-			"exitDragAndScaleMode": "Exit Drag and Scale mode"
+			"exitPanAndZoomMode": "Exit Pan and Zoom mode"
 		},
 		"scaleValueBefore": "Scale",
 		"scaleValueAfter": null

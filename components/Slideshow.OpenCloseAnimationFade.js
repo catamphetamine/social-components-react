@@ -15,15 +15,21 @@ const ANIMATION_DURATION_LONG = 120
 const ANIMATION_DURATION = 40 // 50ms is 3 frames at 60fps
 
 export default class OpenCloseAnimationFade {
-	constructor(slideshow) {
-		this.slideshow = slideshow
+	constructor() {}
+
+	shouldAnimateCloseSlideAndBackgroundSeparately({ speed } = {}) {
+		if (speed === 'slow') {
+			return true
+		} else {
+			return false
+		}
 	}
 
 	onOpen(slideElement, { imageElement, slideOffsetX, slideOffsetY }) {
 		const useLongerOpenCloseAnimation = false
 		const animationDuration = useLongerOpenCloseAnimation ? ANIMATION_DURATION_LONG : ANIMATION_DURATION
 
-		const animateOpenSlideAndBackgroundSeparately = useLongerOpenCloseAnimation ? true : false
+		const animateOpenSlideAndBackgroundSeparately = Boolean(useLongerOpenCloseAnimation)
 		const shouldAnimateOpen = animateOpenSlideAndBackgroundSeparately
 		if (shouldAnimateOpen) {
 			this.animateOpen(slideElement, {
@@ -87,7 +93,7 @@ export default class OpenCloseAnimationFade {
 	onClose(slideElement, { useLongerOpenCloseAnimation }) {
 		const animationDuration = useLongerOpenCloseAnimation ? ANIMATION_DURATION_LONG : ANIMATION_DURATION
 
-		const animateOpenSlideAndBackgroundSeparately = useLongerOpenCloseAnimation ? true : false
+		const animateOpenSlideAndBackgroundSeparately = Boolean(useLongerOpenCloseAnimation)
 		const shouldAnimateOpen = animateOpenSlideAndBackgroundSeparately
 		if (shouldAnimateOpen) {
 			this.animateClose(slideElement, { animationDuration, useLongerOpenCloseAnimation })

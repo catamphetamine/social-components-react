@@ -1,0 +1,54 @@
+:root {
+  --LoadingEllipsisDot-width: 20%;
+}
+
+.LoadingEllipsis {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.LoadingEllipsis-dot {
+  width: var(--LoadingEllipsisDot-width);
+  /* Makes the dot square via `height: 0` and `padding-bottom: {width}`. */
+  /* https://stackoverflow.com/questions/19068070/how-to-style-a-div-to-be-a-responsive-square */
+  height: 0;
+  padding-bottom: var(--LoadingEllipsisDot-width);
+  margin-right: calc((100% - var(--LoadingEllipsisDot-width) * 3) / 2);
+  border-radius: 50%;
+  background-color: transparent;
+  animation: LoadingEllipsis-animation 1.5s infinite;
+}
+
+.LoadingEllipsis-dot:nth-child(1) {
+}
+
+.LoadingEllipsis-dot:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.LoadingEllipsis-dot:nth-child(3) {
+  margin-right: 0;
+  animation-delay: 0.5s;
+}
+
+.LoadingEllipsis--square.LoadingEllipsis-dot {
+  /* "The percentage is calculated with respect to the
+      width of the generated box's containing block". */
+  margin-top: calc((100% - var(--LoadingEllipsisDot-width)) / 2);
+}
+
+@keyframes LoadingEllipsis-animation {
+  0% {
+    background-color: transparent;
+  }
+  40% {
+    background-color: currentColor;
+  }
+  80% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: transparent;
+  }
+}

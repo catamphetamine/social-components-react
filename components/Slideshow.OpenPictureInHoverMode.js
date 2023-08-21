@@ -3,15 +3,16 @@ import { getFitSize } from './Picture.js'
 import { px } from 'web-browser-style'
 
 export default class SlideshowOpenPictureInHoverMode {
-	constructor(slideshow) {
+	constructor(slideshow, props) {
 		this.slideshow = slideshow
+		this.props = props
 	}
 
 	resetSlideOffsetState() {
 		this.slideshow.setState({
-			offsetSlideIndex: undefined,
-			offsetSlideOriginX: undefined,
-			offsetSlideOriginY: undefined
+			slideWithCustomOffsetIndex: undefined,
+			slideWithCustomOffsetOriginX: undefined,
+			slideWithCustomOffsetOriginY: undefined
 		})
 	}
 
@@ -26,26 +27,8 @@ export default class SlideshowOpenPictureInHoverMode {
 	}
 
 	isSlideOffsetApplied() {
-		const { offsetSlideIndex } = this.slideshow.getState()
-		return offsetSlideIndex !== undefined
-	}
-
-	static getInitialProps(props) {
-		// Get `imageElement`.
-		let { imageElement } = props
-		if (imageElement) {
-			if (imageElement.tagName.toLowerCase() !== 'img') {
-				imageElement = imageElement.querySelector('img')
-			}
-		}
-		// All pictures (including animated GIFs) are opened above their thumbnails.
-		const { initialSlideIndex, slides, openPictureInHoverMode } = props
-		return {
-			...props,
-			imageElement,
-			imageElementCoords: imageElement && imageElement.getBoundingClientRect(),
-			openPictureInHoverMode: openPictureInHoverMode && imageElement && slides[initialSlideIndex].type === 'picture'
-		}
+		const { slideWithCustomOffsetIndex } = this.slideshow.getState()
+		return slideWithCustomOffsetIndex !== undefined
 	}
 
 	getSlideSize = () => {
@@ -57,7 +40,7 @@ export default class SlideshowOpenPictureInHoverMode {
 	}
 
 	applySlideOffset = () => {
-		const { getSlideDOMNode } = this.slideshow.props
+		const { getSlideDOMNode } = this.props
 
 		// this.slideshow.onResize(() => {
 		// 	// // Reset slide offset on window resize.
@@ -72,14 +55,14 @@ export default class SlideshowOpenPictureInHoverMode {
 	 * @return {number[]} `[x, y]`
 	 */
 	updateSlideOffset() {
-		const { initialSlideIndex, imageElementCoords } = this.slideshow.props
+		const { initialSlideIndex, imageElementCoords } = this.props
 		const { x, y, width, height } = imageElementCoords
 		const originX = x + width / 2
 		const originY = y + height / 2
 		this.slideshow.setState({
-			offsetSlideIndex: initialSlideIndex,
-			offsetSlideOriginX: originX,
-			offsetSlideOriginY: originY
+			slideWithCustomOffsetIndex: initialSlideIndex,
+			slideWithCustomOffsetOriginX: originX,
+			slideWithCustomOffsetOriginY: originY
 		})
 		return { originX, originY }
 	}
@@ -173,4 +156,22 @@ export function calculateSlideCoordinates(
 		slideY = (slideshowHeight - getMargin('bottom')) - slideHeight
 	}
 	return [slideX, slideY]
+}
+
+export function transformInitialProps(props) {
+	// Get `imageElement`.
+	let { imageElement } = props
+	if (imageElement) {
+		if (imageElement.tagName.toLowerCase() !== 'img') {
+			imageElement = imageElement.querySelector('img')
+		}
+	}
+	// All pictures (including animated GIFs) are opened above their thumbnails.
+	const { initialSlideIndex, slides, openPictureInHoverMode } = props
+	return {
+		...props,
+		imageElement,
+		imageElementCoords: imageElement && imageElement.getBoundingClientRect(),
+		openPictureInHoverMode: openPictureInHoverMode && imageElement && slides[initialSlideIndex].type === 'picture'
+	}
 }

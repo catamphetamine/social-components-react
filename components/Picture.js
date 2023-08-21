@@ -1,10 +1,13 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect, useImperativeHandle } from 'react'
+import React, { useState, useMemo, useRef, useCallback, useLayoutEffect, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { ActivityIndicator, FadeInOut } from 'react-responsive-ui'
+// import { ActivityIndicator } from 'react-responsive-ui'
+import { FadeInOut } from 'react-responsive-ui'
 import { isEqual } from 'lodash-es'
 
 import { px } from 'web-browser-style'
+
+import LoadingEllipsis from './LoadingEllipsis.js'
 
 import { picture } from './PropTypes.js'
 
@@ -58,12 +61,17 @@ function Picture({
 	loadingIndicatorFadeInDuration,
 	loadingIndicatorFadeOutDuration,
 	preload,
+	preloadVisibilityMarginHorizontal,
+	preloadVisibilityMarginVertical,
 	// pixelRatioMultiplier,
 	blur,
 	style,
 	className,
 	children,
 	imageRef,
+	ErrorIndicator = XIcon,
+	LoadingIndicator = LoadingEllipsis,
+	// LoadingIndicator = ActivityIndicator,
 	...rest
 }, ref) {
 	if (useSmallestSize && useSmallestSizeExactDimensions) {
@@ -72,18 +80,6 @@ function Picture({
 	}
 
 	const withBorder = border && !picture.transparentBackground
-
-	// `initialImageSize` will be `undefined`
-	// if the target picture size hasn't been provided.
-	// In that case, the appropriate image size will be determined
-	// after the page has loaded, in a `useEffect()` hook.
-	const initialImageSize = useRef(getInitialImageSize(
-		picture,
-		width,
-		height,
-		fit,
-		useSmallestSize
-	))
 
 	const containerRef = useRef()
 
@@ -104,64 +100,282 @@ function Picture({
 
 	const isMounted = useIsMounted()
 
-	const [size, setSize] = useState(initialImageSize.current)
-	const [imageStatus, setImageStatus] = useState(preload ? 'LOADING' : 'READY')
+	const imageLoadDevModeTimer = useRef()
 
-	useEffect(() => {
-		if (!window.interactiveResize) {
-			window.interactiveResize = new InteractiveResize()
+	useEffectSkipMount(() => {
+
+	}, [
+		picture,
+		border,
+		fit,
+		width,
+		height,
+		maxWidth,
+		maxHeight,
+		useSmallestSize,
+		useSmallestSizeExactDimensions
+	])
+
+	// `initialPictureSize` will be `undefined` when both:
+	// * No `width` or `height` are provided.
+	// * No `useSmallestSize` flag was passed.
+	//
+	// In that case, the appropriate picture size will be determined
+	// after the page has rendered and the picture element could be measured.
+	//
+	const initialPictureSize = useMemo(() => {
+		return getInitialPictureSize(picture, {
+			width,
+			height,
+			fit,
+			useSmallestSize
+		})
+	}, [])
+
+	const [size, setSize] = useState(initialPictureSize)
+	const [imageStatus, setStatus] = useState(preload ? 'LOADING' : 'READY')
+	// const [recreateIntersectionObserverFlag, setRecreateIntersectionObserverFlag] = useState({})
+
+	// When a thumbnail is shown, aspect ratio is more precise
+	// when calculated using the thumbnail dimensions
+	// rather than the original image dimensions
+	// because width and height in pixels are rounded when
+	// generating a thumbnail, so thumbnail's aspect ratio
+	// should be calculated from thumbnail's width and height.
+	const getImageAspectRatio = useCallback(() => {
+		return getAspectRatio(size || picture)
+	}, [
+		size,
+		picture
+	])
+
+	const excludeBorder = useCallback((dimension) => {
+		if (withBorder) {
+			return dimension - 2 * BORDER_WIDTH
 		}
+		return dimension
+	}, [withBorder])
 
-		// When the DOM node has been mounted,
-		// its width in pixels becomes known,
-		// so an appropriate size can now be picked.
-		//
-		// This only works when styles are included "statically" on a page.
-		// (i.e. via `<link rel="stylesheet" href="..."/>`)
-		//
-		// It won't work though when loading styles dynamically
-		// (via javascript): by the time the component mounts,
-		// the styles haven't yet been loaded, so `getWidth()`
-		// may return the full window width for a `<div/>`
-		// even though the `<div/>`'s max width should be less than that.
-		//
-		// For example, on a 4K monitor, with a small thumbnail `<Picture/>`,
-		// it would still load the full-sized 4K image because the `<Picture/>`
-		// size is not set up via `width` and `height` HTML attributes,
-		// but is instead set up via CSS `width` and `height` properties
-		// which haven't been applied yet because the CSS stylesheet hasn't loaded yet.
-		//
-		// There seems to be no way around this issue.
+	// `offsetWidth` and `offsetHeight` include border width.
+	const getWidth = useCallback(() => {
+		return containerRef.current.offsetWidth
+	}, [])
 
-		const onFinished = () => {
-			window.interactiveResize.add(() => {
-				// A picture might become unmounted after a window resize.
-				// An example is using `virtual-scroller` to show a list of comments.
-				if (isMounted()) {
-					renderAppropriateSize()
+	const getHeight = useCallback(() => {
+		return containerRef.current.offsetHeight
+	}, [])
+
+	const getPreferredImageWidth = useCallback(() => {
+		if (fit === 'cover') {
+			return excludeBorder(Math.max(getWidth(), getHeight() * getImageAspectRatio()))
+		}
+		return excludeBorder(getWidth())
+	}, [
+		fit,
+		getWidth,
+		getHeight,
+		getImageAspectRatio,
+		excludeBorder
+	])
+
+	const loadPictureSize_ = useCallback((pictureSize) => {
+		if (cancelLoadingImageSize.current) {
+			cancelLoadingImageSize.current()
+		}
+		let wasCancelled
+		setStatus(preload ? 'LOADING' : 'READY')
+		preloadImage(pictureSize.url).then(
+			() => {
+				if (wasCancelled) {
+					return
 				}
-			})
+				cancelLoadingImageSize.current = undefined
+				if (isMounted()) {
+					if (preload) {
+						setStatus('READY')
+					}
+				}
+			},
+			(error) => {
+				console.error(error)
+				if (wasCancelled) {
+					return
+				}
+				cancelLoadingImageSize.current = undefined
+				if (isMounted()) {
+					setStatus('ERROR')
+				}
+			}
+		)
+		cancelLoadingImageSize.current = () => {
+			wasCancelled = true
 		}
+	}, [
+		preload,
+		setStatus,
+		isMounted
+	])
 
-		let imageLoadDevModeTimer
+	const loadAndRenderInitialPictureSize = useCallback(() => {
+		loadPictureSize_(initialPictureSize)
+		shouldUpdatePictureSizeOnWindowResize.current = true
+	}, [
+		loadPictureSize_,
+		initialPictureSize
+	])
 
+	const loadAndRenderAppropriatePictureSize_ = useCallback(({
+		forceReloadImage,
+		onSizeChange
+	} = {}) => {
+		function getAppropriateImageSize() {
+			if (useSmallestSize) {
+				return getMinSize(picture)
+			}
+			return getPreferredSize(
+				picture,
+				getPreferredImageWidth() // * pixelRatioMultiplier
+			)
+		}
+		const appropriateSize = getAppropriateImageSize()
+		if (appropriateSize) {
+			if (
+				forceReloadImage ||
+				// If there was no image rendered before.
+				!size ||
+				// If the size is different from the currently rendered one.
+				// For example, a given `<Picture/>` element could be reused by React
+				// with another `picture` property (and all other properties).
+				// "Deep equality" check is used here instead of a simple `===` one
+				// because the `picture` object can be parsed from an HTTP response from a server,
+				// in which case the `picture` object reference will change even though the picture
+				// itself stayed the same.
+				!isEqual(size, appropriateSize)
+				// If the size got smaller, it doesn't necessarily mean that a bigger image
+				// could be reused for it. Or maybe it does? I guess it does.
+				// But the `!isEqual(size, appropriateSize)` check above already handles that.
+				// // If the appropriate size is bigger than the currently rendered one.
+				// appropriateSize.width > size.width
+			) {
+				setSize(appropriateSize)
+				loadPictureSize_(appropriateSize)
+				if (onSizeChange) {
+					onSizeChange()
+				}
+			}
+		}
+	}, [
+		picture,
+		size,
+		setSize,
+		loadPictureSize_,
+		useSmallestSize,
+		getPreferredImageWidth
+	])
+
+	const shouldUpdatePictureSizeOnWindowResize = useRef(false)
+
+	// `loadAndRenderAppropriatePictureSize_()` function might change if properties change.
+	// Maybe there is some way to re-recreate `InteractiveResize` when it changes,
+	// but in that case some window resize events might be lost (for example, debounced ones),
+	// so a simpler approach is just calling the latest version of this function from a "ref".
+	const interactiveResizeUpdatePictureSize = useRef()
+	interactiveResizeUpdatePictureSize.current = loadAndRenderAppropriatePictureSize_
+
+	const interactiveResize = useMemo(() => {
+		return new InteractiveResize()
+	}, [])
+
+	const addInteractiveResizeListeners = () => {
+		// Refresh the picture size on window resize.
+		interactiveResize.add(() => {
+			// A `<Picture/>` might become unmounted after a window resize event is received.
+			// An example is using `virtual-scroller` to show a list of comments.
+			// So check if the `<Picture/>` is still mounted before refreshing it.
+			if (isMounted()) {
+				if (shouldUpdatePictureSizeOnWindowResize.current) {
+					interactiveResizeUpdatePictureSize.current()
+				}
+			}
+		})
+		// When I didn't know that `rootMargin` could specify units like `%` or `vw`,
+		// I implemented a workaround to specify such values:
+		// * It parsed such values and computed `px` values for them
+		// * On each resize, it would re-compute the `px` values
+		//   and re-create the `IntersectionObserver`s.
+		//
+		// Later, I found out that `IntersectionObserver`'s `rootMargin` does support
+		// those units without any workarounds, so this `recreateIntersectionObserverFlag`
+		// workaround was commented out.
+		//
+		// // Refreshes the `IntersectionObserver`'s `rootMargin`.
+		// interactiveResize.add(() => {
+		// 	if (isMounted()) {
+		// 		setRecreateIntersectionObserverFlag({})
+		// 	}
+		// })
+	}
+
+	const startWatchingResize = useCallback(() => {
+	}, [
+		isMounted,
+		loadAndRenderAppropriatePictureSize_
+	])
+
+	const loadAndRenderAppropriatePictureSize = useCallback(({
+		forceReloadImage
+	} = {}) => {
+		loadAndRenderAppropriatePictureSize_({
+			forceReloadImage,
+			onSizeChange: () => {
+				shouldUpdatePictureSizeOnWindowResize.current = true
+			}
+		})
+	}, [
+		loadAndRenderAppropriatePictureSize_
+	])
+
+	const loadAndRenderInitially = useCallback(() => {
 		// If the target image size is known beforehand.
-		if (size) {
-			loadImage(size)
-			onFinished()
+		if (initialPictureSize) {
+			loadAndRenderInitialPictureSize()
 		} else {
 			const render = () => {
-				renderAppropriateSize()
-				onFinished()
+				loadAndRenderAppropriatePictureSize()
 			}
 			// Measure the container's size and determine the appropriate image size
 			// for that container size.
 			if (process.env.NODE_ENV === 'production') {
 				render()
 			} else {
+				// When the DOM node has been mounted,
+				// its width in pixels becomes known,
+				// so an appropriate size can now be picked.
+				//
+				// But that only works when styles are included "statically" on a page.
+				// (i.e. via `<link rel="stylesheet" href="..."/>`)
+				//
+				// It won't work though when loading styles dynamically
+				// (via javascript): by the time the component mounts,
+				// the styles haven't yet been loaded, so `getWidth()`
+				// may return the full window width for a `<div/>`
+				// even though the `<div/>`'s max width should be less than that.
+				//
+				// For example, on a 4K monitor, with a small thumbnail `<Picture/>`,
+				// it would still load the full-sized 4K image because the `<Picture/>`
+				// size is not set up via `width` and `height` HTML attributes,
+				// but is instead set up via CSS `width` and `height` properties
+				// which haven't been applied yet because the CSS stylesheet hasn't loaded yet.
+				//
+				// There seems to be no way around this issue.
+				//
+				// A workaround that is used here is to detect "development" mode
+				// and then wait for the styles to load, after which re-calculate
+				// the appropriate picture size.
+				//
 				const elapsed = Date.now() - DEV_MODE_PAGE_LOADED_AT
 				if (elapsed < DEV_MODE_WAIT_FOR_STYLES_TO_LOAD_MAX_TIME) {
-					imageLoadDevModeTimer = setTimeout(
+					imageLoadDevModeTimer.current = setTimeout(
 						() => {
 							if (isMounted()) {
 								render()
@@ -174,10 +388,107 @@ function Picture({
 				}
 			}
 		}
+	}, [
+		initialPictureSize,
+		loadAndRenderInitialPictureSize,
+		loadAndRenderAppropriatePictureSize
+	])
+
+	const preloadIntersectionObserverDestroy = useRef()
+
+	const wasIntersectionObserverTriggeredBeforeMount = useRef(false)
+
+	const createIntersectionObserver = () => {
+		if (preloadIntersectionObserverDestroy.current) {
+			preloadIntersectionObserverDestroy.current()
+		}
+
+		// Every modern browser except Internet Explorer supports `IntersectionObserver`s.
+		// https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+		// https://caniuse.com/#search=IntersectionObserver
+		const preloadIntersectionObserver = new IntersectionObserver((entries, observer) => {
+			for (const entry of entries) {
+				if (entry.isIntersecting) {
+					const element = entry.target
+					observer.unobserve(element)
+					// `IntersectionObserver` is created at component render time, before mount.
+					// If this listener gets triggered before the component is mounted,
+					// then defer calling `loadAndRenderInitially()` until the component has mounted.
+					if (isMounted()) {
+						loadAndRenderInitially()
+					} else {
+						wasIntersectionObserverTriggeredBeforeMount.current = true
+					}
+				}
+			}
+		}, {
+			// "rootMargin" option is incorrectly named.
+			// In reality, it's "root area expansion", i.e. how far should the viewport area
+			// be expanded relative to the actual viewport area.
+			// Values order: "top right bottom left", relative to the viewport area.
+			// Available units are `px` or `%`, where `%` means
+			// "percentage of the scrollable container's width/height".
+			// https://jsbin.com/xanolip/edit?html,css,js,output
+			rootMargin: `${preloadVisibilityMarginVertical} ${preloadVisibilityMarginHorizontal} ${preloadVisibilityMarginVertical} ${preloadVisibilityMarginHorizontal}`
+		})
+
+		preloadIntersectionObserverDestroy.current = () => {
+			preloadIntersectionObserver.disconnect()
+		}
+
+		return preloadIntersectionObserver
+	}
+
+	const preloadIntersectionObserver = useMemo(() => {
+		if (preload && typeof window !== 'undefined') {
+			return createIntersectionObserver({
+				preloadVisibilityMarginVertical,
+				preloadVisibilityMarginHorizontal,
+				isMounted,
+				loadAndRenderInitially
+			})
+		}
+	}, [
+		preload,
+		preloadVisibilityMarginVertical,
+		preloadVisibilityMarginHorizontal,
+		isMounted,
+		loadAndRenderInitially,
+		// recreateIntersectionObserverFlag
+	])
+
+	// Using `useLayoutEffect()` here so that it starts showing
+	// the image without an unnecessary delay.
+	// Initially, if `preload` flag is set to `true`, which is a default,
+	// it doesn't show the image right away and instead preloads it first
+	// when it becomes almost visible.
+	useLayoutEffect(() => {
+		if (preloadIntersectionObserver) {
+			preloadIntersectionObserver.observe(containerRef.current)
+		}
+		addInteractiveResizeListeners()
+		interactiveResize.start()
+		return () => {
+			if (preloadIntersectionObserver) {
+				preloadIntersectionObserver.unobserve(containerRef.current)
+			}
+			interactiveResize.stop()
+		}
+	}, [
+		preloadIntersectionObserver
+	])
+
+	useLayoutEffect(() => {
+		if (!preload || (preload && wasIntersectionObserverTriggeredBeforeMount.current)) {
+			loadAndRenderInitially()
+		}
 
 		return () => {
-			clearTimeout(imageLoadDevModeTimer)
-			window.interactiveResize.remove(renderAppropriateSize)
+			clearTimeout(imageLoadDevModeTimer.current)
+			interactiveResize.stop()
+			if (preloadIntersectionObserverDestroy.current) {
+				preloadIntersectionObserverDestroy.current()
+			}
 		}
 	}, [])
 
@@ -192,7 +503,7 @@ function Picture({
 		const isDifferentPicture = !isEqual(picture, prevPicture.current)
 		prevPicture.current = picture
 		if (isDifferentPicture) {
-			renderAppropriateSize({ reloadImage: true })
+			loadAndRenderAppropriatePictureSize()
 		}
 	}, [picture])
 
@@ -207,38 +518,34 @@ function Picture({
 		}
 	}))
 
-	function addBorder(dimension) {
+	const addBorder = useCallback((dimension) => {
 		if (withBorder) {
 			return dimension + 2 * BORDER_WIDTH
 		}
 		return dimension
-	}
+	}, [
+		withBorder
+	])
 
-	function excludeBorder(dimension) {
-		if (withBorder) {
-			return dimension - 2 * BORDER_WIDTH
-		}
-		return dimension
-	}
-
-	function getMaxWidth() {
-		if (maxWidth) {
-			if (maxHeight) {
-				return Math.min(maxWidth, maxHeight * getImageAspectRatio())
-			}
-			return maxWidth
-		} else {
-			return maxHeight * getImageAspectRatio()
-		}
-	}
-
-	function getContainerStyle() {
+	const containerStyle = useMemo(() => {
 		if (isExactTargetSizeProvided(width, height)) {
 			return {
 				width: px(addBorder(width || (height * getImageAspectRatio()))),
 				height: px(addBorder(height || (width / getImageAspectRatio())))
 			}
 		}
+
+		function getMaxWidth() {
+			if (maxWidth) {
+				if (maxHeight) {
+					return Math.min(maxWidth, maxHeight * getImageAspectRatio())
+				}
+				return maxWidth
+			} else {
+				return maxHeight * getImageAspectRatio()
+			}
+		}
+
 		if (maxWidth || maxHeight) {
 			let _maxWidth = getMaxWidth()
 			if (fit === 'scale-down') {
@@ -249,9 +556,31 @@ function Picture({
 				maxWidth: px(addBorder(_maxWidth))
 			}
 		}
-	}
+	}, [
+		fit,
+		width,
+		height,
+		maxWidth,
+		maxHeight,
+		getImageAspectRatio,
+		addBorder,
+		picture
+	])
 
-	function calculateBlurRadius(blurFactor) {
+	const combinedContainerStyle = useMemo(() => {
+		if (style) {
+			return {
+				...style,
+				...containerStyle
+			}
+		}
+		return containerStyle
+	}, [
+		style,
+		containerStyle
+	])
+
+	const calculateBlurRadius = useCallback((blurFactor) => {
 		let w
 		let h
 		if (isExactTargetSizeProvided(width, height)) {
@@ -279,96 +608,22 @@ function Picture({
 			h = getHeight()
 		}
 		return Math.round(Math.min(w || h, h || w) * blurFactor)
-	}
+	}, [
+		getWidth,
+		getHeight,
+		width,
+		height,
+		maxWidth,
+		maxHeight,
+		picture
+	])
 
-	function retryImageLoad(event) {
+	const retryImageLoad = useCallback((event) => {
 		event.stopPropagation()
-		renderAppropriateSize({ reloadImage: true })
-	}
-
-	function getAppropriateImageSize() {
-		if (useSmallestSize) {
-			return getMinSize(picture)
-		}
-		return getPreferredSize(
-			picture,
-			getPreferredImageWidth() // * pixelRatioMultiplier
-		)
-	}
-
-	function getPreferredImageWidth() {
-		if (fit === 'cover') {
-			return excludeBorder(Math.max(getWidth(), getHeight() * getImageAspectRatio()))
-		}
-		return excludeBorder(getWidth())
-	}
-
-	function renderAppropriateSize({ reloadImage } = {}) {
-		const appropriateSize = getAppropriateImageSize()
-		if (appropriateSize) {
-			if (
-				reloadImage ||
-				// If there was no image rendered before.
-				!size ||
-				// If the appropriate size is bigger than the currently rendered one.
-				appropriateSize.width > size.width
-			) {
-				setSize(appropriateSize)
-				loadImage(appropriateSize)
-			}
-		}
-	}
-
-	function loadImage(newSize) {
-		if (cancelLoadingImageSize.current) {
-			cancelLoadingImageSize.current()
-		}
-		let wasCancelled
-		setImageStatus(preload ? 'LOADING' : 'READY')
-		preloadImage(newSize.url).then(
-			() => {
-				if (wasCancelled) {
-					return
-				}
-				cancelLoadingImageSize.current = undefined
-				if (isMounted()) {
-					if (preload) {
-						setImageStatus('READY')
-					}
-				}
-			},
-			(error) => {
-				console.error(error)
-				if (wasCancelled) {
-					return
-				}
-				cancelLoadingImageSize.current = undefined
-				if (isMounted()) {
-					setImageStatus('ERROR')
-				}
-			}
-		)
-		cancelLoadingImageSize.current = () => wasCancelled = true
-	}
-
-	// `offsetWidth` and `offsetHeight` include border width.
-	function getWidth() {
-		return containerRef.current.offsetWidth
-	}
-
-	function getHeight() {
-		return containerRef.current.offsetHeight
-	}
-
-	// When a thumbnail is shown, aspect ratio is more precise
-	// when calculated using the thumbnail dimensions
-	// rather than the original image dimensions
-	// because width and height in pixels are rounded when
-	// generating a thumbnail, so thumbnail's aspect ratio
-	// should be calculated from thumbnail's width and height.
-	function getImageAspectRatio() {
-		return getAspectRatio(size || picture)
-	}
+		loadAndRenderAppropriatePictureSize({ forceReloadImage: true })
+	}, [
+		loadAndRenderAppropriatePictureSize
+	])
 
 	const imageStyle = useMemo(() => {
 		if (fit === 'cover') {
@@ -377,14 +632,16 @@ function Picture({
 				objectFit: fit
 			}
 		}
-	}, [])
+	}, [
+		fit
+	])
 
 	return (
 		<Component
 			{...rest}
 			{...componentProps}
 			ref={containerRef}
-			style={style ? { ...style, ...getContainerStyle() } : getContainerStyle()}
+			style={combinedContainerStyle}
 			className={classNames(className, 'Picture', {
 				'Picture--withBorder': withBorder,
 				'Picture--nonTransparentBackground': showLoadingPlaceholder && !picture.transparentBackground
@@ -438,7 +695,7 @@ function Picture({
 						fadeInInitially
 						fadeInDuration={loadingIndicatorFadeInDuration}
 						fadeOutDuration={loadingIndicatorFadeOutDuration}>
-						<ActivityIndicator className="Picture-loadingIndicator"/>
+						<LoadingIndicator className="Picture-loadingIndicator"/>
 					</FadeInOut>
 				</span>
 			}
@@ -453,7 +710,9 @@ function Picture({
 			*/}
 			{imageStatus === 'ERROR' &&
 				<span className="Picture-status">
-					<XIcon
+					{/* `data-src` attribute here is just for debugging:
+					    it answers the question "What exact image URL didn't load?". */}
+					<ErrorIndicator
 						onClick={retryImageLoad}
 						title="Retry"
 						className="Picture-loadingError"
@@ -563,6 +822,8 @@ Picture.propTypes = {
 	//   if the image couldn't be loaded.
 	//
 	preload: PropTypes.bool,
+	preloadVisibilityMarginHorizontal: PropTypes.string.isRequired,
+	preloadVisibilityMarginVertical: PropTypes.string.isRequired,
 
 	// Set to `true` to show a border around the image.
 	border: PropTypes.bool
@@ -575,6 +836,14 @@ Picture.defaultProps = {
 	loadingIndicatorFadeInDuration: 3000,
 	loadingIndicatorFadeOutDuration: 300,
 	preload: true,
+	// The margins at which image preload will be set off
+	// when the `<Picture/>` element becomes visible on screen
+	// to the extend of these margins.
+	// The syntax is the same as for the CSS `margin` property.
+	// Available units are `px` or `%`, where `%` means
+	// "percentage of the scrollable container's width/height".
+	preloadVisibilityMarginHorizontal: '100%',
+	preloadVisibilityMarginVertical: '100%'
 	// pixelRatioMultiplier: 1
 }
 
@@ -660,11 +929,11 @@ function _getPreferredSize(sizes, width, options = {}) {
 // 	console.error('Picture.getPreferredSize() test didn\'t pass')
 // }
 
+const WINDOW_RESIZE_LISTENER_DEBOUNCE_INTERVAL = 500
+
 class InteractiveResize {
 	subscribers = new Set()
-	constructor() {
-		window.addEventListener('resize', this.onResize)
-	}
+	constructor() {}
 	add(subscriber) {
 		this.subscribers.add(subscriber)
 	}
@@ -673,18 +942,19 @@ class InteractiveResize {
 	}
 	onResize = () => {
 		clearTimeout(this.debounceTimer)
-		this.debounceTimer = setTimeout(this.resize, 500)
+		this.debounceTimer = setTimeout(this.resizeTriggered, WINDOW_RESIZE_LISTENER_DEBOUNCE_INTERVAL)
 	}
-	resize = () => {
+	resizeTriggered = () => {
 		this.debounceTimer = undefined
 		for (const subscriber of this.subscribers) {
 			subscriber()
 		}
 	}
-	destroy() {
-		for (const subscriber of this.subscribers) {
-			this.unregister(subscriber)
-		}
+	start() {
+		window.addEventListener('resize', this.onResize)
+	}
+	stop() {
+		this.subscribers = new Set()
 		window.removeEventListener('resize', this.onResize)
 	}
 }
@@ -743,7 +1013,7 @@ function getBlurMargin(blurRadius) {
 	return 4 * blurRadius
 }
 
-function getInitialImageSize(picture, width, height, fit, useSmallestSize) {
+function getInitialPictureSize(picture, { width, height, fit, useSmallestSize }) {
 	let initialSize
 	if (useSmallestSize) {
 		return getMinSize(picture)

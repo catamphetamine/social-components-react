@@ -34,7 +34,7 @@
 			"showControls": "Steuerelemente anzeigen",
 			"hideControls": "Steuerelemente ausblenden",
 			"openExternalLink": "Externen Link öffnen",
-			"exitDragAndScaleMode": "Beenden Sie den Drag & Scale-Modus"
+			"exitPanAndZoomMode": "Beenden Sie den Pan & Zoom-Modus"
 		},
 		"scaleValueBefore": "Ausmaß",
 		"scaleValueAfter": null

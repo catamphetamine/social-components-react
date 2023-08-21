@@ -16,7 +16,7 @@ export default {
 	// // resulting in it being disproportionately short by the other dimension.
 	// // Such cases could be worked around by setting the minimum allowed
 	// // ratio of a slide by any of the dimensions via
-	// // `minInitialSizeRatioRelativeToMaxSizeAvailable` property on a plugin.
+	// // `minInitialSizeRatioRelativeToMaxSizeAvailable` property on a viewer.
 	// //
 	// // Because native `<video/>` player is used to play video slides,
 	// // when its width becomes too short, its controls start looking not pretty,
@@ -91,7 +91,7 @@ export default {
 		// "Losing" the focus results in the user not being able to navigate the slides
 		// via Left/Right or PageUp/PageDown keys.
 		// To prevent the web browser from losing the focus due to unmounting of
-		// the `<video/>` player, the Slideshow Video plugin tells the Slideshow
+		// the `<video/>` player, the Slideshow Video viewer tells the Slideshow
 		// to ignore PageUp/PageDown keys while playing a native `<video/>` in fullscreen.
 		if (
 			isKeyCombination(event, ['PageDown']) ||
@@ -131,6 +131,9 @@ export default {
 	canRender(slide) {
 		return slide.type === 'video'
 	},
+	getThumbnail(slide) {
+		return slide.video.picture
+	},
 	// onShowSlide(slide, ref, props) {
 	// 	if (_autoPlay) {
 	// 		ref.showVideo(() => ref.play())
@@ -146,7 +149,7 @@ export default {
 		height,
 		// maxWidth,
 		// maxHeight,
-		dragAndScaleMode,
+		panAndZoomMode,
 		tabIndex,
 		style,
 		className
@@ -169,8 +172,8 @@ export default {
 				tabIndex={tabIndex}
 				showPreview={autoPlay ? false : undefined}
 				seekOnArrowKeysAtBorders={false}
-				seekOnArrowKeys={dragAndScaleMode ? false : undefined}
-				changeVolumeOnArrowKeys={dragAndScaleMode ? false : undefined}
+				seekOnArrowKeys={panAndZoomMode ? false : undefined}
+				changeVolumeOnArrowKeys={panAndZoomMode ? false : undefined}
 				style={style}
 				className={classNames('Slideshow-Video', className)}
 			/>

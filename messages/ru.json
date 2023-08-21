@@ -34,7 +34,7 @@
 			"showControls": "Показать действия",
 			"hideControls": "Скрыть действия",
 			"openExternalLink": "Открыть оригинал",
-			"exitDragAndScaleMode": "Выйти из режима перетаскивания и увеличения"
+			"exitPanAndZoomMode": "Выйти из режима перетаскивания и увеличения"
 		},
 		"scaleValueBefore": "Масштаб",
 		"scaleValueAfter": null

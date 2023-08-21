@@ -1,128 +1,54 @@
 import { getViewportWidth } from 'web-browser-window'
 
 export default class OpenCloseAnimation {
-	constructor(slideshow) {
+	constructor(slideshow, props, {
+		animations,
+		openPictureInHoverMode
+	}) {
 		this.slideshow = slideshow
+		this.props = props
+		this.animations = animations
+		this.openPictureInHoverMode = openPictureInHoverMode
+	}
 
-		slideshow.onSlideChange(() => {
-			if (slideshow.openPictureInHoverMode) {
-				if (slideshow.openPictureInHoverMode.isSlideOffsetApplied()) {
-					slideshow.openPictureInHoverMode.resetSlideOffsetState()
+	addEventListeners() {
+		this.slideshow.onCleanUp(this.cleanUp)
+
+		this.slideshow.addEventListener('open', this.animateOpenAndAnimateOnClose)
+
+		this.slideshow.addEventListener('slideChange', () => {
+			if (this.openPictureInHoverMode) {
+				if (this.openPictureInHoverMode.isSlideOffsetApplied()) {
+					this.openPictureInHoverMode.resetSlideOffsetState()
 				}
 			}
 		})
-
-		slideshow.addEventListener('open', this.animateOpenAndAnimateOnClose)
-
-		slideshow.onCleanUp(this.cleanUp)
 	}
 
 	cleanUp = () => {
-		if (this.slideshow.openPictureInHoverMode) {
-			this.slideshow.openPictureInHoverMode.cleanUp()
+		if (this.openPictureInHoverMode) {
+			this.openPictureInHoverMode.cleanUp()
 		}
+
 		if (this.cancelOpenAnimation) {
 			this.cancelOpenAnimation()
 			this.cancelOpenAnimation = undefined
 		}
-		this.slideshow.setState({
-			openAnimationDuration: undefined,
-			hasStartedOpening: undefined,
-			hasFinishedOpening: undefined
-		})
+
 		if (this.isLockedWhileOpening) {
 			this.slideshow.unlock()
 			this.isLockedWhileOpening = false
 		}
-		if (!this.isPlayingCloseAnimation) {
-			if (this.cancelCloseAnimation) {
-				this.cancelCloseAnimation()
-				this.cancelCloseAnimation = undefined
-			}
-			this.slideshow.setState({
-				animateClose: undefined,
-				animateCloseSlideAndBackgroundSeparately: undefined,
-				closeAnimationDuration: undefined,
-				hasStartedClosing: undefined,
-				hasFinishedClosing: undefined
-			})
+
+		if (this.cancelCloseAnimation) {
+			this.cancelCloseAnimation()
+			this.cancelCloseAnimation = undefined
 		}
+
 		// this.removeOpenEventListener()
 		if (this.removeCloseEventListener) {
 			this.removeCloseEventListener()
 			this.removeCloseEventListener = undefined
-		}
-	}
-
-	static getInitialProps(props) {
-		const {
-			initialSlideIndex,
-			slides,
-			smallScreenMaxWidth,
-			animateOpenCloseOnSmallScreen,
-			animateOpenClosePictureInHoverMode,
-			openPictureInHoverMode,
-			overlayOpacityOnFloatOpenCloseAnimation,
-			// overlayOpacityOnSmallScreen,
-			// `SlideshowOpenPictureInHoverMode.getInitialProps()` is supposed to be
-			// called before `SlideshowOpenClose.getInitialProps()`.
-			imageElement
-		} = props
-
-		let {
-			overlayOpacity,
-			animateOpenClose
-		} = props
-
-		const slide = slides[initialSlideIndex]
-
-		const maxOverlayOpacity = overlayOpacity
-
-		if (typeof window !== 'undefined' && smallScreenMaxWidth !== undefined) {
-			// Apply "smallScreen"-specific properties on "small screens".
-			if (getViewportWidth() <= smallScreenMaxWidth) {
-				if (animateOpenCloseOnSmallScreen !== undefined) {
-					animateOpenClose = animateOpenCloseOnSmallScreen
-				}
-			}
-		}
-
-		overlayOpacity = animateOpenClose === 'float' && overlayOpacityOnFloatOpenCloseAnimation !== undefined
-				? overlayOpacityOnFloatOpenCloseAnimation
-				: maxOverlayOpacity
-
-		if (animateOpenClose === 'float') {
-			if (!(imageElement
-				&& slide.type === 'picture'
-				// Don't animate opening animated GIFs
-				// because they can't be paused until they're expanded.
-				// Considering that "float" animation fades between
-				// the enlarged preview and the original image
-				// it could result in minor visual inconsistencies.
-				&& slide.picture.type !== 'image/gif')) {
-				animateOpenClose = true
-			}
-		}
-
-		let animateOpen = animateOpenClose
-		let animateOpenSlideAndBackgroundSeparately = animateOpenClose ? animateOpenClose === 'float' : undefined
-
-		if (openPictureInHoverMode && !shouldAnimateOpenClosePictureInHoverMode(animateOpenClosePictureInHoverMode, animateOpen)) {
-			animateOpen = false
-			animateOpenSlideAndBackgroundSeparately = undefined
-			overlayOpacity = 0
-		}
-
-		return {
-			...props,
-			// `maxOverlayOpacity` has the `overlayOpacity` value
-			// in cases when `animateOpenClose === 'float'` and
-			// `overlayOpacityOnFloatOpenCloseAnimation` is defined.
-			maxOverlayOpacity,
-			overlayOpacity,
-			animateOpenClose,
-			animateOpen,
-			animateOpenSlideAndBackgroundSeparately
 		}
 	}
 
@@ -131,26 +57,21 @@ export default class OpenCloseAnimation {
 			initialSlideIndex,
 			animateOpen,
 			animateOpenClose,
-			animateOpenClosePictureInHoverMode,
 			animateCloseOnPanOut,
 			getSlideDOMNode,
 			imageElement,
-			openPictureInHoverMode
-		} = this.slideshow.props
+			// openPictureInHoverMode
+		} = this.props
 
 		const {
-			offsetSlideIndex
+			slideWithCustomOffsetIndex
 		} = this.slideshow.getState()
-
-		if (!(animateOpen || animateOpenClose)) {
-			return
-		}
 
 		let slideOffsetX
 		let slideOffsetY
-		// if (offsetSlideIndex === initialSlideIndex) {
-		if (openPictureInHoverMode) {
-			const result = this.slideshow.openPictureInHoverMode.applySlideOffset()
+		// if (slideWithCustomOffsetIndex === initialSlideIndex) {
+		if (this.openPictureInHoverMode) {
+			const result = this.openPictureInHoverMode.applySlideOffset()
 			slideOffsetX = result[0]
 			slideOffsetY = result[1]
 		}
@@ -162,27 +83,38 @@ export default class OpenCloseAnimation {
 		// let imageElementTransition
 
 		if (animateOpen) {
-			const transition = animateOpen === 'float' ? this.slideshow.openCloseAnimationFloat : this.slideshow.openCloseAnimationFade
+			const Animation = this.animations[animateOpen]
+
+			if (!Animation) {
+				throw new Error(`Slideshow: Unknown animation: ${animateOpen}`)
+			}
+
+			const animation = new Animation(this.slideshow)
+
 			const {
 				animationDuration,
 				promise,
 				cancel
-			} = transition.onOpen(getSlideDOMNode(), {
+			} = animation.onOpen(getSlideDOMNode(), {
 				imageElement,
 				slideOffsetX,
 				slideOffsetY
 			})
+
 			this.cancelOpenAnimation = () => {
 				cancel()
 				cancelled = true
 			}
+
 			// imageElementAnimationDuration = animationDuration
 			this.slideshow.setState({
 				openAnimationDuration: animationDuration,
-				hasStartedOpening: true
+				openClosePhase: 'opening'
 			})
+
 			this.isLockedWhileOpening = true
 			this.slideshow.lock()
+
 			_promise = promise.then(() => {
 				if (cancelled) {
 					return
@@ -190,7 +122,7 @@ export default class OpenCloseAnimation {
 				this.isLockedWhileOpening = false
 				this.slideshow.unlock()
 				this.slideshow.setState({
-					hasFinishedOpening: true
+					openClosePhase: 'open'
 				})
 			})
 		}
@@ -205,83 +137,89 @@ export default class OpenCloseAnimation {
 			if (cancelled) {
 				return
 			}
-			this.removeCloseEventListener = this.slideshow.onClose(({ interaction }) => {
+
+			this.removeCloseEventListener = this.slideshow.addEventListener('close', ({ interaction }) => {
 				const useLongerOpenCloseAnimation = interaction === 'pan'
+
 				// if (imageElement) {
 				// 	imageElement.style.opacity = 1
 				// 	setTimeout(() => {
 				// 		imageElement.style.transition = imageElementTransition
 				// 	}, 0)
 				// }
+
 				let animateClose = animateOpenClose
-				let animateCloseSlideAndBackgroundSeparately
-				if (animateClose) {
-					if (openPictureInHoverMode && !this.slideshow.getState().hasChangedSlide) {
-						if (!shouldAnimateOpenClosePictureInHoverMode(animateOpenClosePictureInHoverMode, animateClose)) {
-							if (!useLongerOpenCloseAnimation) {
-								animateClose = false
-							}
-						}
-					}
+
+				// if (this.openPictureInHoverMode && !this.slideshow.getState().hasChangedSlide) {
+				// 	animateClose = getAnimateCloseForPictureInHoverMode()
+				// }
+
+				if (animateCloseOnPanOut && interaction === 'pan') {
+					animateClose = animateCloseOnPanOut
 				}
+
+				// Close the initially opened slide via a "float" animation
+				// if it was opened via a "float" animation, even if slides
+				// were navigated through in the process.
+				//
+				// Fall back to the default "fade" animation
+				// if the current slide is not the initial slide.
+				//
+				const isAtTheInitialSlide = this.slideshow.getState().i === initialSlideIndex
+				if (animateClose === 'float' && !isAtTheInitialSlide) {
+					animateClose = 'fade'
+				}
+
 				if (!animateClose) {
-					if (animateCloseOnPanOut && interaction === 'pan') {
-						animateClose = true
-					}
-				}
-				let transition
-				if (animateClose === 'float') {
-					// Close the initially opened slide via a "float" animation
-					// if it was opened via a "float" animation, even if slides
-					// were navigated through in the process.
-					if (openPictureInHoverMode && this.slideshow.getState().i === initialSlideIndex) {
-						transition = this.slideshow.openCloseAnimationFloat
-						animateCloseSlideAndBackgroundSeparately = true
-					} else {
-						// Fall back to the default open/close transition
-						// if the original slide has already been changed.
-						animateClose = true
-					}
-				}
-				if (animateClose === true) {
-					transition = this.slideshow.openCloseAnimationFade
-					animateCloseSlideAndBackgroundSeparately = useLongerOpenCloseAnimation ? true : false
-				}
-				if (!transition) {
 					return
 				}
+
+				const Animation = this.animations[animateClose]
+
+				if (!Animation) {
+					throw new Error(`Slideshow: Unknown animation: ${animateClose}`)
+				}
+
+				const animation = new Animation(this.slideshow)
+
 				this.isPlayingCloseAnimation = true
+
 				this.slideshow.setState({
 					animateClose: true,
-					animateCloseSlideAndBackgroundSeparately,
-					hasStartedClosing: true
+					animateCloseSlideAndBackgroundSeparately: animation.shouldAnimateCloseSlideAndBackgroundSeparately({ speed: useLongerOpenCloseAnimation ? 'slow' : 'fast' }),
+					openClosePhase: 'closing'
 				})
+
 				const {
 					animationDuration,
 					promise,
 					cancel
-				} = transition.onClose(getSlideDOMNode(), {
+				} = animation.onClose(getSlideDOMNode(), {
 					imageElement,
 					slideImage: getSlideDOMNode().querySelector('img'),
 					useLongerOpenCloseAnimation
 				})
+
 				this.cancelCloseAnimation = () => {
 					cancel()
 					cancelled = true
 					this.isPlayingCloseAnimation = false
 				}
+
 				this.slideshow.setState({
 					closeAnimationDuration: animationDuration
 				})
+
 				promise.then(() => {
 					this.isPlayingCloseAnimation = false
 					if (cancelled) {
 						return
 					}
 					this.slideshow.setState({
-						hasFinishedClosing: true
+						openClosePhase: 'closed'
 					})
 				})
+
 				// This result object is read in `close()` function in `Slideshow.Core.js`.
 				return {
 					animationDuration,
@@ -291,27 +229,106 @@ export default class OpenCloseAnimation {
 			})
 		})
 	}
+}
 
-	getInitialState() {
-		const { animateOpen, animateOpenClose } = this.slideshow.props
-		return {
-			hasStartedOpening: animateOpen ? false : true,
-			hasFinishedOpening: animateOpen ? false : true,
-			hasStartedClosing: animateOpenClose ? false : true,
-			hasFinishedClosing: animateOpenClose ? false : true
-		}
+function shouldAnimateOpenClosePictureInHoverMode({ animateOpenClose, action, interaction }) {
+	return Boolean(animateOpenClose)
+}
+
+export function transformInitialProps(props) {
+	const {
+		initialSlideIndex,
+		slides,
+		smallScreenMaxWidth,
+		animateOpenCloseOnSmallScreen,
+		openPictureInHoverMode,
+		overlayOpacity,
+		overlayOpacityOnFloatOpenCloseAnimation,
+		// overlayOpacityOnSmallScreen,
+		// `SlideshowOpenPictureInHoverMode.transformInitialProps()` is supposed to be
+		// called before `SlideshowOpenCloseAnimation.transformInitialProps()`.
+		imageElement
+	} = props
+
+	let {
+		animateOpenClose
+	} = props
+
+	animateOpenClose = getAnimateOpenCloseProperty({
+		animateOpenClose,
+		animateOpenCloseOnSmallScreen,
+		smallScreenMaxWidth,
+		imageElement,
+		slides,
+		initialSlideIndex
+	})
+
+	const animateOpen = animateOpenClose
+
+	const animateOpenSlideAndBackgroundSeparately = animateOpen === 'float'
+
+	const overlayOpacityForInitialSlide = getOverlayOpacityForInitialSlideProperty(({
+		overlayOpacity,
+		overlayOpacityOnFloatOpenCloseAnimation,
+		animateOpen,
+		openPictureInHoverMode
+	}))
+
+	return {
+		...props,
+		overlayOpacityForInitialSlide,
+		animateOpenClose,
+		animateOpen,
+		animateOpenSlideAndBackgroundSeparately
 	}
 }
 
-function shouldAnimateOpenClosePictureInHoverMode(
-	animateOpenClosePictureInHoverMode,
-	animateOpenClose
-) {
-	if (animateOpenClosePictureInHoverMode === true) {
-		return true
+function getAnimateOpenCloseProperty({
+	animateOpenClose,
+	animateOpenCloseOnSmallScreen,
+	smallScreenMaxWidth,
+	imageElement,
+	slides,
+	initialSlideIndex
+}) {
+	// Derive `animateOpenClose` property from `animateOpenCloseOnSmallScreen` property.
+	if (typeof window !== 'undefined' && smallScreenMaxWidth !== undefined) {
+		if (getViewportWidth() <= smallScreenMaxWidth) {
+			if (animateOpenCloseOnSmallScreen !== undefined) {
+				animateOpenClose = animateOpenCloseOnSmallScreen
+			}
+		}
 	}
-	if (animateOpenClosePictureInHoverMode === 'float' && animateOpenClose === 'float') {
-		return true
+
+	if (animateOpenClose === 'float') {
+		const slide = slides[initialSlideIndex]
+		const isGif = imageElement
+			&& slide.type === 'picture'
+			&& slide.picture.type !== 'image/gif'
+		// Don't animate opening animated GIFs
+		// because they can't be paused until they're expanded.
+		// Considering that "float" animation fades between
+		// the enlarged preview and the original image
+		// it could result in minor visual inconsistencies.
+		if (!isGif) {
+			animateOpenClose = 'fade'
+		}
 	}
-	return false
+
+	return animateOpenClose
+}
+
+function getOverlayOpacityForInitialSlideProperty({
+	overlayOpacity,
+	overlayOpacityOnFloatOpenCloseAnimation,
+	animateOpen,
+	openPictureInHoverMode
+}) {
+	if (animateOpen === 'float' && overlayOpacityOnFloatOpenCloseAnimation !== undefined) {
+		return overlayOpacityOnFloatOpenCloseAnimation
+	}
+	if (openPictureInHoverMode && !animateOpen) {
+		return 0
+	}
+	return overlayOpacity
 }

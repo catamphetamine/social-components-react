@@ -5,17 +5,39 @@
 import { setTimeout, clearTimeout } from 'request-animation-frame-timeout'
 
 export default class SlideshowTouch {
-	touches = []
-
 	constructor(slideshow) {
-		// this.slideshow = slideshow
-		// React doesn't support setting up non-passive listeners.
+		this.slideshow = slideshow
+	}
+
+	addEventListeners() {
+		// React doesn't support setting up "non-passive" listeners like "touchmove" ones.
 		// https://github.com/facebook/react/issues/14856
-		// onTouchMove={this.onTouchMove}
-		slideshow.onInit(({ container }) => {
-			container.addEventListener('touchmove', slideshow.onTouchMove)
+		// So it doesn't support simply passing `onTouchMove={this.onTouchMove}` property
+		// to the `<Slideshow/>` element.
+		this.slideshow.addEventListener('init', ({ container }) => {
+			container.addEventListener('touchmove', this.onTouchMove)
+
+			this.removeEventListener = () => {
+				container.removeEventListener('touchmove', this.onTouchMove)
+			}
 		})
-		slideshow.onCleanUp(this.cleanUp)
+
+		this.slideshow.onCleanUp(() => {
+			this.cleanUp()
+			this.removeEventListener()
+		})
+	}
+
+	getFunctions() {
+		return {
+			isTouchDevice: () => this.isTouchDevice,
+			onTouchStart: this.onTouchStart,
+			onTouchEnd: this.onTouchEnd,
+			onTouchCancel: this.onTouchCancel,
+			touch: {
+				ignoreTouchMoveEventsForCurrentTouches: this.ignoreTouchMoveEventsForCurrentTouches
+			}
+		}
 	}
 
 	cleanUp = () => {
@@ -23,81 +45,66 @@ export default class SlideshowTouch {
 			clearTimeout(this.tapEventTimeout)
 			this.tapEventTimeout = undefined
 		}
+		this.resetTapEvent()
+		this.resetIgnoreTouchMoveEvents()
 	}
 
-	getTouch() {
-		return this.touches[0]
-	}
-
-	getTouches() {
-		return this.touches
-	}
-
-	getTouchCount() {
-		return this.touches.length
-	}
-
-	onTouchStart = (event) => {
-		this.isTouchDevice = true
-		for (const touch of event.changedTouches) {
-			this.touches.push({
-				id: touch.identifier,
-				x: touch.clientX,
-				y: touch.clientY
-			})
-		}
-	}
-
-	onTouchEnd = () => {
-		this.isTapEvent = true
-		this.tapEventTimeout = setTimeout(this.resetTapEvent, 30)
-	}
-
-	onTouchCancel = (event) => {
-		// Remove cancelled/ended touches.
-		this.touches = this.touches.filter((touch) => {
-			for (const untouch of event.changedTouches) {
-				if (untouch.identifier === touch.id) {
-					return false
-				}
-			}
-			return true
-		})
-	}
-
-	onTouchMove = (event) => {
-		for (const touch of event.changedTouches) {
-			this.updateTouch(
-				touch.identifier,
-				touch.clientX,
-				touch.clientY
-			)
-		}
-	}
-
-	updateTouch(id, x, y) {
-		for (const touch of this.touches) {
-			if (touch.id === id) {
-				touch.x = x
-				touch.y = y
-			}
-		}
-	}
-
-	getDistanceBetweenTouches = () => {
-		const distanceX = Math.abs(this.touches[0].x - this.touches[1].x)
-		const distanceY = Math.abs(this.touches[0].y - this.touches[1].y)
-		return Math.sqrt(distanceX * distanceX + distanceY * distanceY)
-	}
-
-	getCenterBetweenTouches = () => {
-		return [
-			(this.touches[0].x + this.touches[1].x) / 2,
-			(this.touches[0].y + this.touches[1].y) / 2
-		]
+	resetIgnoreTouchMoveEvents = () => {
+		this.ignoreTouchMoveEvents = undefined
 	}
 
 	resetTapEvent = () => {
 		this.isTapEvent = undefined
+	}
+
+	onTouchStart = (event) => {
+		this.isTouchDevice = true
+
+		// Reset `ignoreTouchMoveEvents` flag.
+		if (this.ignoreTouchMoveEvents) {
+			this.ignoreTouchMoveEvents = undefined
+		}
+
+		this.slideshow.triggerEventListeners('touchStart', event)
+	}
+
+	onTouchEnd = (event) => {
+		this.isTapEvent = true
+		this.tapEventTimeout = setTimeout(this.resetTapEvent, 30)
+
+		this.slideshow.triggerEventListeners('touchEnd', event)
+		this.onTouchEndOrCancel()
+	}
+
+	onTouchCancel = (event) => {
+		this.slideshow.triggerEventListeners('touchCancel', event)
+		this.onTouchEndOrCancel()
+	}
+
+	onTouchEndOrCancel = () => {
+		// Reset `ignoreTouchMoveEvents` flag.
+		if (this.ignoreTouchMoveEvents) {
+			this.ignoreTouchMoveEvents = undefined
+		}
+	}
+
+	onTouchMove = (event) => {
+		// Call `preventDefault()` on touch move `event`s if the slideshow is locked
+		// so that it doesn't interpret such gesture as scrolling a web page or
+		// scaling a web page in a mobile web browser.
+		if (this.slideshow.isLocked() || this.ignoreTouchMoveEvents) {
+			if (event.cancelable) {
+				event.preventDefault()
+			}
+		}
+
+		this.slideshow.triggerEventListeners('touchMove', event)
+	}
+
+	// Disables responding to `touchmove` events for the current set of touches.
+	// This flag will be reset when the touch configuration changes:
+	// when new touches will start or some of the existing touches will end or cancel.
+	ignoreTouchMoveEventsForCurrentTouches = () => {
+		this.ignoreTouchMoveEvents = true
 	}
 }

@@ -1,12 +1,22 @@
 import { throttle } from 'lodash-es'
 
 export default class SlideshowResize {
-	listeners = []
-
 	constructor(slideshow) {
-		slideshow.onInit(() => {
+		this.slideshow = slideshow
+		this.reset()
+	}
+
+	reset() {
+		this.listeners = []
+	}
+
+	addEventListeners() {
+		this.slideshow.addEventListener('init', () => {
+			const slideshow = this.slideshow
+
 			let width = slideshow.getSlideshowWidth()
 			let height = slideshow.getSlideshowHeight()
+
 			const onWindowResize = throttle((event) => {
 				const newWidth = slideshow.getSlideshowWidth()
 				const newHeight = slideshow.getSlideshowHeight()
@@ -19,19 +29,24 @@ export default class SlideshowResize {
 					height = newHeight
 				}
 			}, 100)
-			window.addEventListener('resize', onWindowResize)
-			this.unlistenWindowResize = () => window.removeEventListener('resize', onWindowResize)
-		})
 
-		slideshow.onCleanUp(() => {
-			if (this.unlistenWindowResize) {
-				this.unlistenWindowResize()
-				this.unlistenWindowResize = undefined
+			window.addEventListener('resize', onWindowResize)
+
+			this.removeEventListener = () => {
+				window.removeEventListener('resize', onWindowResize)
 			}
 		})
 
-		slideshow.onResize = (listener) => {
-			this.listeners.push(listener)
+		this.slideshow.onCleanUp(() => {
+			this.removeEventListener()
+		})
+	}
+
+	getFunctions() {
+		return {
+			onResize: (listener) => {
+				this.listeners.push(listener)
+			}
 		}
 	}
 }
