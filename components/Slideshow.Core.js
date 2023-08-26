@@ -203,8 +203,62 @@ export default class Slideshow {
 				initialSlideIndex: props.initialSlideIndex,
 				imageElementCoords: props.imageElementCoords,
 				minSlideScaleFactorRelativeToThumbnailSize: props.minSlideScaleFactorRelativeToThumbnailSize,
-				minSlideSizeWhenScaledDown: props.minSlideSizeWhenScaledDown,
-				viewers: props.viewers
+				viewers: props.viewers,
+				onScaleUp: ({ event, scaleFactor }) => {
+					if (!this.panAndZoomMode.isPanAndZoomMode()) {
+						if (this.scale.willNoLongerFitTheScreenAfterScalingUp(scaleFactor)) {
+							let canEnterPanAndZoomMode;
+							// When a user starts zooming in a picture or video using a mouse wheel,
+							// first it zooms in until it reaches the "max size" for the current screen size.
+							const MIN_INTERVAL_FOR_MOUSE_WHEEL_SCALING_TO_ENTER_PAN_AND_ZOOM_MODE = 300
+							if (event.type === 'wheel') {
+								if (this.scale.getLatestScaleTime()) {
+									canEnterPanAndZoomMode = Date.now() - this.scale.getLatestScaleTime() >= MIN_INTERVAL_FOR_MOUSE_WHEEL_SCALING_TO_ENTER_PAN_AND_ZOOM_MODE
+								} else {
+									canEnterPanAndZoomMode = true
+								}
+							} else {
+								// When zooming in via keyboard.
+								canEnterPanAndZoomMode = true;
+							}
+							if (canEnterPanAndZoomMode) {
+								this.scale.resetLatestScaleTime()
+								this.panAndZoomMode.enterPanAndZoomMode()
+							}
+						}
+					}
+					if (this.panAndZoomMode.isPanAndZoomMode()) {
+						this.scale.setCustomScaleOrigin(event)
+					}
+				},
+				onScaleDown: ({ event }) => {
+					if (this.panAndZoomMode.isPanAndZoomMode()) {
+						this.scale.setCustomScaleOrigin(event)
+					}
+				},
+				shouldRestrictMaxScale: () => {
+					if (this.panAndZoomMode.isPanAndZoomMode()) {
+						return false
+					} else {
+						return true
+					}
+				},
+				getMinScaleForSlide: (slide) => {
+					// When scaling a slide in "Pan & Zoom" mode,
+					// it's easy for a user to scale the slide down to `0.00000001` level
+					// when using a mouse with a free-spin wheel, like Logitech Master MX.
+					// At those tiny scale numbers, the web browser usually freezes.
+					// To prevent the web browser from freezing, a minimum slide size is introduced
+					// in "Pan & Zoom" mode.
+					if (this.panAndZoomMode.isPanAndZoomMode()) {
+						return props.minSlideSizeWhenScaledDown / Math.max(
+							this.getSlideInitialWidth(slide),
+							this.getSlideInitialHeight(slide)
+						)
+					} else {
+						return true
+					}
+				}
 			}),
 
 			new SlideshowDrag(this, {

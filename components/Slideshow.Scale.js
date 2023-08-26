@@ -30,6 +30,7 @@ export default class SlideshowScale {
 		})
 
 		this.resetScaleAnimationIfRunning(callback)
+		this.resetLatestScaleTime()
 		this.slideshow.pinchZoom.resetIfActive(callback)
 	}
 
@@ -83,6 +84,7 @@ export default class SlideshowScale {
 				getScaleOrigin: this.getScaleOrigin,
 				setScaleOrigin: this.setScaleOrigin,
 				isScalingAtCustomOrigin: this.isScalingAtCustomOrigin,
+				setCustomScaleOrigin: this.setCustomScaleOrigin,
 				getScaleOriginOffset: this.getScaleOriginOffset,
 				setScaleOriginOffset: this.setScaleOriginOffset,
 				setDynamicScaleValue: this.setDynamicScaleValue,
@@ -95,7 +97,10 @@ export default class SlideshowScale {
 				getCustomScaleOriginCoordinatesRelativeToSlideSize: this.getCustomScaleOriginCoordinatesRelativeToSlideSize,
 				updateBoxShadowForDynamicScale: this.updateBoxShadowForDynamicScale,
 				resetBoxShadowChangesForDynamicScale: this.resetBoxShadowChangesForDynamicScale,
-				getInitialScaleForCurrentSlide: this.getInitialScaleForCurrentSlide
+				getInitialScaleForCurrentSlide: this.getInitialScaleForCurrentSlide,
+				willNoLongerFitTheScreenAfterScalingUp: this.willNoLongerFitTheScreenAfterScalingUp,
+				getLatestScaleTime: this.getLatestScaleTime,
+				resetLatestScaleTime: this.resetLatestScaleTime
 			}
 		}
 	}
@@ -146,22 +151,21 @@ export default class SlideshowScale {
 	}
 
 	onScaleUp = (event, { scaleFactor = 1 } = {}) => {
-		if (!this.slideshow.panAndZoomMode.isPanAndZoomMode()) {
-			if (this.canEnterPanAndZoomMode(event)) {
-				if (this.willScalingUpExceedMaxSize(scaleFactor)) {
-					this.slideshow.panAndZoomMode.enterPanAndZoomMode()
-				}
+		const { onScaleUp } = this.props
+		if (onScaleUp) {
+			if (onScaleUp({ event, scaleFactor }) === false) {
+				return
 			}
-		}
-		if (this.slideshow.panAndZoomMode.isPanAndZoomMode()) {
-			this.setCustomScaleOriginInPanAndZoomMode(event)
 		}
 		this.scaleUp(scaleFactor)
 	}
 
 	onScaleDown = (event, { scaleFactor = 1 } = {}) => {
-		if (this.slideshow.panAndZoomMode.isPanAndZoomMode()) {
-			this.setCustomScaleOriginInPanAndZoomMode(event)
+		const { onScaleDown } = this.props
+		if (onScaleDown) {
+			if (onScaleDown({ event }) === false) {
+				return
+			}
 		}
 		this.scaleDown(scaleFactor)
 	}
@@ -176,7 +180,7 @@ export default class SlideshowScale {
 	// if required, in such a way that it stays within the viewport bounds
 	// while being enlarged unless it's too big to fit into the viewport bounds.
 	//
-	setCustomScaleOriginInPanAndZoomMode(event) {
+	setCustomScaleOrigin = (event) => {
 		if (this.isScalingAtCustomOrigin()) {
 			// Scaling in "Pan and Zoom" mode is currently in progress.
 			// Don't change the scale origin while it's in progress.
@@ -282,15 +286,6 @@ export default class SlideshowScale {
 		this.scaleOriginCoordinatesRelativeToSlideSize = this.slideshow.getCoordinatesRelativeToSlideSize(originX, originY)
 		this.scaleOriginX = originX
 		this.scaleOriginY = originY
-	}
-
-	canEnterPanAndZoomMode(event) {
-		// When a user starts zooming in a picture or video using a mouse wheel,
-		// first it zooms in until it reaches the "max size" for the current screen size.
-		if (event.type === 'wheel') {
-			return !this.isAnimatingScale
-		}
-		return true
 	}
 
 	getCustomScaleOriginCoordinatesRelativeToSlideSize = () => {
@@ -600,59 +595,66 @@ export default class SlideshowScale {
 	}
 
 	getZoomedInScale(scaleFactor, { restrict } = {}) {
-		const { scaleStep } = this.props
+		const { scaleStep, shouldRestrictMaxScale } = this.props
 		const { scale } = this.slideshow.getState()
 		return this.getScaledUpScaleValue(
 			this.dynamicScaleValue || scale,
 			scaleStep * scaleFactor,
-			{ restrict: restrict === false ? false : (this.slideshow.panAndZoomMode.isPanAndZoomMode() ? false : true) }
+			{
+				restrict: restrict === false
+					? false
+					: (shouldRestrictMaxScale ? shouldRestrictMaxScale() : true)
+			}
 		)
 	}
 
 	getZoomedOutScale(scaleFactor) {
-		const { scaleStep, minSlideSizeWhenScaledDown } = this.props
+		const { scaleStep, getMinScaleForSlide } = this.props
 		const { scale } = this.slideshow.getState()
 
 		return this.getScaledDownScaleValue(
 			this.dynamicScaleValue || scale,
 			scaleStep * scaleFactor,
 			{
-				minScale: this.slideshow.panAndZoomMode.isPanAndZoomMode()
-					// When scaling a slide in "Pan & Zoom" mode,
-					// it's easy for a user to scale the slide down to `0.00000001` level
-					// when using a mouse with a free-spin wheel, like Logitech Master MX.
-					// At those tiny scale numbers, the web browser usually freezes.
-					// To prevent the web browser from freezing, a minimum slide size is introduced
-					// in "Pan & Zoom" mode.
-					? minSlideSizeWhenScaledDown / Math.max(
-						this.slideshow.getSlideInitialWidth(this.slideshow.getCurrentSlide()),
-						this.slideshow.getSlideInitialHeight(this.slideshow.getCurrentSlide())
-					)
+				minScale: getMinScaleForSlide
+					? getMinScaleForSlide(this.slideshow.getCurrentSlide())
 					: true
 			}
 		)
 	}
 
-	willScalingUpExceedMaxSize = (scaleFactor) => {
+	willNoLongerFitTheScreenAfterScalingUp = (scaleFactor) => {
 		const slide = this.slideshow.getCurrentSlide()
 		// Adding `0.01`, because, for example, zoomed-in scale sometimes is
 		// `1.0000000000000002` instead of `1` due to some precision factors.
 		return this.getZoomedInScale(scaleFactor, { restrict: false }) > this.getSlideMaxScale(slide) + 0.01
 	}
 
-	scaleUp = (scaleFactor) => {
+	getLatestScaleTime = () => {
+		return this.latestScaleTime
+	}
+
+	resetLatestScaleTime = () => {
+		this.latestScaleTime = undefined
+	}
+
+	onScaleWillChange() {
 		this.slideshow.drag.stopDragInertialMovement()
+		this.latestScaleTime = Date.now()
+	}
+
+	scaleUp = (scaleFactor) => {
+		this.onScaleWillChange()
 		this.animateScale(this.getZoomedInScale(scaleFactor))
 	}
 
 	scaleDown = (scaleFactor) => {
-		this.slideshow.drag.stopDragInertialMovement()
+		this.onScaleWillChange()
 		this.animateScale(this.getZoomedOutScale(scaleFactor))
 	}
 
 	scaleToggle = () => {
-		this.slideshow.drag.stopDragInertialMovement()
-
+		this.onScaleWillChange()
 		const { scale } = this.slideshow.getState()
 		this.setState({
 			scale: this.getToggledScaleValue(scale)
