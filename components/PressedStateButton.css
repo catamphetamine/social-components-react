@@ -17,7 +17,7 @@
 /* Added `.PressedStateButton` for CSS selector specificity
    to override `:hover` and `:focus` styles
    because those have higher priority than CSS classes. */
-.PressedStateButton.PressedStateButton--pressed {
+.PressedStateButton--pressed {
 	--PressedStateButton-color: var(--PressedStateButton-color--pressed);
 	--PressedStateButton-backgroundColor: var(--PressedStateButton-backgroundColor--pressed);
 }
