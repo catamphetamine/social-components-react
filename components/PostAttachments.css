@@ -27,6 +27,13 @@
 	}
 }
 
+.PostAttachments {
+	.PostAttachmentThumbnails {
+		-webkit-user-select: none; /* Safari */
+		user-select: none;
+	}
+}
+
 .PostAttachments--compact {
 	--PostAttachment-marginTop: var(--PostAttachment-marginTop--compact);
 	--PostAttachment-marginRight: var(--PostAttachment-marginRight--compact);
