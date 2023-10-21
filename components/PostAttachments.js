@@ -70,9 +70,7 @@ export default function PostAttachments({
 }) {
 	const attachments = TEST ? TEST_ATTACHMENTS : getAttachments(post)
 
-	if (attachments.length === 0) {
-		return null
-	}
+	const doAttachmentsHaveIds = attachments.every(_ => Boolean(_.id))
 
 	// const pictures = attachments.filter(_ => _.type === 'picture')
 	// const videos = attachments.filter(_ => _.type === 'video')
@@ -94,9 +92,9 @@ export default function PostAttachments({
 		allPicturesAndVideos = [titlePictureOrVideo].concat(picturesAndVideos)
 	}
 
-	const audios = attachments.filter(_ => _.type === 'audio').map(_ => _.audio)
-	const links = attachments.filter(_ => _.type === 'link').map(_ => _.link)
-	const files = attachments.filter(_ => _.type === 'file').map(_ => _.file)
+	const audios = attachments.filter(_ => _.type === 'audio')
+	const links = attachments.filter(_ => _.type === 'link')
+	const files = attachments.filter(_ => _.type === 'file')
 
 	// const shouldExpandFirstPicture = pictures.length === 1 || (pictures.length > 1 && videos.length !== 1)
 	// const shouldExpandFirstVideo = videos.length === 1 || (videos.length > 1 && pictures.length !== 1)
@@ -144,6 +142,10 @@ export default function PostAttachments({
 	const attachmentsCount = picturesAndVideos.length + audios.length + links.length + files.length
 	const align = compact ? 'left' : 'center'
 
+	if (attachments.length === 0) {
+		return null
+	}
+
 	return (
 		<div className={classNames('PostAttachments', {
 			'PostAttachments--compact': compact,
@@ -157,7 +159,7 @@ export default function PostAttachments({
 								case 'picture':
 									return (
 										<PostPicture
-											key={i}
+											key={doAttachmentsHaveIds ? pictureOrVideo.id : i}
 											expand
 											align={align}
 											attachment={pictureOrVideo}
@@ -167,7 +169,7 @@ export default function PostAttachments({
 								case 'video':
 									return (
 										<PostVideo
-											key={i}
+											key={doAttachmentsHaveIds ? pictureOrVideo.id : i}
 											expand
 											align={align}
 											attachment={pictureOrVideo}
@@ -203,7 +205,7 @@ export default function PostAttachments({
 								{picturesAndVideos.map((pictureOrVideo, i) => {
 									return (
 										<Container
-											key={`picture-or-video-${i}`}
+											key={`picture-or-video-${doAttachmentsHaveIds ? pictureOrVideo.id : i}`}
 											count={allPicturesAndVideos.length}
 											pictureStackClassName={classNames('PostAttachments-pictureStack', {
 												'PostAttachments-pictureStack--postThumbnail': pictureOrVideo === postThumbnailAttachment
@@ -226,13 +228,13 @@ export default function PostAttachments({
 						</div>
 					}
 					{audios.length > 0 && audios.map((audio, i) => (
-						<PostAudio key={i} audio={audio}/>
+						<PostAudio key={doAttachmentsHaveIds ? audio.id : i} audio={audio.audio}/>
 					))}
 					{links.length > 0 && links.map((link, i) => (
-						<PostLinkBlock key={i} link={link}/>
+						<PostLinkBlock key={doAttachmentsHaveIds ? link.id : i} link={link.link}/>
 					))}
 					{files.length > 0 && files.map((file, i) => (
-						<PostFile key={i} file={file}/>
+						<PostFile key={doAttachmentsHaveIds ? file.id : i} file={file.file}/>
 					))}
 					{/* If a user selects the attachments portion of the page and then copies it
 					    into the clipboard, this dummy `<div/>` will insert a "new line" after attachments
