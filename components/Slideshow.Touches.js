@@ -91,8 +91,8 @@ export default class SlideshowTouches {
 				break
 			case 2:
 				this.slideshow.triggerEventListeners('twoTouches', {
-					getCenterBetweenTouches,
-					getDistanceBetweenTouches
+					getCenterBetweenTouches: this.getCenterBetweenTouches,
+					getDistanceBetweenTouches: this.getDistanceBetweenTouches
 				})
 				break
 			default:
