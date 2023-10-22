@@ -16,7 +16,7 @@ import useEffectSkipMount from '../hooks/useEffectSkipMount.js'
 
 import getMinSize from 'social-components/utility/picture/getMinSize.js'
 
-import XIcon from '../icons/x.svg'
+import XIcon from '../icons/x-light.svg'
 
 import './Picture.css'
 

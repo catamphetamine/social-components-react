@@ -143,6 +143,7 @@ function Post({
 				expandAttachments={expandAttachments}
 				showOnlyFirstAttachmentThumbnail={showOnlyFirstAttachmentThumbnail}
 				spoilerLabel={messages && messages.spoiler}
+				removeAttachmentLabel={messages && messages.removeAttachment}
 				onAttachmentClick={onAttachmentClick}
 			/>
 			{/*stretch &&

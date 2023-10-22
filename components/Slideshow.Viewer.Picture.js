@@ -32,7 +32,10 @@ export default {
 		return [{
 			name: 'searchInGoogle',
 			icon: Search, // SearchInGoogleIcon
-			link: `https://images.google.com/searchbyimage?image_url=${slide.picture.url}`
+			// Google search.
+			link: `https://lens.google.com/uploadbyurl?url=${encodeURI(slide.picture.url)}`
+			// Yandex search.
+			// link: `https://yandex.ru/images/search?url=${encodeURI(slide.picture.url)}&rpt=imageview`
 		}]
 	},
 	canRender(slide) {

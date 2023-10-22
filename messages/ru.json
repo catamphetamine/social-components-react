@@ -19,7 +19,8 @@
 		"spoiler": "Спойлер",
 		"expandAttachments": "Раскрыть картинки",
 		"collapseAttachments": "Свернуть картинки",
-		"viewAttachments": "Посмотреть вложения"
+		"viewAttachments": "Посмотреть вложения",
+		"removeAttachment": "Убрать"
 	},
 	"slideshow": {
 		"actions": {

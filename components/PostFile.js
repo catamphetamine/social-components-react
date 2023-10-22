@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { filesize } from 'filesize'
 
+import PostAttachmentRemove from './PostAttachmentRemove.js'
+
 import { postFile } from './PropTypes.js'
 
 import ArchiveIcon from '../icons/archive.svg'
@@ -10,7 +12,11 @@ import DownloadIcon from '../icons/download-cloud.svg'
 
 import './PostFile.css'
 
-export default function PostFile({ file }) {
+export default function PostFile({
+	file,
+	onRemove,
+	removeLabel
+}) {
 	return (
 		<div className="PostFile">
 			<FileIcon
@@ -26,12 +32,19 @@ export default function PostFile({ file }) {
 					{filesize(file.size)}
 				</span>
 			}
+			{onRemove &&
+				<PostAttachmentRemove onClick={onRemove}>
+					{removeLabel}
+				</PostAttachmentRemove>
+			}
 		</div>
 	)
 }
 
 PostFile.propTypes = {
-	file: postFile.isRequired
+	file: postFile.isRequired,
+	onRemove: PropTypes.func,
+	removeLabel: PropTypes.string
 }
 
 function FileIcon({ type, ...rest }) {

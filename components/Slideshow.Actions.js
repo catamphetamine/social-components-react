@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 import Button from './Button.js'
 
-// import XIcon from '../icons/x.svg'
+// import XIcon from '../icons/x-light.svg'
 // import Download from '../icons/download-cloud.svg'
 import ExternalIcon from '../icons/external.svg'
 

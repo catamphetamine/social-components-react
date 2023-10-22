@@ -43,11 +43,15 @@ import PostFile, {
 import PostAttachmentThumbnail, { getAttachmentThumbnailSize } from './PostAttachmentThumbnail.js'
 import PictureStack from './PictureStack.js'
 
+import Button from './Button.js'
+
 import {
 	postAttachment
 } from './PropTypes.js'
 
 import getPostThumbnailAttachment from 'social-components/utility/post/getPostThumbnailAttachment.js'
+
+import XIcon from '../icons/x.svg'
 
 import './PostAttachments.css'
 
@@ -63,7 +67,9 @@ export default function PostAttachments({
 	attachmentThumbnailSize,
 	useSmallestThumbnails,
 	spoilerLabel,
+	removeAttachmentLabel,
 	onAttachmentClick,
+	onAttachmentRemove,
 	maxAttachmentThumbnails,
 	showPostThumbnailWhenThereAreMultipleAttachments,
 	showPostThumbnailWhenThereIsNoContent
@@ -127,9 +133,9 @@ export default function PostAttachments({
 		showPostThumbnailWhenThereIsNoContent
 	})
 
-	let Container = PassthroughContainer
+	let AttachmentThumbnailContainer = PassthroughContainer
 	if (showOnlyFirstAttachmentThumbnail) {
-		Container = PictureStackContainer
+		AttachmentThumbnailContainer = PictureStackContainer
 		if (titlePictureOrVideo) {
 			picturesAndVideos = []
 		} else {
@@ -164,7 +170,8 @@ export default function PostAttachments({
 											align={align}
 											attachment={pictureOrVideo}
 											spoilerLabel={spoilerLabel}
-											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
+											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}
+										/>
 									)
 								case 'video':
 									return (
@@ -174,28 +181,31 @@ export default function PostAttachments({
 											align={align}
 											attachment={pictureOrVideo}
 											spoilerLabel={spoilerLabel}
-											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}/>
+											onClick={onAttachmentClick ? createOnAttachmentClick(i) : undefined}
+										/>
 									)
 							}
 						})
 					}
 					{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'picture' &&
-						<Container count={allPicturesAndVideos.length}>
+						<AttachmentThumbnailContainer count={allPicturesAndVideos.length}>
 							<PostPicture
 								align={align}
 								attachment={titlePictureOrVideo}
 								spoilerLabel={spoilerLabel}
-								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
-						</Container>
+								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}
+							/>
+						</AttachmentThumbnailContainer>
 					}
 					{!expandAttachments && titlePictureOrVideo && titlePictureOrVideo.type === 'video' &&
-						<Container count={allPicturesAndVideos.length}>
+						<AttachmentThumbnailContainer count={allPicturesAndVideos.length}>
 							<PostVideo
 								align={align}
 								attachment={titlePictureOrVideo}
 								spoilerLabel={spoilerLabel}
-								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}/>
-						</Container>
+								onClick={onAttachmentClick ? createOnAttachmentClick(0) : undefined}
+							/>
+						</AttachmentThumbnailContainer>
 					}
 					{!expandAttachments && picturesAndVideos.length > 0 &&
 						<div className={classNames('PostAttachmentThumbnails', {
@@ -204,7 +214,7 @@ export default function PostAttachments({
 							<div className="PostAttachmentThumbnails-list">
 								{picturesAndVideos.map((pictureOrVideo, i) => {
 									return (
-										<Container
+										<AttachmentThumbnailContainer
 											key={`picture-or-video-${doAttachmentsHaveIds ? pictureOrVideo.id : i}`}
 											count={allPicturesAndVideos.length}
 											pictureStackClassName={classNames('PostAttachments-pictureStack', {
@@ -220,21 +230,39 @@ export default function PostAttachments({
 												moreAttachmentsCount={i === picturesAndVideos.length - 1 ? picturesAndVideosMoreCount : undefined}
 												className={classNames({
 													'PostAttachmentThumbnail--postThumbnail': pictureOrVideo === postThumbnailAttachment
-												})}/>
-										</Container>
+												})}
+											>
+												{onAttachmentRemove &&
+													<PostAttachmentRemoveButton
+														removeAttachmentLabel={removeAttachmentLabel}
+														onClick={() => onAttachmentRemove(pictureOrVideo)}
+													/>
+												}
+											</PostAttachmentThumbnail>
+										</AttachmentThumbnailContainer>
 									)
 								})}
 							</div>
 						</div>
 					}
 					{audios.length > 0 && audios.map((audio, i) => (
-						<PostAudio key={doAttachmentsHaveIds ? audio.id : i} audio={audio.audio}/>
+						<PostAudio
+							key={doAttachmentsHaveIds ? audio.id : i}
+							audio={audio.audio}
+							onRemove={onAttachmentRemove ? () => onAttachmentRemove(audio) : undefined}
+							removeLabel={removeAttachmentLabel}
+						/>
 					))}
 					{links.length > 0 && links.map((link, i) => (
 						<PostLinkBlock key={doAttachmentsHaveIds ? link.id : i} link={link.link}/>
 					))}
 					{files.length > 0 && files.map((file, i) => (
-						<PostFile key={doAttachmentsHaveIds ? file.id : i} file={file.file}/>
+						<PostFile
+							key={doAttachmentsHaveIds ? file.id : i}
+							file={file.file}
+							onRemove={onAttachmentRemove ? () => onAttachmentRemove(file) : undefined}
+							removeLabel={removeAttachmentLabel}
+						/>
 					))}
 					{/* If a user selects the attachments portion of the page and then copies it
 					    into the clipboard, this dummy `<div/>` will insert a "new line" after attachments
@@ -252,12 +280,14 @@ PostAttachments.propTypes = {
 	post: PropTypes.object,
 	compact: PropTypes.bool,
 	onAttachmentClick: PropTypes.func,
+	onAttachmentRemove: PropTypes.func,
 	expandFirstPictureOrVideo: PropTypes.bool.isRequired,
 	expandAttachments: PropTypes.bool,
 	// Currently this property only limits the displayed pictures and videos.
 	// Doesn't affect audios, files, links, etc.
 	showOnlyFirstAttachmentThumbnail: PropTypes.bool,
 	spoilerLabel: PropTypes.string,
+	removeAttachmentLabel: PropTypes.string,
 	attachmentThumbnailSize: PropTypes.number,
 	useSmallestThumbnails: PropTypes.bool,
 	maxAttachmentThumbnails: PropTypes.oneOfType([
@@ -519,4 +549,23 @@ function PictureStackContainer({ count, pictureStackClassName, ...rest }) {
 PictureStackContainer.propTypes = {
 	count: PropTypes.number.isRequired,
 	pictureStackClassName: PropTypes.string
+}
+
+function PostAttachmentRemoveButton({
+	removeAttachmentLabel,
+	onClick
+}) {
+	return (
+		<Button
+			onClick={onClick}
+			aria-label={removeAttachmentLabel}
+			className="PostAttachmentRemoveButton">
+			<XIcon className="PostAttachmentRemoveButton-icon"/>
+		</Button>
+	)
+}
+
+PostAttachmentRemoveButton.propTypes = {
+	removeAttachmentLabel: PropTypes.string,
+	onClick: PropTypes.func.isRequired
 }

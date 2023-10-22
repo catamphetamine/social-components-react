@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
+import PostAttachmentRemove from './PostAttachmentRemove.js'
+
 import { audio } from './PropTypes.js'
 
 import './PostAudio.css'
@@ -9,6 +11,8 @@ import './PostAudio.css'
 export default function PostAudio({
 	audio,
 	align,
+	onRemove,
+	removeLabel,
 	className
 }) {
 	className = classNames(className, 'PostAudio', {
@@ -17,7 +21,16 @@ export default function PostAudio({
 		'PostAudio--alignRight': align === 'right'
 	})
 	if (!audio.provider) {
-		return <PostAudioFile audio={audio} className={className}/>
+		return (
+			<div className={className}>
+				<PostAudioFile audio={audio}/>
+				{onRemove &&
+					<PostAttachmentRemove onClick={onRemove}>
+						{removeLabel}
+					</PostAttachmentRemove>
+				}
+			</div>
+		)
 	}
 	switch (audio.provider) {
 		case 'SoundCloud':
@@ -37,6 +50,8 @@ export default function PostAudio({
 PostAudio.propTypes = {
 	audio: audio.isRequired,
 	align: PropTypes.oneOf(['left', 'center', 'right']),
+	onRemove: PropTypes.func,
+	removeLabel: PropTypes.string,
 	className: PropTypes.string
 }
 
@@ -62,16 +77,21 @@ SoundCloudAudio.propTypes = {
 function PostAudioFile({ audio, className }) {
 	return (
 		<section className={className}>
-			<audio controls className="PostAudio-audio">
-				<source
-					type={audio.type}
-					src={audio.url}/>
-			</audio>
-			<h1 className="PostAudio-title">
-				{audio.author}
-				{audio.author && audio.title && ' — '}
-				{audio.title}
-			</h1>
+			<div className="PostAudio-audioAndTitle">
+				<audio controls className="PostAudio-audio">
+					<source
+						type={audio.type}
+						src={audio.url}
+					/>
+				</audio>
+				{(audio.author || audio.title) &&
+					<h1 className="PostAudio-title">
+						{audio.author}
+						{audio.author && audio.title && ' — '}
+						{audio.title}
+					</h1>
+				}
+			</div>
 		</section>
 	)
 }

@@ -20,7 +20,7 @@ import SlideshowControls from './Slideshow.Controls.js'
 import SlideshowThumbnails from './Slideshow.Thumbnails.js'
 import { roundScale, getPanAndZoomModeButtonClassName } from './Slideshow.PanAndZoomModeControls.js'
 import SlideshowPropTypes, { defaultProps as SlideshowDefaultProps, SlideshowStateTypes } from './Slideshow.PropTypes.js'
-import { getViewerForSlide } from './Slideshow.Viewer.js'
+import { hasViewerForSlide, getViewerForSlide } from './Slideshow.Viewer.js'
 
 import PictureViewer from './Slideshow.Viewer.Picture.js'
 import VideoViewer from './Slideshow.Viewer.Video.js'
@@ -639,7 +639,7 @@ window.Slideshow = {
 }
 
 export function isSlideSupported(slide) {
-	if (getViewerForSlide(slide, VIEWERS)) {
+	if (hasViewerForSlide(slide, VIEWERS)) {
 		return true
 	}
 }

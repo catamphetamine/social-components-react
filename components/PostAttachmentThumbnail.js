@@ -42,7 +42,8 @@ export default function PostAttachmentThumbnail({
 	useSmallestThumbnail,
 	moreAttachmentsCount,
 	fixAttachmentPictureSize,
-	className
+	className,
+	children
 }) {
 	const thumbnailElement = useRef()
 	const slideshowOpenRequest = useRef()
@@ -208,6 +209,7 @@ export default function PostAttachmentThumbnail({
 						+{moreAttachmentsCount + 1}
 					</span>
 				}
+				{children}
 			</Picture>
 		</ButtonLink>
 	)
@@ -233,7 +235,8 @@ PostAttachmentThumbnail.propTypes = {
 	useSmallestThumbnail: PropTypes.bool,
 	moreAttachmentsCount: PropTypes.number,
 	fixAttachmentPictureSize: PropTypes.bool,
-	className: PropTypes.string
+	className: PropTypes.string,
+	children: PropTypes.node
 }
 
 // export default React.forwardRef(PostAttachment)

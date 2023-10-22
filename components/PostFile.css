@@ -1,3 +1,7 @@
+:root {
+	--PostFileSize-color: var(--gray-color-400);
+}
+
 .PostFile {
 	display: flex;
 	align-items: center;
@@ -16,7 +20,7 @@
 
 .PostFile-size {
 	margin-left: 0.4em;
-	color: var(--gray-color-400);
+	color: var(--PostFileSize-color);
 	font-weight: 300;
 	/* Links with really long filenames may wrap. */
 	white-space: nowrap;

@@ -19,7 +19,8 @@
 		"spoiler": "Spoiler",
 		"expandAttachments": "Erweitern Sie Anhänge",
 		"collapseAttachments": "Anhänge reduzieren",
-		"viewAttachments": "Anhänge anzeigen"
+		"viewAttachments": "Anhänge anzeigen",
+		"removeAttachment": "Entfernen"
 	},
 	"slideshow": {
 		"actions": {

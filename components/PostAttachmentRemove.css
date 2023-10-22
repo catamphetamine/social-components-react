@@ -1,0 +1,23 @@
+:root {
+	--PostAttachmentRemoveSeparator-color: var(--gray-color-400);
+}
+
+/* For some weird reason, in development, `.Button` styles override `.PostAttachmentRemove` ones.
+   To work around that, an additional `.Button` CSS selector has been added so that `.Button` styles
+   don't override `.PostAttachmentRemove` ones. */
+.Button.PostAttachmentRemove-button {
+	color: var(--SocialComponentsClickable-color--text);
+
+	&:active {
+		color: var(--SocialComponentsClickable-color);
+	}
+}
+
+.PostAttachmentRemove-separator {
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	color: var(--PostAttachmentRemoveSeparator-color);
+
+	-webkit-user-select: none; /* Safari */
+	user-select: none;
+}

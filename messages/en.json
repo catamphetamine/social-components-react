@@ -19,7 +19,8 @@
 		"spoiler": "Spoiler",
 		"expandAttachments": "Expand attachments",
 		"collapseAttachments": "Collapse attachments",
-		"viewAttachments": "View attachments"
+		"viewAttachments": "View attachments",
+		"removeAttachment": "Remove"
 	},
 	"slideshow": {
 		"actions": {

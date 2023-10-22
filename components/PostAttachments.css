@@ -7,6 +7,13 @@
 
 	--PostAttachment-marginTop--compact: var(--PostContent-marginTop--compact);
 	--PostAttachment-marginRight--compact: var(--PostContent-marginTop--compact);
+
+	--PostAttachmentRemoveButton-width: calc(var(--unit) * 1.5);
+	--PostAttachmentRemoveButton-padding: calc(var(--unit) / 4);
+	--PostAttachmentRemoveButton-backgroundColor: var(--SocialComponents-backgroundColor);
+	--PostAttachmentRemoveButton-color: var(--SocialComponentsClickable-color--text);
+	--PostAttachmentRemoveButton-color--active: var(--SocialComponents-backgroundColor);
+	--PostAttachmentRemoveButton-backgroundColor--active: var(--SocialComponentsClickable-color);
 }
 
 .PostAttachments {
@@ -104,4 +111,34 @@
 
 	/* If an attachment's thumbnail is too large, don't overflow the page because of it. */
 	overflow: hidden;
+}
+
+/* For some weird reason, in development, `.Button` styles override `.PostAttachmentRemoveButton` ones.
+   To work around that, an additional `.Button` CSS selector has been added so that `.Button` styles
+   don't override `.PostAttachmentRemoveButton` ones. */
+.Button.PostAttachmentRemoveButton {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: var(--PostAttachmentRemoveButton-width);
+	height: var(--PostAttachmentRemoveButton-width);
+	z-index: 1;
+
+	padding: var(--PostAttachmentRemoveButton-padding);
+
+	background-color: var(--PostAttachmentRemoveButton-backgroundColor);
+	color: var(--PostAttachmentRemoveButton-color);
+
+	border-bottom: 1px solid var(--Picture-borderColor);
+	border-left: 1px solid var(--Picture-borderColor);
+
+	&:active {
+		--PostAttachmentRemoveButton-backgroundColor: var(--PostAttachmentRemoveButton-backgroundColor--active);
+		--PostAttachmentRemoveButton-color: var(--PostAttachmentRemoveButton-color--active);
+	}
+}
+
+.PostAttachmentRemoveButton-icon {
+	width: 100%;
+	height: 100%;
 }
