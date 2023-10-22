@@ -2,6 +2,9 @@
 	--PostMoreActionsButton-width: 1em;
 	--PostMoreActionsButton-paddingLeft: 0.25em;
 	--PostMoreActionsButton-paddingTop: 0.15em;
+
+	--PostMoreActionsMenu-right: calc(var(--unit) * -1);
+	--PostMoreActionsMenu-marginTop: calc(var(--unit) / 2);
 }
 
 .PostMoreActions-toggler {
@@ -37,8 +40,8 @@
 
 .PostMoreActions-menu--right {
 	.rrui__expandable {
-		right: calc(var(--unit) * -1);
-		margin-top: calc(var(--unit) / 2);
+		right: var(--PostMoreActionsMenu-right);
+		margin-top: var(--PostMoreActionsMenu-marginTop);
 	}
 }
 
