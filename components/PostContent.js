@@ -139,17 +139,28 @@ function PostContent({
 			// Returns a list of `Promise`s.
 			//
 			loadResources: shouldFixAttachmentPictureSizes ? () => {
+				// `post` object reference doesn't change between re-renders
+				// so it's fine passing it to this callback.
 				if (post.attachments) {
+					// `fixAttachmentPictureSizes()` function is not created via `useCallback()`
+					// between re-renders so it's fine passing it to this callback.
 					return fixAttachmentPictureSizes(post.attachments)
 				}
 				return []
 			} : undefined,
 			onContentChange: () => {
 				// resourceLinkLoaderHasChangedPostContent.current = post
+				//
+				// `onPostContentChange()` function reference shouldn't change
+				// between re-renders. In that case, it's fine passing it to this callback.
 				if (onPostContentChange) {
 					onPostContentChange(post)
 				}
+				// `isMounted()` function reference doesn't change
+				// between re-renders so it's fine passing it to this callback.
 				if (isMounted()) {
+					// `setPostContentChanged()` function reference doesn't change
+					// between re-renders so it's fine passing it to this callback.
 					setPostContentChanged({})
 				}
 			}
