@@ -44,9 +44,7 @@ export default class SlideshowTouches {
 		return {
 			touches: {
 				getTouch: this.getTouch,
-				getTouchCount: this.getTouchCount,
-				getCenterBetweenTouches: this.getCenterBetweenTouches,
-				getDistanceBetweenTouches: this.getDistanceBetweenTouches
+				getTouchCount: this.getTouchCount
 			}
 		}
 	}
@@ -90,10 +88,19 @@ export default class SlideshowTouches {
 				this.slideshow.triggerEventListeners('oneTouch', this.getTouch())
 				break
 			case 2:
-				this.slideshow.triggerEventListeners('twoTouches', {
-					getCenterBetweenTouches: this.getCenterBetweenTouches,
-					getDistanceBetweenTouches: this.getDistanceBetweenTouches
-				})
+				// Create a "closure" for `this.touches[0]` and `this.touches[1]`
+				// because if the user lifts off a finger, `this.touches[]` array will change
+				// and will contain less than two touches, and the returned functions
+				// `getCenterBetweenTouches()` and `getDistanceBetweenTouches()`
+				// rely on there being exactly two of those touches.
+				// So those two functions can't operate on `this.touches[]`
+				// and instead they should snapshot those two initial touches.
+				((touch1, touch2) => {
+					this.slideshow.triggerEventListeners('twoTouches', {
+						getCenterBetweenTouches: () => getCenterBetweenTouches(touch1, touch2),
+						getDistanceBetweenTouches: () => getDistanceBetweenTouches(touch1, touch2)
+					})
+				})(this.touches[0], this.touches[1])
 				break
 			default:
 				// Ignore more than two simultaneous touches.
@@ -141,17 +148,17 @@ export default class SlideshowTouches {
 			}
 		}
 	}
+}
 
-	getDistanceBetweenTouches = () => {
-		const distanceX = Math.abs(this.touches[0].x - this.touches[1].x)
-		const distanceY = Math.abs(this.touches[0].y - this.touches[1].y)
-		return Math.sqrt(distanceX * distanceX + distanceY * distanceY)
-	}
+function getDistanceBetweenTouches(touch1, touch2) {
+	const distanceX = Math.abs(touch1.x - touch2.x)
+	const distanceY = Math.abs(touch1.y - touch2.y)
+	return Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+}
 
-	getCenterBetweenTouches = () => {
-		return [
-			(this.touches[0].x + this.touches[1].x) / 2,
-			(this.touches[0].y + this.touches[1].y) / 2
-		]
-	}
+function getCenterBetweenTouches(touch1, touch2) {
+	return [
+		(touch1.x + touch2.x) / 2,
+		(touch1.y + touch2.y) / 2
+	]
 }

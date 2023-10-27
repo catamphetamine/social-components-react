@@ -47,6 +47,13 @@ export default class SlideshowScalePinchZoom {
 			}
 		})
 
+		this.slideshow.addEventListener('touchEnd', () => {
+			// If it was pinch-zoom mode, then exit it.
+			if (this.isInteractivePhaseOfPinchZoomMode) {
+				this.stopPinchZoom()
+			}
+		})
+
 		this.slideshow.addEventListener('slideChange', () => {
 			// If it was pinch-zoom mode, then exit it.
 			if (this.isInteractivePhaseOfPinchZoomMode) {
