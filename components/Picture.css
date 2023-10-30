@@ -1,3 +1,7 @@
+:root {
+	--PictureStatus-color: initial;
+}
+
 .Picture {
 	position: relative;
 	border-radius: inherit;
