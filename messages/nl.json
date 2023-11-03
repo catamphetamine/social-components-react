@@ -1,0 +1,43 @@
+{
+	"post": {
+		"verified": "Identiteit geverifieerd",
+		"removed": "Deze opmerking is verwijderd",
+		"banned": "De auteur van deze opmerking is verbannen",
+		"bannedReason": ". Reden: \"{0}\".",
+		"sticky": "Sticky draad",
+		"closed": "Gesloten draad",
+		"commentsCount": "Opmerkingen",
+		"repliesCount": "Reacties",
+		"readMore": "Toon\u00a0Meer",
+		"moreActions": {
+			"title": "Meer acties"
+		},
+		"upvote": "Leuk vinden",
+		"downvote": "Niet leuk vinden",
+		"alreadyVoted": "Je hebt al gestemd",
+		"reply": "Reageer",
+		"spoiler": "Spoiler",
+		"expandAttachments": "Bijlagen uitvouwen",
+		"collapseAttachments": "Bijlagen samenvouwen",
+		"viewAttachments": "Bijlagen bekijken",
+		"removeAttachment": "Verwijder"
+	},
+	"slideshow": {
+		"actions": {
+			"previous": "Vorige",
+			"next": "Volgende",
+			"download": "Downloaden",
+			"close": "Sluiten",
+			"scaleUp": "Vergroot",
+			"scaleDown": "Verklein",
+			"scaleReset": "Oorspronkelijke grootte",
+			"searchInGoogle": "Zoeken op Google",
+			"showControls": "Toon bedieningselementen",
+			"hideControls": "Verberg bedieningselementen",
+			"openExternalLink": "Open externe link",
+			"exitPanAndZoomMode": "Sluit de pan- en zoommodus af"
+		},
+		"scaleValueBefore": "Schaal",
+		"scaleValueAfter": null
+	}
+}
