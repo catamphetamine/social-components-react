@@ -3,7 +3,7 @@
 		"verified": "Identiteit geverifieerd",
 		"removed": "Deze opmerking is verwijderd",
 		"banned": "De auteur van deze opmerking is verbannen",
-		"bannedReason": ". Reden: \"{0}\".",
+		"bannedReason": ". Reden: \"{reason}\".",
 		"sticky": "Sticky draad",
 		"closed": "Gesloten draad",
 		"commentsCount": "Opmerkingen",

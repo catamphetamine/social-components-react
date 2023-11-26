@@ -3,7 +3,7 @@
 		"verified": "Identität verifiziert",
 		"removed": "Dieser Kommentar wurde entfernt",
 		"banned": "Der Autor dieses Kommentars wurde gesperrt",
-		"bannedReason": ". Grund: \"{0}\".",
+		"bannedReason": ". Grund: \"{reason}\".",
 		"sticky": "klebriger Thema",
 		"closed": "geschlossene Thema",
 		"commentsCount": "Kommentar",

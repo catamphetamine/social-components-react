@@ -3,7 +3,7 @@
 		"verified": "Identity verified",
 		"removed": "This comment has been removed",
 		"banned": "The author of this comment was banned",
-		"bannedReason": ". Reason: \"{0}\".",
+		"bannedReason": ". Reason: \"{reason}\".",
 		"sticky": "Sticky thread",
 		"closed": "Closed thread",
 		"commentsCount": "Comments",

@@ -71,5 +71,5 @@ PostCode.propTypes = {
 	block: PropTypes.bool.isRequired,
 	language: PropTypes.string,
 	className: PropTypes.string,
-	children: postCode.isRequired
+	children: PropTypes.node
 }

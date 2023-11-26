@@ -48,6 +48,8 @@ function PostContent({
 	url,
 	locale,
 	messages,
+	wrapperComponent: WrapperComponent,
+	wrapperComponentProps,
 	className
 }, ref) {
 	if (onPostContentRendered) {
@@ -247,7 +249,7 @@ function PostContent({
 		return null
 	}
 
-	return (
+	const postContent = (
 		<div className={classNames(className, 'PostContent', {
 			'PostContent--compact': compact,
 			// 'PostContent--has-title': post.title,
@@ -284,7 +286,19 @@ function PostContent({
 				</PostContentBlock>
 			))}
 		</div>
-	);
+	)
+
+	if (WrapperComponent) {
+		return (
+			<WrapperComponent
+				{...wrapperComponentProps}
+				className={classNames('PostContent-wrapper', wrapperComponentProps.className)}>
+				{postContent}
+			</WrapperComponent>
+		)
+	}
+
+	return postContent
 }
 
 PostContent.propTypes = {
@@ -328,6 +342,8 @@ PostContent.propTypes = {
 	resourceMessages: PropTypes.shape({
 		videoNotFound: PropTypes.string
 	}),
+	wrapperComponent: PropTypes.elementType,
+	wrapperComponentProps: PropTypes.object,
 	className: PropTypes.string
 }
 

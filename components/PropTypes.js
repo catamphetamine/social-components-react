@@ -19,27 +19,40 @@ const id = oneOfType([string, number])
 
 const date = instanceOf(Date)
 
-const pictureType = oneOf([
-	'image/svg+xml',
-	'image/jpeg',
-	'image/gif',
-	'image/png',
-	'image/bmp',
-	'image/webp'
-])
+const pictureType = string
 
-const videoType = oneOf([
-	'video/mp4',
-	'video/ogg',
-	'video/webm'
-])
+// There might be new mime types that appear in the future.
+// Also, this list is not exhaustive.
+// const pictureType = oneOf([
+// 	'image/svg+xml',
+// 	'image/jpeg',
+// 	'image/gif',
+// 	'image/png',
+// 	'image/bmp',
+// 	'image/webp'
+// ])
 
-const audioType = oneOf([
-	'audio/mpeg',
-	'audio/ogg',
-	'audio/flac',
-	'audio/opus'
-])
+const videoType = string
+
+// There might be new mime types that appear in the future.
+// Also, this list is not exhaustive.
+// For example, there's no "video/x-matroska" mime type here (`*.mkv` videos).
+// const videoType = oneOf([
+// 	'video/mp4',
+// 	'video/ogg',
+// 	'video/webm'
+// ])
+
+const audioType = string
+
+// There might be new mime types that appear in the future.
+// Also, this list is not exhaustive.
+// const audioType = oneOf([
+// 	'audio/mpeg',
+// 	'audio/ogg',
+// 	'audio/flac',
+// 	'audio/opus'
+// ])
 
 const coordinates = shape({
 	latitude: number.isRequired,
@@ -309,6 +322,7 @@ export const postInlineContentElement = oneOfType([
 	postStyledText,
 	postInlineLink,
 	postInlineQuote,
+	postCode,
 	postReadMore,
 	postSpoiler,
 	postEmoji,

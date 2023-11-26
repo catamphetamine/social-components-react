@@ -46,7 +46,8 @@
 	--PostAttachment-marginRight: var(--PostAttachment-marginRight--compact);
 }
 
-.PostContent + .PostAttachments {
+.PostContent + .PostAttachments,
+.PostContent-wrapper + .PostAttachments {
 	/* Add vertical spacing between post content and attachments. */
 	--PostAttachments-marginTop: var(--PostAttachments-marginTop--afterPostContent);
 }
