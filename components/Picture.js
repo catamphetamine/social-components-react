@@ -102,20 +102,6 @@ function Picture({
 
 	const imageLoadDevModeTimer = useRef()
 
-	useEffectSkipMount(() => {
-
-	}, [
-		picture,
-		border,
-		fit,
-		width,
-		height,
-		maxWidth,
-		maxHeight,
-		useSmallestSize,
-		useSmallestSizeExactDimensions
-	])
-
 	// `initialPictureSize` will be `undefined` when both:
 	// * No `width` or `height` are provided.
 	// * No `useSmallestSize` flag was passed.
@@ -132,7 +118,7 @@ function Picture({
 		})
 	}, [])
 
-	const [size, setSize] = useState(initialPictureSize)
+	const [selectedPictureSize, setSelectedPictureSize] = useState(initialPictureSize)
 	const [imageStatus, setStatus] = useState(preload ? 'LOADING' : 'READY')
 	// const [recreateIntersectionObserverFlag, setRecreateIntersectionObserverFlag] = useState({})
 
@@ -143,9 +129,43 @@ function Picture({
 	// generating a thumbnail, so thumbnail's aspect ratio
 	// should be calculated from thumbnail's width and height.
 	const getImageAspectRatio = useCallback(() => {
-		return getAspectRatio(size || picture)
+		// If new `picture` property is passed, it should start showing new size immediately.
+		// That's required by `onRenderedContentDidChange()` call in `PostContent.js`:
+		// after `fixAttachmentPictureSizes` feature has changed attachments' pictures,
+		// it should be able to re-measure those re-rendered pictures in its `useLayoutEffect()`.
+		// If the aspect ratio was read from `selectedPictureSize` rather than `picture` property,
+		// there'd be a delay and `onRenderedContentDidChange()` wouldn't get the correct measurements.
+		//
+		// Yes, `getAspectRatio()` function would've been more precise if it read the measurements from
+		// `selectedPictureSize` rather than from `picture` because of the pixels count rounding
+		// when producing thumbnails from a full-sized picture.
+		// And something like that could be implemented by checking if `selectedPictureSize`
+		// is included in `[picture, ...picture.sizes]` array.
+		// But that approach would also mean that the image height would "jump" between renders
+		// because the aspect ratio of the full-size image would be slightly different
+		// from the aspect ratio of one of its smaller thumbnails.
+		//
+		// `virtual-scroller` wouldn't like such unexpected size changes.
+		// That could be worked around if every `<Picture/>` in a `<Post/>`
+		// received an `onRenderedContentDidChange()` property and then called it
+		// in `useLayoutEffect()` with `selectedPictureSize` dependency.
+		// That would mean adding `onRenderedContentDidChange()` property to:
+		// * <Picture/>
+		// * <PostAttachments/>
+		// * <PostAttachmentThumbnail/>
+		//
+		// But the fact that the `<Picture/>` size would "jump" by a pixel
+		// in general doesn't look right: having the `<Picture/>` size constant
+		// regardless of the currently rendered size seems like a more correct solution.
+		//
+		// So in summary, aspect ratio is always the one of the full-size image.
+		//
+		// With one exception: when `useSmallestSize` flag is `true`,
+		// because in that case only the smallest size of the picture will ever be rendered.
+		//
+		const aspectRatioSourceSize = useSmallestSize ? getMinSize(picture) : picture
+		return getAspectRatio(aspectRatioSourceSize)
 	}, [
-		size,
 		picture
 	])
 
@@ -242,7 +262,7 @@ function Picture({
 			if (
 				forceReloadImage ||
 				// If there was no image rendered before.
-				!size ||
+				!selectedPictureSize ||
 				// If the size is different from the currently rendered one.
 				// For example, a given `<Picture/>` element could be reused by React
 				// with another `picture` property (and all other properties).
@@ -250,14 +270,14 @@ function Picture({
 				// because the `picture` object can be parsed from an HTTP response from a server,
 				// in which case the `picture` object reference will change even though the picture
 				// itself stayed the same.
-				!isEqual(size, appropriateSize)
+				!isEqual(selectedPictureSize, appropriateSize)
 				// If the size got smaller, it doesn't necessarily mean that a bigger image
 				// could be reused for it. Or maybe it does? I guess it does.
 				// But the `!isEqual(size, appropriateSize)` check above already handles that.
 				// // If the appropriate size is bigger than the currently rendered one.
-				// appropriateSize.width > size.width
+				// appropriateSize.width > selectedPictureSize.width
 			) {
-				setSize(appropriateSize)
+				setSelectedPictureSize(appropriateSize)
 				loadPictureSize_(appropriateSize)
 				if (onSizeChange) {
 					onSizeChange()
@@ -266,8 +286,8 @@ function Picture({
 		}
 	}, [
 		picture,
-		size,
-		setSize,
+		selectedPictureSize,
+		setSelectedPictureSize,
 		loadPictureSize_,
 		useSmallestSize,
 		getPreferredImageWidth
@@ -315,12 +335,6 @@ function Picture({
 		// 	}
 		// })
 	}
-
-	const startWatchingResize = useCallback(() => {
-	}, [
-		isMounted,
-		loadAndRenderAppropriatePictureSize_
-	])
 
 	const loadAndRenderAppropriatePictureSize = useCallback(({
 		forceReloadImage
@@ -636,6 +650,18 @@ function Picture({
 		fit
 	])
 
+	// When new `picture` property is passed to the same `<Picture/>` element,
+	// it will wait for a `useEffect()` to trigger, where it will call
+	// `loadAndRenderAppropriatePictureSize()` function which will choose an
+	// appropriate size for the picture, and then it will update the
+	// `selectedPictureSize` state variable. Until that whole process is finished,
+	// the `selectedPictureSize` will belong to an old `picture`.
+	// But `getAspectRatio()` will already return the aspect ratio for the new `picture`.
+	// So in order for those two to not visibly conflict with one another,
+	// the old `selectedPictureSize` shouldn't be rendered until a new one is chosen.
+	//
+	const doesSelectedPictureSizeBelongToThePicture = selectedPictureSize && (picture.url === selectedPictureSize.url || picture.sizes && picture.sizes.includes(selectedPictureSize))
+
 	return (
 		<Component
 			{...rest}
@@ -716,7 +742,7 @@ function Picture({
 						onClick={retryImageLoad}
 						title="Retry"
 						className="Picture-loadingError"
-						data-src={size && size.url}
+						data-src={selectedPictureSize && selectedPictureSize.url}
 					/>
 				</span>
 			}
@@ -731,10 +757,10 @@ function Picture({
 			    By making such `<img/>`s `position: absolute`, they don't interfere with the content height
 			    at all.
 			*/}
-			{imageStatus === 'READY' &&
+			{doesSelectedPictureSizeBelongToThePicture && imageStatus === 'READY' &&
 				<img
 					ref={setImageRef}
-					src={typeof window === 'undefined' ? TRANSPARENT_PIXEL : (size ? size.url : TRANSPARENT_PIXEL)}
+					src={typeof window === 'undefined' ? TRANSPARENT_PIXEL : (selectedPictureSize ? selectedPictureSize.url : TRANSPARENT_PIXEL)}
 					style={blur ? addBlur(imageStyle, calculateBlurRadius(blur)) : imageStyle}
 					className={classNames('Picture-image', {
 						'Picture-image--blurred': blur

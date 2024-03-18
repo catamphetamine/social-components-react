@@ -6,11 +6,11 @@
 	/* "Clickable text" buttons are usually colored a bit darker. */
 	--SocialComponentsClickable-color--text: #0084BD;
 
-	/* CommentTree. */
-	--CommentTree-color: var(--SocialComponentsClickable-color--active);
-	--CommentTree-color--branch: var(--CommentTree-color);
-	--CommentTree-color--hover: var(--SocialComponentsClickable-color);
-	--CommentTree-backgroundColor--hover: rgba(0,0,0,0.044);
+	/* CommentTreePath. */
+	--CommentTreePath-color: var(--SocialComponentsClickable-color--active);
+	--CommentTreePath-color--branch: var(--CommentTreePath-color);
+	--CommentTreePath-color--hover: var(--SocialComponentsClickable-color);
+	--CommentTreePath-backgroundColor--hover: rgba(0,0,0,0.044);
 
 	/* Picture. */
 	--Picture-borderColor: rgba(0, 0, 0, 0.1);

@@ -271,11 +271,11 @@ function PostHeaderRight({
 									<PostBadge
 										key={badge.name}
 										post={post}
-										locale={locale}
-										messages={messages}
+										parameters={{ locale }}
 										badge={badge}
 										className="PostHeader-badgeContainer"
-										iconClassName={`PostHeader-badge PostHeader-badge--${badge.name}`}/>
+										iconClassName={`PostHeader-badge PostHeader-badge--${badge.name}`}
+									/>
 								)
 							})}
 						</div>

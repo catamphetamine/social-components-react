@@ -29,11 +29,11 @@ export default function PostFooter({
 						<PostBadge
 							key={badge.name}
 							post={post}
-							locale={locale}
-							messages={messages}
+							parameters={{ locale }}
 							badge={badge}
 							className="PostFooter-badge"
-							iconClassName={`PostFooter-badgeIcon PostFooter-badgeIcon--${badge.name}`}/>
+							iconClassName={`PostFooter-badgeIcon PostFooter-badgeIcon--${badge.name}`}
+						/>
 					))}
 				</div>
 			}

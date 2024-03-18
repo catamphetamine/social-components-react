@@ -8,8 +8,7 @@ import PressedStateButton from './PressedStateButton.js'
 
 export default function PostBadge({
 	post,
-	locale,
-	messages,
+	parameters,
 	badge: {
 		ref,
 		name,
@@ -25,8 +24,9 @@ export default function PostBadge({
 	className,
 	iconClassName
 }) {
-	const Icon = getIcon ? getIcon({ post, locale }) : icon
-	const iconProps = getIconProps && getIconProps({ post, locale })
+	const Icon = getIcon ? getIcon({ ...parameters, post }) : icon
+	const iconProps = getIconProps && getIconProps({ ...parameters, post })
+
 	const _onClick = useCallback(() => {
 		if (onClick) {
 			onClick(post)
@@ -35,11 +35,13 @@ export default function PostBadge({
 		onClick,
 		post
 	])
+
 	// `title` doesn't work on SVGs for some reason
 	// (perhaps because SVGs don't have background)
 	// so I moved `title` to a `<div/>`.
 	let Component = 'div'
 	let extraProps
+
 	if (onClick) {
 		Component = Button
 		extraProps = {
@@ -48,10 +50,11 @@ export default function PostBadge({
 			onClick: _onClick
 		}
 	}
+
 	return (
 		<Component
 			{...extraProps}
-			title={title && title({ post, locale, messages })}
+			title={title && title({ ...parameters, post })}
 			className={className}>
 			{Icon &&
 				<Icon
@@ -60,9 +63,9 @@ export default function PostBadge({
 			}
 			{Content &&
 				<Content
+					{...parameters}
 					post={post}
-					locale={locale}
-					messages={messages}/>
+				/>
 			}
 		</Component>
 	)
@@ -70,8 +73,7 @@ export default function PostBadge({
 
 PostBadge.propTypes = {
 	post: post.isRequired,
-	locale: PropTypes.string,
-	messages: PropTypes.object,
+	parameters: PropTypes.object,
 	badge: postBadge.isRequired,
 	className: PropTypes.string,
 	iconClassName: PropTypes.string

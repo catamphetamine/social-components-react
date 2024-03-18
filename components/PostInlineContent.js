@@ -68,7 +68,7 @@ function PostInlineContentElement({
 		onReadMore,
 		readMoreLabel,
 		onAttachmentClick,
-		onPostLinkClick,
+		onPostLinkClick: onPostLinkClick_,
 		isPostLinkClickable,
 		onSocialClick,
 		isSocialClickable,
@@ -90,20 +90,17 @@ function PostInlineContentElement({
 	// as the currently displayed post. That's what the `content` argument is for — it's the
 	// `postLink` argument, where an application could determine whether the `postLink` is
 	// from the currently-being-viewed thread.
-	const onPostLinkClickWithPostLinkArgument = useCallback((event) => {
-		onPostLinkClick(event, content)
-	}, [onPostLinkClick, content])
-
-	// Sometimes there's an attachment thumbnail inside a post link's quote block.
-	// In those cases, `<PostAttachmentThumbnailQuote/>` is rendered inside a `<PostQuoteLink/>`.
-	// So, if an attachment is expanded on click, the enclosing post link shouldn't get clicked.
-	// For that, `if (!event.defaultPrevented)` is added, and when a user clicks an
-	// attachment thumbnail, `<PostAttachmentThumbnailQuote/>` calls `event.preventDefault()`.
-	const onPostLinkClickCancellable = useCallback((event) => {
+	const onPostLinkClick = useCallback((event) => {
+		console.log('$$$$$$$$$$$$$$$$$$ onPostLinkClick', onPostLinkClick_)
+		// Sometimes there's an attachment thumbnail inside a post link's quote block.
+		// In those cases, `<PostAttachmentThumbnailQuote/>` is rendered inside a `<PostQuoteLink/>`.
+		// So, if an attachment is expanded on click, the enclosing post link shouldn't get clicked.
+		// For that, `if (!event.defaultPrevented)` is added, and when a user clicks an
+		// attachment thumbnail, `<PostAttachmentThumbnailQuote/>` calls `event.preventDefault()`.
 		if (!event.defaultPrevented) {
-			onPostLinkClickWithPostLinkArgument(event)
+			onPostLinkClick_(event, content)
 		}
-	}, [onPostLinkClickWithPostLinkArgument])
+	}, [onPostLinkClick_, content])
 
 	if (content === '\n') {
 		return <br/>
@@ -175,7 +172,7 @@ function PostInlineContentElement({
 					expandTimeout={postLinkQuoteExpandTimeout}
 					isExpanded={isPostLinkQuoteExpanded}
 					onDidExpand={() => onPostLinkQuoteExpanded({ postLink: content })}
-					onClick={onPostLinkClickCancellable}
+					onClick={onPostLinkClick}
 					disabled={disabled}
 					postLink={content}
 					url={content.url}
@@ -199,7 +196,7 @@ function PostInlineContentElement({
 		return (
 			<PostLink
 				url={content.url}
-				onClick={onPostLinkClickWithPostLinkArgument}>
+				onClick={onPostLinkClick}>
 				{contentElement}
 			</PostLink>
 		)

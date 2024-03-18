@@ -14,6 +14,9 @@ import getImageSize from './getImageSize.js'
 // of every attachment and then reading the actual `width` and `height`
 // of the thumbnails to set the `width` and `height` of the picture attachments.
 //
+// Returns a list of `Promise`s.
+// Each `Promise` resolves to `true`.
+//
 export function fixAttachmentPictureSizes(attachments) {
 	return Promise.all(attachments.map(async (attachment) => {
 		switch (attachment.type) {
@@ -63,7 +66,11 @@ export function fixAttachmentPictureSizes(attachments) {
 				}
 				break
 		}
-	})).then(() => true)
+	})).then(() => {
+		// Returning `true` here results in `loadResourceLinks()` function
+		// to call `onContentChange()` which in turn calls `onHeightDidChange()`.
+		return true
+	})
 }
 
 const EXT_REGEXP = /\.[a-z]+$/

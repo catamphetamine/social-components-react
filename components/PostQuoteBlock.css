@@ -56,7 +56,7 @@
 /*
 .CommentTree-comment--nested {
 	.PostQuoteBlock {
-		--PostQuoteBlock-marginLeft: calc(-1 * var(--CommentTree-borderWidth));
+		--PostQuoteBlock-marginLeft: calc(-1 * var(--CommentTreePath-borderWidth));
 	}
 }
 */

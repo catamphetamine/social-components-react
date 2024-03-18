@@ -140,16 +140,13 @@ function PostContent({
 			//
 			// Returns a list of `Promise`s.
 			//
-			loadResources: shouldFixAttachmentPictureSizes ? () => {
+			additionalResourceLoadingPromises: shouldFixAttachmentPictureSizes && post.attachments
 				// `post` object reference doesn't change between re-renders
 				// so it's fine passing it to this callback.
-				if (post.attachments) {
-					// `fixAttachmentPictureSizes()` function is not created via `useCallback()`
-					// between re-renders so it's fine passing it to this callback.
-					return fixAttachmentPictureSizes(post.attachments)
-				}
-				return []
-			} : undefined,
+				// `fixAttachmentPictureSizes()` function is not created via `useCallback()`
+				// between re-renders so it's fine passing it to this callback.
+				? fixAttachmentPictureSizes(post.attachments)
+				: undefined,
 			onContentChange: () => {
 				// resourceLinkLoaderHasChangedPostContent.current = post
 				//

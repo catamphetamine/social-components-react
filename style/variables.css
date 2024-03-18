@@ -26,22 +26,28 @@
 	--SocialComponents-backgroundColor: var(--white-color);
 
 	/* CommentTree. */
-	--CommentTree-padding: var(--Post-paddingLeft);
-	--CommentTree-borderWidth: 1px;
-	--CommentTree-borderStyle: dashed;
-	--CommentTree-borderStyle--branch: solid;
+	--CommentTree-marginLeft--child: var(--Post-paddingLeft);
+
+	/* CommentTreePath. */
+	--CommentTreePath-borderWidth: 1px;
+	--CommentTreePath-borderStyle: dashed;
+	--CommentTreePath-borderStyle--branch: solid;
+	--CommentTreePath-marginLeftRatio--root: 0;
+	--CommentTreePath-marginTop: 0px;
+
+	/* CommentTreePathWithNoBranching. */
+	--CommentTreePathWithNoBranching-height--straightThrough: 0px;
+
+	/* CommentTreePathBranch. */
 	/* Approximate offset top so that it points to the first line of text in a comment. */
-	--CommentTreeBranch-marginTop--content: 1.6em;
-	--CommentTreeBranch-marginTop: calc(var(--Post-paddingTop) + var(--CommentTreeBranch-marginTop--content));
-	--CommentTreeBranch-leftOffsetRatio--firstLevelOfNesting: 0;
+	--CommentTreePathBranch-marginTop--content: 1.6em;
+	--CommentTreePathBranch-marginTop: calc(var(--Post-paddingTop) + var(--CommentTreePathBranch-marginTop--content));
 	/* This `margin-left: 1px` works around the disappearance of
 	   the branch line on mobile devices for first-level replies branch.
-	   Observed in iOS Safari and Chrome. */
-	--CommentTreeBranch-marginLeft--workaround: 1px;
-	--CommentTreeBranch-marginLeft: 0px;
-	--CommentTreeBranch-marginRight: 0px;
-	--CommentTreeTrunk-marginTop: 0px;
-	--CommentTreeDialogueTrace-height--through: 0px;
+	   Observed in iOS Safari in early 2023. */
+	--CommentTreePathBranch-marginLeft--workaround: 1px;
+	--CommentTreePathBranch-marginLeft: 0px;
+	--CommentTreePathBranch-marginRight: 0px;
 
 	/* Picture. */
 	--Picture-backgroundColor: var(--SocialComponents-color-100);

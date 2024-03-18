@@ -42,8 +42,7 @@ export default function CommentTree({
 	dialogueTraceStyle,
 	getState,
 	setState,
-	className,
-	...rest
+	className
 }) {
 	// Initially, there was an idea of "managing state outside of this component",
 	// but that turned out to have a consequence of re-rendering the whole tree
@@ -269,7 +268,6 @@ export default function CommentTree({
 
 	function getChildCommentTreeProps(i) {
 		return {
-			...rest,
 			getState: getChildSubtreeStateGetter(i),
 			setState: getChildSubtreeStateSetter(i),
 			comment: repliesWithRemovedLeadingPostLink[i],
@@ -291,7 +289,8 @@ export default function CommentTree({
 			// then the root replies branch line would be ineligible
 			// because it would be drawn at the very screen edge (mobile devices).
 			// This CSS class can be used for styling such special case.
-			'CommentTree--firstLevelOfNesting': isFirstLevelOfNesting_
+			'CommentTree--firstLevelOfNesting': isFirstLevelOfNesting_,
+			'CommentTree--repliesExpanded': showReplies
 		})}>
 			{parentComment && !flat &&
 				<div className="CommentTree-branch"/>
@@ -301,7 +300,6 @@ export default function CommentTree({
 			}
 			{/* The comment. */}
 			<Component
-				{...rest}
 				{...componentProps}
 				className={classNames(className, {
 					'CommentTree-comment--expanded': showReplies,
@@ -317,9 +315,9 @@ export default function CommentTree({
 			/>
 			{/* Show reply chain marker for a single reply. */}
 			{showReplies && _isMiddleDialogueChainLink &&
-				<div className={classNames('CommentTreeDialogueTrace', {
-					'CommentTreeDialogueTrace--side': dialogueTraceStyle === 'side',
-					'CommentTreeDialogueTrace--through': dialogueTraceStyle === 'through'
+				<div className={classNames('CommentTreePathWithNoBranching', {
+					'CommentTreePathWithNoBranching--sideways': dialogueTraceStyle === 'sideways',
+					'CommentTreePathWithNoBranching--straightThrough': dialogueTraceStyle === 'straight-through'
 				})}/>
 			}
 			{/* If there's only a single reply then there won't be (visually) the actual
@@ -452,8 +450,8 @@ CommentTree.propTypes = {
 	getState: PropTypes.func,
 
 	// Determines how the visual traces between comments of a "dialogue" are gonna look like:
-	// * "side" — Paints the connection lines on the left side of the comments of a "dialogue".
-	// * "through" — Paints the connection line going directly through the comments of a "dialogue".
+	// * "sideways" — Paints the connection lines on the left side of the comments of a "dialogue".
+	// * "straight-through" — Paints the connection line going directly through the comments of a "dialogue".
 	//
 	// "Dialogue" is a list of comments, each next comment being an only reply to the previous one.
 	//
@@ -473,7 +471,10 @@ CommentTree.propTypes = {
 	// 	}]
 	// }
 	//
-	dialogueTraceStyle: PropTypes.oneOf(['side', 'through']).isRequired
+	dialogueTraceStyle: PropTypes.oneOf([
+		'sideways',
+		'straight-through'
+	]).isRequired
 }
 
 CommentTree.defaultProps = {
