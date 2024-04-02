@@ -15,17 +15,18 @@ import getImageSize from './getImageSize.js'
 // of the thumbnails to set the `width` and `height` of the picture attachments.
 //
 // Returns a list of `Promise`s.
-// Each `Promise` resolves to `true`.
+// Each `Promise` resolves to `{ loadable: true, loaded: true }`.
 //
 export function fixAttachmentPictureSizes(attachments) {
-	return Promise.all(attachments.map(async (attachment) => {
+	return attachments.map(async (attachment) => {
 		switch (attachment.type) {
 			case 'picture':
 				// Don't re-fetch the image again after it
 				// has been hidden and then shown again.
 				if (attachment.picture.sizeHasBeenFixed) {
-					break
+					return { loadable: false }
 				}
+
 				// Not using `Promise.all` here because the URLs
 				// aren't guaranteed to be valid.
 				// (the original image URL is not always guessed)
@@ -44,6 +45,7 @@ export function fixAttachmentPictureSizes(attachments) {
 					// that it would most likely error again on retry.
 					attachment.picture.sizeHasBeenFixed = true
 				}
+
 				if (thumbnailSize) {
 					// Set the correct thumbnail size in a picture attachment.
 					attachment.picture = {
@@ -63,13 +65,14 @@ export function fixAttachmentPictureSizes(attachments) {
 						...attachment.picture,
 						...getOriginalPictureSize(thumbnailSize)
 					}
+					return { loadable: true, loaded: true }
 				}
-				break
+
+				return { loadable: false }
+
+			default:
+				return { loadable: false }
 		}
-	})).then(() => {
-		// Returning `true` here results in `loadResourceLinks()` function
-		// to call `onContentChange()` which in turn calls `onHeightDidChange()`.
-		return true
 	})
 }
 

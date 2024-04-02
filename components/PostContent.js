@@ -61,7 +61,7 @@ function PostContent({
 	const [postContentChanged, setPostContentChanged] = useState()
 
 	const isMounted = useIsMounted()
-	const cancelLoadingResourceLinks = useRef()
+	const stopLoadingResourceLinks = useRef()
 
 	const onExpandContent = useCallback(() => {
 		setShowPreview(false)
@@ -115,8 +115,10 @@ function PostContent({
 	})
 
 	const loadAllResourceLinks = useCallback(() => {
-		// Returns an object having a `.cancel()` function.
-		const { cancel } = loadResourceLinks(post, {
+		// Returns an object having `.stop()` and `.cancel()` functions.
+		// * `stop()` stops the `loadResourceLinks()` function from making any further changes to the `post` object.
+		// * `cancel()` stops `loadResourceLinks()` function and reverts any changes to the `post` object.
+		const { stop } = loadResourceLinks(post, {
 			youTubeApiKey,
 			cache: resourceCache,
 			messages: resourceMessages,
@@ -164,7 +166,7 @@ function PostContent({
 				}
 			}
 		})
-		return cancel
+		return stop
 	}, [post])
 
 	useLayoutEffectSkipMount(() => {
@@ -180,20 +182,20 @@ function PostContent({
 
 	// Load resource links on initial mount.
 	useLayoutEffect(() => {
-		cancelLoadingResourceLinks.current = loadAllResourceLinks()
+		stopLoadingResourceLinks.current = loadAllResourceLinks()
 		return () => {
-			if (cancelLoadingResourceLinks.current) {
-				cancelLoadingResourceLinks.current()
-				cancelLoadingResourceLinks.current = undefined
+			if (stopLoadingResourceLinks.current) {
+				stopLoadingResourceLinks.current()
+				stopLoadingResourceLinks.current = undefined
 			}
 		}
 	}, [])
 
 	useLayoutEffectSkipMount(() => {
 		// console.log('~ New `post` property passed to `<PostContent/>` ~')
-		if (cancelLoadingResourceLinks.current) {
-			cancelLoadingResourceLinks.current()
-			cancelLoadingResourceLinks.current = undefined
+		if (stopLoadingResourceLinks.current) {
+			stopLoadingResourceLinks.current()
+			stopLoadingResourceLinks.current = undefined
 			// I dunno what `onPostContentRendered()` function did.
 			// It doesn't seem to be used anymore.
 			// if (resourceLinkLoaderHasChangedPostContent.current) {
@@ -212,7 +214,7 @@ function PostContent({
 			onRenderedContentDidChange()
 		}
 		// Load resource links every time `post` content property changes.
-		cancelLoadingResourceLinks.current = loadAllResourceLinks()
+		stopLoadingResourceLinks.current = loadAllResourceLinks()
 	}, [post])
 
 	useLayoutEffectSkipMount(() => {
