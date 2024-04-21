@@ -14,7 +14,7 @@ import { picture } from './PropTypes.js'
 import useIsMounted from '../hooks/useIsMounted.js'
 import useEffectSkipMount from '../hooks/useEffectSkipMount.js'
 
-import getMinSize from 'social-components/utility/picture/getMinSize.js'
+import { getPictureMinSize } from 'social-components/attachment'
 
 import XIcon from '../icons/x-light.svg'
 
@@ -75,8 +75,8 @@ function Picture({
 	...rest
 }, ref) {
 	if (useSmallestSize && useSmallestSizeExactDimensions) {
-		width = getMinSize(picture).width
-		height = getMinSize(picture).height
+		width = getPictureMinSize(picture).width
+		height = getPictureMinSize(picture).height
 	}
 
 	const withBorder = border && !picture.transparentBackground
@@ -163,7 +163,7 @@ function Picture({
 		// With one exception: when `useSmallestSize` flag is `true`,
 		// because in that case only the smallest size of the picture will ever be rendered.
 		//
-		const aspectRatioSourceSize = useSmallestSize ? getMinSize(picture) : picture
+		const aspectRatioSourceSize = useSmallestSize ? getPictureMinSize(picture) : picture
 		return getAspectRatio(aspectRatioSourceSize)
 	}, [
 		picture
@@ -250,7 +250,7 @@ function Picture({
 	} = {}) => {
 		function getAppropriateImageSize() {
 			if (useSmallestSize) {
-				return getMinSize(picture)
+				return getPictureMinSize(picture)
 			}
 			return getPreferredSize(
 				picture,
@@ -1042,7 +1042,7 @@ function getBlurMargin(blurRadius) {
 function getInitialPictureSize(picture, { width, height, fit, useSmallestSize }) {
 	let initialSize
 	if (useSmallestSize) {
-		return getMinSize(picture)
+		return getPictureMinSize(picture)
 	}
 	if (isExactTargetSizeProvided(width, height)) {
 		const aspectRatio = getAspectRatio(picture)

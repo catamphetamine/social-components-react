@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 import useLayoutEffectSkipMount from '../hooks/useLayoutEffectSkipMount.js'
 
-import removeLeadingPostLink from 'social-components/utility/post/removeLeadingPostLink.js'
+import { removeLeadingPostLink } from 'social-components/post'
 
 import Button from './Button.js'
 

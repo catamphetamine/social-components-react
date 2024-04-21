@@ -2,11 +2,16 @@ import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import isPostLinkQuote from 'social-components/utility/post/isPostLinkQuote.js'
-import isPostLinkBlockQuote from 'social-components/utility/post/isPostLinkBlockQuote.js'
-import isPostLinkGeneratedQuote from 'social-components/utility/post/isPostLinkGeneratedQuote.js'
-import getPicturesAndVideos from 'social-components/utility/post/getPicturesAndVideos.js'
-import { sortByThumbnailHeightDescending } from 'social-components/utility/post/getSortedAttachments.js'
+import {
+	isPostLinkQuote,
+	isPostLinkBlockQuote,
+	isPostLinkGeneratedQuote
+} from 'social-components/content'
+
+import {
+	getPicturesAndVideos,
+	sortAttachmentsByThumbnailHeightDescending
+} from 'social-components/attachment'
 
 import PostCode from './PostCode.js'
 import PostQuoteLink from './PostQuoteLink.js'
@@ -161,7 +166,7 @@ function PostInlineContentElement({
 			let attachmentsRenderedAsQuoteContent
 			if (isBlockQuote && content.attachments) {
 				attachmentsRenderedAsQuoteContent = getPicturesAndVideos(content.attachments)
-				sortByThumbnailHeightDescending(attachmentsRenderedAsQuoteContent)
+				sortAttachmentsByThumbnailHeightDescending(attachmentsRenderedAsQuoteContent)
 			}
 			return (
 				<PostQuoteLink

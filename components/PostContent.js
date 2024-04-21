@@ -9,8 +9,8 @@ import PostContentBlock from './PostContentBlock.js'
 import useIsMounted from '../hooks/useIsMounted.js'
 import useLayoutEffectSkipMount from '../hooks/useLayoutEffectSkipMount.js'
 
-import loadResourceLinks from 'social-components/utility/post/loadResourceLinks.js'
-import getContentBlocks from 'social-components/utility/post/getContentBlocks.js'
+import { loadResourceLinks } from 'social-components/post'
+import { getContentBlocks } from 'social-components/content'
 
 import { fixAttachmentPictureSizes } from '../utility/fixPictureSize.js'
 

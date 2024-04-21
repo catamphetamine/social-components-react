@@ -9,7 +9,7 @@ import isRelativeUrl from '../utility/isRelativeUrl.js'
 
 import LinkIcon from '../icons/external.svg'
 
-import getHumanReadableLinkAddress from 'social-components/utility/getHumanReadableLinkAddress.js'
+import { getHumanReadableLinkAddress } from 'social-components/utility'
 
 import './PostLink.css'
 

@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import getEmbeddedAttachment from 'social-components/utility/post/getEmbeddedAttachment.js'
+import { getEmbeddedAttachment } from 'social-components/attachment'
 
 import PostSubheading from './PostSubheading.js'
 import PostParagraph from './PostParagraph.js'

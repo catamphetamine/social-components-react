@@ -2,9 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import getNonEmbeddedAttachments from 'social-components/utility/post/getNonEmbeddedAttachments.js'
-import getPicturesAndVideos from 'social-components/utility/post/getPicturesAndVideos.js'
-import { sortByThumbnailHeightDescending } from 'social-components/utility/post/getSortedAttachments.js'
+import { getNonEmbeddedAttachments, getSortedAttachments, getPostThumbnailAttachment } from 'social-components/post'
+import { getPicturesAndVideos, sortAttachmentsByThumbnailHeightDescending } from 'social-components/attachment'
 
 import {
 	// TRANSPARENT_PIXEL,
@@ -49,8 +48,6 @@ import {
 	postAttachment
 } from './PropTypes.js'
 
-import getPostThumbnailAttachment from 'social-components/utility/post/getPostThumbnailAttachment.js'
-
 import XIcon from '../icons/x.svg'
 
 import './PostAttachments.css'
@@ -90,7 +87,7 @@ export default function PostAttachments({
 	}
 
 	// Sort pictures and videos by thumbnail height descending.
-	sortByThumbnailHeightDescending(picturesAndVideos)
+	sortAttachmentsByThumbnailHeightDescending(picturesAndVideos)
 
 	// "All pictures and videos" that can be used for a slideshow.
 	let allPicturesAndVideos = picturesAndVideos

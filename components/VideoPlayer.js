@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { video } from './PropTypes.js'
-import { getEmbeddedVideoUrl } from 'social-components/utility/video/getVideoUrl.js'
+import { getEmbeddedVideoUrl } from 'social-components/service'
 
 import VideoHtml from './Video.Html.js'
 import VideoYouTube, { hasYouTubeVideoPlayerApiLoaded } from './Video.YouTube.js'
