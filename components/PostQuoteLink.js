@@ -53,7 +53,6 @@ export default function PostQuoteLink({
 	])
 
 	const _onClick = useCallback((event) => {
-		console.log('########### onClick', onClick)
 		onClick(event, postLink)
 	}, [
 		onClick,

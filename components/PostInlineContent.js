@@ -96,7 +96,6 @@ function PostInlineContentElement({
 	// `postLink` argument, where an application could determine whether the `postLink` is
 	// from the currently-being-viewed thread.
 	const onPostLinkClick = useCallback((event) => {
-		console.log('$$$$$$$$$$$$$$$$$$ onPostLinkClick', onPostLinkClick_)
 		// Sometimes there's an attachment thumbnail inside a post link's quote block.
 		// In those cases, `<PostAttachmentThumbnailQuote/>` is rendered inside a `<PostQuoteLink/>`.
 		// So, if an attachment is expanded on click, the enclosing post link shouldn't get clicked.
