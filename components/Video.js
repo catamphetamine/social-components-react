@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
 import { video } from './PropTypes.js'
-import { getVideoUrl } from 'social-components/service'
+import { getVideoUrl } from 'social-components/services'
 
 import {
 	// enterFullScreen,

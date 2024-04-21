@@ -118,7 +118,7 @@ PostLink.propTypes = {
 	serviceIcons: PropTypes.objectOf(PropTypes.func),
 	contentGenerated: PropTypes.bool,
 	attachment: PropTypes.shape({
-		type: PropTypes.oneOf(['video']).isRequired
+		type: PropTypes.oneOf(['video', 'social']).isRequired
 	}),
 	onClick: PropTypes.func,
 	onAttachmentClick: PropTypes.func,

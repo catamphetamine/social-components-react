@@ -2,7 +2,7 @@ import React, { useRef, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import { renderTweet } from 'social-components/services'
+import { renderTweet } from 'social-components/services/twitter'
 
 import './Tweet.css'
 
