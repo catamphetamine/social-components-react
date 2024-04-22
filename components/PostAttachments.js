@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import { getNonEmbeddedAttachments, getSortedAttachments, getPostThumbnailAttachment } from 'social-components/post'
+import { getNonEmbeddedAttachments, getPostThumbnailAttachment } from 'social-components/post'
 import { getPicturesAndVideos, sortAttachmentsByThumbnailHeightDescending } from 'social-components/attachment'
 
 import {
