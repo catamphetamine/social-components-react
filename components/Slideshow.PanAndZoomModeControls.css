@@ -14,24 +14,21 @@
 }
 
 .Slideshow-PanAndZoomModeButton {
-	background-color: var(--Slideshow-Control-backgroundColor);
-	color: var(--Slideshow-Control-color);
-	font-weight: var(--Slideshow-Control-fontWeight);
-	outline: none;
+	/* Added `.Button` selector to override the default styles defined on `.Button`. */
+	&.Button {
+		--Button-backgroundColor: var(--Slideshow-Control-backgroundColor);
+		--Button-backgroundColor--active: var(--Slideshow-Control-backgroundColor--active);
+		--Button-color: var(--Slideshow-Control-color);
+		--Button-color--active: var(--Slideshow-Control-color--active);
+		--Button-color--focus: var(--Slideshow-Control-color--focus);
+		--Button-paddingLeft: var(--Slideshow-Control-paddingLeft);
+		--Button-borderRadius: calc(var(--Slideshow-PanAndZoomModeButton-height) / 2);
+		/* This CSS variable currently doesn't exist in `Button.css` but I've added it here anyway. */
+		--Button-fontWeight: var(--Slideshow-Control-fontWeight);
+	}
+
+	font-weight: var(--Button-fontWeight);
 	height: var(--Slideshow-PanAndZoomModeButton-height);
-	border-radius: calc(var(--Slideshow-PanAndZoomModeButton-height) / 2);
-	padding-left: var(--Slideshow-Control-paddingLeft);
-	padding-right: var(--Slideshow-Control-paddingLeft);
-
-	&:hover,
-	&:focus {
-		color: var(--Slideshow-Control-color--focus);
-	}
-
-	&:active {
-		color: var(--Slideshow-Control-color--active);
-		background-color: var(--Slideshow-Control-backgroundColor--active);
-	}
 }
 
 .Slideshow-PanAndZoomModeButton--hidden {
