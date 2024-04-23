@@ -66,7 +66,7 @@ by offsetting the root replies branch line to the right.
 .CommentTree-toggler {
 	position: absolute;
 	/* This `1px` horizontal shift corresponds to the `1px` shift workaround for `.CommentTree-replies`. */
-	left: 1px;
+	left: var(--CommentTreePathBranch-marginLeft--workaround);
 	top: 0;
 	width: var(--CommentTree-marginLeft--child);
 	height: 100%;
