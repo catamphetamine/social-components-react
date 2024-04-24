@@ -2,6 +2,8 @@ import React, { useState, useCallback, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
+import useForwardedRef from 'frontend-lib/hooks/useForwardedRef.js'
+
 // For some weird reason, in Chrome, `setTimeout()` would lag up to a second (or more) behind.
 // Turns out, Chrome developers have deprecated `setTimeout()` API entirely without asking anyone.
 // Replacing `setTimeout()` with `requestAnimationFrame()` can work around that Chrome bug.
@@ -25,21 +27,7 @@ function Button_({
 	children,
 	...rest
 }, ref) {
-	const buttonRef = useRef()
-
-	const setRef = useCallback((node) => {
-		if (ref) {
-			if (typeof ref === 'function') {
-				ref(node)
-			} else {
-				ref.current = node
-			}
-		}
-		buttonRef.current = node
-	}, [
-		ref,
-		buttonRef
-	])
+	const { setRef, internalRef: buttonRef } = useForwardedRef(ref)
 
 	const isMounted = useIsMounted()
 	const [wait, setWait] = useState()

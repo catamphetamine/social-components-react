@@ -7,19 +7,23 @@
 .Slideshow-PaginationNumeric {
 	display: flex;
 	align-items: center;
+
 	height: var(--Slideshow-PaginationNumeric-height);
-	border-radius: 1em;
-	padding-left: var(--Slideshow-PaginationNumeric-paddingLeft);
-	padding-right: var(--Slideshow-PaginationNumeric-paddingLeft);
-	background-color: rgba(0, 0, 0, 0.7);
-	color: var(--white-color);
-	font-weight: 300;
-	&:focus, &:hover {
-		color: var(--SocialComponentsClickable-color--active);
+
+	/* Added `.Button` selector here to override the default variables set on `.Button`. */
+	&.Button {
+		--Button-borderRadius: 1em;
+		--Button-paddingLeft: var(--Slideshow-PaginationNumeric-paddingLeft);
+		--Button-paddingRight: var(--Slideshow-PaginationNumeric-paddingLeft);
+		--Button-backgroundColor: rgba(0, 0, 0, 0.7);
+		--Button-backgroundColor--active: var(--SocialComponentsClickable-color--active);
+		--Button-color: var(--white-color);
+		--Button-color--focus: var(--SocialComponentsClickable-color--active);
+		--Button-color--active: var(--white-color);
+		--Button-fontWeight: 300;
 	}
+
 	&:active {
-		color: var(--white-color);
-		background-color: var(--SocialComponentsClickable-color--active);
 		.Slideshow-PaginationNumericCurrent {
 			opacity: 1;
 		}

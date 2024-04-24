@@ -18,19 +18,20 @@
 	width: var(--Slideshow-Control-height);
 	height: var(--Slideshow-Control-height);
 
-	/*border-radius: 50%;*/
-	/* `border-radius` is set manually so that pill-shaped buttons
-	   are possible, not just round ones. */
-	border-radius: calc(var(--Slideshow-Control-height) / 2);
-	background-color: var(--Slideshow-Control-backgroundColor);
-	color: var(--Slideshow-Control-color);
-	font-weight: var(--Slideshow-Control-fontWeight);
+	/* Added `.Button` selector here to override the default variables set on `.Button`. */
+	&.Button {
+		/* `border-radius` is set manually so that pill-shaped buttons
+		   are possible, not just round ones. */
+		--Button-borderRadius: calc(var(--Slideshow-Control-height) / 2);
+		--Button-backgroundColor: var(--Slideshow-Control-backgroundColor);
+		--Button-backgroundColor--active: var(--SocialComponentsClickable-color--active);
+		--Button-color: var(--Slideshow-Control-color);
+		--Button-color--active: var(--Slideshow-Control-color--active);
+		--Button-color--focus: var(--Slideshow-Control-color--focus);
+		--Button-fontWeight: var(--Slideshow-Control-fontWeight);
+	}
 
 	outline: none;
-
-	&:hover, &:focus {
-		color: var(--Slideshow-Control-color--focus);
-	}
 }
 
 /*
@@ -72,21 +73,22 @@
 	font-size: 45%;
 }
 
-.Slideshow-Action:active,
 .Slideshow-Action--toggled {
 	/* Override link buttons :active color. */
-	color: var(--Slideshow-Control-color--active);
-	background-color: var(--Slideshow-Control-backgroundColor--active);
+	color: var(--Button-color--active);
+	background-color: var(--Button-backgroundColor--active);
 	/*box-shadow: 0 0 0 1px var(--SocialComponentsClickable-color--active);*/
 }
 
 .Slideshow-Action--counterform {
 	background-color: transparent;
+
+	--Button-backgroundColor: transparent;
+	--Button-backgroundColor--active: var(--SocialComponentsClickable-color--active);
 }
 
 .Slideshow-Action--counterform:active,
 .Slideshow-Action--counterform.Slideshow-Action--toggled {
-	background-color: var(--SocialComponentsClickable-color--active);
 	.svg-icon-counter-form {
 		color: var(--SocialComponentsClickable-color--active);
 		fill: var(--white-color);
@@ -105,10 +107,6 @@
 .Slideshow-Action:first-child,
 .Slideshow-ActionWrapper--group:first-child {
 	margin-left: 0;
-}
-
-.Slideshow-Action:active {
-	background-color: var(--SocialComponentsClickable-color--active);
 }
 
 .Slideshow-ActionIcon {

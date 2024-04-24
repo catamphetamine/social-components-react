@@ -1,5 +1,7 @@
 import { isKeyCombination, belongsToClickableElement } from 'web-browser-input'
 
+import { PINCH_ZOOM_EMULATION_MODE_KEY } from './Slideshow.PinchZoom.js'
+
 export default class SlideshowKeyboard {
 	constructor(slideshow, { getSlideDOMNode }) {
 		this.slideshow = slideshow
@@ -165,11 +167,6 @@ const KEYBOARD_CONTROLS = [
 	{
 		keys: ['Esc'],
 		action: slideshow => {
-			if (CAN_EMULATE_PINCH_ZOOM_MODE) {
-				if (slideshow.pinchZoom.stopPinchZoom()) {
-					return true
-				}
-			}
 			return false
 		}
 	},

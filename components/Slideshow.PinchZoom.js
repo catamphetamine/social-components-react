@@ -1,4 +1,7 @@
 import { px } from 'web-browser-style'
+import { isKeyCombination } from 'web-browser-input'
+
+export const PINCH_ZOOM_EMULATION_MODE_KEY = 'Z'
 
 export default class SlideshowScalePinchZoom {
 	constructor(slideshow, {
@@ -374,7 +377,7 @@ export default class SlideshowScalePinchZoom {
 			return false
 		}
 
-		console.log('### Start Pinch Zoom Emulation (press Esc to exit). Move the mouse cursor to start pinch-zooming.')
+		console.log('### Start Pinch Zoom Emulation. Move the mouse cursor while holding Z key to zoom. Release Z key to stop zooming.')
 
 		this.isPinchZoomEmulationMode = true
 
@@ -390,7 +393,14 @@ export default class SlideshowScalePinchZoom {
 			}
 		}
 
+		this.pinchZoomEmulationModeKeyUpListener = (event) => {
+			if (event.key === PINCH_ZOOM_EMULATION_MODE_KEY.toLowerCase() || event.key === PINCH_ZOOM_EMULATION_MODE_KEY.toUpperCase()) {
+				this.stopPinchZoom()
+			}
+		}
+
 		document.addEventListener('mousemove', this.pinchZoomEmulationModeMouseMoveListener)
+		document.addEventListener('keyup', this.pinchZoomEmulationModeKeyUpListener)
 	}
 
 	startInteractivePhaseOfPinchZoomEmulationMode(event) {
@@ -462,6 +472,9 @@ export default class SlideshowScalePinchZoom {
 
 		document.removeEventListener('mousemove', this.pinchZoomEmulationModeMouseMoveListener)
 		this.pinchZoomEmulationModeMouseMoveListener = undefined
+
+		document.removeEventListener('keyup', this.pinchZoomEmulationModeKeyUpListener)
+		this.pinchZoomEmulationModeKeyUpListener = undefined
 
 		if (this.pinchZoomEmulationModeFirstTouchElement) {
 			document.body.removeChild(this.pinchZoomEmulationModeFirstTouchElement)

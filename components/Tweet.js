@@ -2,6 +2,8 @@ import React, { useRef, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
+import useForwardedRef from 'frontend-lib/hooks/useForwardedRef.js'
+
 import { renderTweet } from 'social-components/services/twitter'
 
 import './Tweet.css'
@@ -15,21 +17,7 @@ export default function Tweet({
 	className,
 	...rest
 }, ref) {
-	const container = useRef()
-
-	const reference = useCallback((instance) => {
-		container.current = instance
-		if (ref) {
-			if (typeof ref === 'function') {
-				ref(instance)
-			} else {
-				ref.current = instance
-			}
-		}
-	}, [
-		ref,
-		container
-	])
+	const { setRef, internalRef: container } = useForwardedRef(ref)
 
 	// const [isLoading, setLoading ] = useState(true)
 
@@ -45,9 +33,10 @@ export default function Tweet({
 
 	return (
 		<div
-			ref={reference}
+			ref={setRef}
 			{...rest}
-			className={classNames('Tweet', className)}/>
+			className={classNames('Tweet', className)}
+		/>
 	)
 }
 

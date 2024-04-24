@@ -114,15 +114,15 @@ export default class Slideshow {
 						// The origin point is the point half-between the two touches.
 						followPinchZoomOrigin()
 
-						// If the slide was originally zoomed it to the point of overflowing the available screen space
-						// and then is being zooming out, then listen to the event when the slide is zoomed out
-						// to the point of fitting on screen, and in that case exit "Pan and Zoom" mode
-						// because there's no need for it anymore since the slide now fits the screen.
-						if (fitChange === 'fits') {
-							this.panAndZoomMode.exitPanAndZoomMode()
-							this.touch.ignoreTouchMoveEventsForCurrentTouches(true)
-							return onStopped()
-						}
+						// // If the slide was originally zoomed in to the point of overflowing the available screen space
+						// // and then is being zooming out, then listen to the event when the slide is zoomed out
+						// // to the point of fitting on screen again, and in that case exit "Pan and Zoom" mode
+						// // because there's no need for it anymore since the slide now fits the screen.
+						// if (fitChange === 'fits') {
+						// 	this.panAndZoomMode.exitPanAndZoomMode()
+						// 	this.touch.ignoreTouchMoveEventsForCurrentTouches(true)
+						// 	return onStopped()
+						// }
 					}
 				}
 			}),

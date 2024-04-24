@@ -73,8 +73,7 @@ function Post({
 				// 'Post--has-title': post.title,
 				'Post--anonymous': !post.account,
 				// 'Post--no-content': !post.content,
-				{/*'Post--has-content': post.content,*/}
-				'Post--compact': compact,
+				'Post--compact': compact
 				// 'Post--stretch': stretch
 			})}>
 			<PostHeader

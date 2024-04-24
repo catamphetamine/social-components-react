@@ -23,11 +23,9 @@
 		--Button-color--focus: var(--Slideshow-Control-color--focus);
 		--Button-paddingLeft: var(--Slideshow-Control-paddingLeft);
 		--Button-borderRadius: calc(var(--Slideshow-PanAndZoomModeButton-height) / 2);
-		/* This CSS variable currently doesn't exist in `Button.css` but I've added it here anyway. */
 		--Button-fontWeight: var(--Slideshow-Control-fontWeight);
 	}
 
-	font-weight: var(--Button-fontWeight);
 	height: var(--Slideshow-PanAndZoomModeButton-height);
 }
 
