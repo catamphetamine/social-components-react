@@ -60,9 +60,9 @@ function Picture({
 	showLoadingIndicator,
 	loadingIndicatorFadeInDuration,
 	loadingIndicatorFadeOutDuration,
-	preload,
-	preloadVisibilityMarginHorizontal,
-	preloadVisibilityMarginVertical,
+	deferLoadingUntilVisible,
+	deferLoadingUntilVisibleDistanceHorizontal,
+	deferLoadingUntilVisibleDistanceVertical,
 	// pixelRatioMultiplier,
 	blur,
 	style,
@@ -78,6 +78,8 @@ function Picture({
 		width = getPictureMinSize(picture).width
 		height = getPictureMinSize(picture).height
 	}
+
+	const showLoadingPlaceholderUntilTheImageIsLoaded = deferLoadingUntilVisible
 
 	const withBorder = border && !picture.transparentBackground
 
@@ -119,7 +121,7 @@ function Picture({
 	}, [])
 
 	const [selectedPictureSize, setSelectedPictureSize] = useState(initialPictureSize)
-	const [imageStatus, setStatus] = useState(preload ? 'LOADING' : 'READY')
+	const [imageStatus, setStatus] = useState(deferLoadingUntilVisible ? 'LOADING' : 'READY')
 	// const [recreateIntersectionObserverFlag, setRecreateIntersectionObserverFlag] = useState({})
 
 	// When a thumbnail is shown, aspect ratio is more precise
@@ -203,7 +205,7 @@ function Picture({
 			cancelLoadingImageSize.current()
 		}
 		let wasCancelled
-		setStatus(preload ? 'LOADING' : 'READY')
+		setStatus(showLoadingPlaceholderUntilTheImageIsLoaded ? 'LOADING' : 'READY')
 		preloadImage(pictureSize.url).then(
 			() => {
 				if (wasCancelled) {
@@ -211,7 +213,7 @@ function Picture({
 				}
 				cancelLoadingImageSize.current = undefined
 				if (isMounted()) {
-					if (preload) {
+					if (showLoadingPlaceholderUntilTheImageIsLoaded) {
 						setStatus('READY')
 					}
 				}
@@ -231,7 +233,7 @@ function Picture({
 			wasCancelled = true
 		}
 	}, [
-		preload,
+		deferLoadingUntilVisible,
 		setStatus,
 		isMounted
 	])
@@ -408,19 +410,19 @@ function Picture({
 		loadAndRenderAppropriatePictureSize
 	])
 
-	const preloadIntersectionObserverDestroy = useRef()
+	const deferLoadingUntilVisibleIntersectionObserverDestroy = useRef()
 
 	const wasIntersectionObserverTriggeredBeforeMount = useRef(false)
 
 	const createIntersectionObserver = () => {
-		if (preloadIntersectionObserverDestroy.current) {
-			preloadIntersectionObserverDestroy.current()
+		if (deferLoadingUntilVisibleIntersectionObserverDestroy.current) {
+			deferLoadingUntilVisibleIntersectionObserverDestroy.current()
 		}
 
 		// Every modern browser except Internet Explorer supports `IntersectionObserver`s.
 		// https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 		// https://caniuse.com/#search=IntersectionObserver
-		const preloadIntersectionObserver = new IntersectionObserver((entries, observer) => {
+		const deferLoadingUntilVisibleIntersectionObserver = new IntersectionObserver((entries, observer) => {
 			for (const entry of entries) {
 				if (entry.isIntersecting) {
 					const element = entry.target
@@ -443,65 +445,64 @@ function Picture({
 			// Available units are `px` or `%`, where `%` means
 			// "percentage of the scrollable container's width/height".
 			// https://jsbin.com/xanolip/edit?html,css,js,output
-			rootMargin: `${preloadVisibilityMarginVertical} ${preloadVisibilityMarginHorizontal} ${preloadVisibilityMarginVertical} ${preloadVisibilityMarginHorizontal}`
+			rootMargin: `${deferLoadingUntilVisibleDistanceVertical} ${deferLoadingUntilVisibleDistanceHorizontal} ${deferLoadingUntilVisibleDistanceVertical} ${deferLoadingUntilVisibleDistanceHorizontal}`
 		})
 
-		preloadIntersectionObserverDestroy.current = () => {
-			preloadIntersectionObserver.disconnect()
+		deferLoadingUntilVisibleIntersectionObserverDestroy.current = () => {
+			deferLoadingUntilVisibleIntersectionObserver.disconnect()
 		}
 
-		return preloadIntersectionObserver
+		return deferLoadingUntilVisibleIntersectionObserver
 	}
 
-	const preloadIntersectionObserver = useMemo(() => {
-		if (preload && typeof window !== 'undefined') {
+	const deferLoadingUntilVisibleIntersectionObserver = useMemo(() => {
+		if (deferLoadingUntilVisible && typeof window !== 'undefined') {
 			return createIntersectionObserver({
-				preloadVisibilityMarginVertical,
-				preloadVisibilityMarginHorizontal,
+				deferLoadingUntilVisibleDistanceVertical,
+				deferLoadingUntilVisibleDistanceHorizontal,
 				isMounted,
 				loadAndRenderInitially
 			})
 		}
 	}, [
-		preload,
-		preloadVisibilityMarginVertical,
-		preloadVisibilityMarginHorizontal,
+		deferLoadingUntilVisible,
+		deferLoadingUntilVisibleDistanceVertical,
+		deferLoadingUntilVisibleDistanceHorizontal,
 		isMounted,
 		loadAndRenderInitially,
 		// recreateIntersectionObserverFlag
 	])
 
-	// Using `useLayoutEffect()` here so that it starts showing
-	// the image without an unnecessary delay.
-	// Initially, if `preload` flag is set to `true`, which is a default,
-	// it doesn't show the image right away and instead preloads it first
-	// when it becomes almost visible.
+	// Using `useLayoutEffect()` here so that it starts showing the image
+	// without an unnecessary delay.
+	// Initially, if `deferLoadingUntilVisible` flag is set to `true`,
+	// it doesn't show the image right away and instead waits for it to become visible.
 	useLayoutEffect(() => {
-		if (preloadIntersectionObserver) {
-			preloadIntersectionObserver.observe(containerRef.current)
+		if (deferLoadingUntilVisibleIntersectionObserver) {
+			deferLoadingUntilVisibleIntersectionObserver.observe(containerRef.current)
 		}
 		addInteractiveResizeListeners()
 		interactiveResize.start()
 		return () => {
-			if (preloadIntersectionObserver) {
-				preloadIntersectionObserver.unobserve(containerRef.current)
+			if (deferLoadingUntilVisibleIntersectionObserver) {
+				deferLoadingUntilVisibleIntersectionObserver.unobserve(containerRef.current)
 			}
 			interactiveResize.stop()
 		}
 	}, [
-		preloadIntersectionObserver
+		deferLoadingUntilVisibleIntersectionObserver
 	])
 
 	useLayoutEffect(() => {
-		if (!preload || (preload && wasIntersectionObserverTriggeredBeforeMount.current)) {
+		if (!deferLoadingUntilVisible || (deferLoadingUntilVisible && wasIntersectionObserverTriggeredBeforeMount.current)) {
 			loadAndRenderInitially()
 		}
 
 		return () => {
 			clearTimeout(imageLoadDevModeTimer.current)
 			interactiveResize.stop()
-			if (preloadIntersectionObserverDestroy.current) {
-				preloadIntersectionObserverDestroy.current()
+			if (deferLoadingUntilVisibleIntersectionObserverDestroy.current) {
+				deferLoadingUntilVisibleIntersectionObserverDestroy.current()
 			}
 		}
 	}, [])
@@ -837,19 +838,31 @@ Picture.propTypes = {
 	loadingIndicatorFadeInDuration: PropTypes.number.isRequired,
 	loadingIndicatorFadeOutDuration: PropTypes.number.isRequired,
 
-	// The `preload` flag controls whether it should preload the image before showing it.
+	// The `deferLoadingUntilVisible` flag controls whether it should show the image
+	// right away or wait until it becomes visible on the screen, saving bandwidth as a result.
 	//
-	// * When `preload` is `true` (default), it will show a "loading" placeholder
-	//   until it loads the image. If the image couldn't be loaded, it will show a
-	//   "not found" placeholder.
+	// * When `deferLoadingUntilVisible` is `true`, it will show a "loading" placeholder
+	//   until the image becomes visible. When the image becomes visible, it will keep showing
+	//   the placeholder and will start loading the image. After the image has been loaded,
+	//   it will hide the "loading" placeholder and show the image. If the image wasn't found
+	//   then it will hide the "loading" placeholder and show a "not found" placeholder.
 	//
-	// * When `preload` if `false`, it will show the image immediately but it will
-	//   still check if the image exists and will show a "not found" placeholder
+	// * When `deferLoadingUntilVisible` if `false` (default), it will show the image immediately
+	//   but it will still check if the image exists and will show a "not found" placeholder
 	//   if the image couldn't be loaded.
 	//
-	preload: PropTypes.bool,
-	preloadVisibilityMarginHorizontal: PropTypes.string.isRequired,
-	preloadVisibilityMarginVertical: PropTypes.string.isRequired,
+	deferLoadingUntilVisible: PropTypes.bool,
+
+	// When `deferLoadingUntilVisible: true` flag is specified, these two properties
+	// define the distance at which image loading will be set off
+	// when the `<Picture/>` element becomes visible (or almost visible) on screen.
+	//
+	// The syntax is the same as for the CSS `margin` property.
+	// Available units are `px` or `%`, where `%` means
+	// "percentage of the scrollable container's width/height".
+	//
+	deferLoadingUntilVisibleDistanceHorizontal: PropTypes.string.isRequired,
+	deferLoadingUntilVisibleDistanceVertical: PropTypes.string.isRequired,
 
 	// Set to `true` to show a border around the image.
 	border: PropTypes.bool
@@ -861,15 +874,9 @@ Picture.defaultProps = {
 	showLoadingPlaceholder: true,
 	loadingIndicatorFadeInDuration: 3000,
 	loadingIndicatorFadeOutDuration: 300,
-	preload: true,
-	// The margins at which image preload will be set off
-	// when the `<Picture/>` element becomes visible on screen
-	// to the extend of these margins.
-	// The syntax is the same as for the CSS `margin` property.
-	// Available units are `px` or `%`, where `%` means
-	// "percentage of the scrollable container's width/height".
-	preloadVisibilityMarginHorizontal: '100%',
-	preloadVisibilityMarginVertical: '100%'
+	deferLoadingUntilVisible: false,
+	deferLoadingUntilVisibleDistanceHorizontal: '100%',
+	deferLoadingUntilVisibleDistanceVertical: '100%'
 	// pixelRatioMultiplier: 1
 }
 
