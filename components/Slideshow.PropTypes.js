@@ -25,14 +25,14 @@ const PluginType = PropTypes.shape({
 
 export default {
 	// The initial slide index.
-	initialSlideIndex: PropTypes.number.isRequired,
+	initialSlideIndex: PropTypes.number,
 
 	// Set to `true` to open slideshow in inline mode (rather than in a modal).
-	inline: PropTypes.bool.isRequired,
+	inline: PropTypes.bool,
 	// Set to `true` to open slideshow in "native" browser fullscreen mode.
-	fullScreen: PropTypes.bool.isRequired,
+	fullScreen: PropTypes.bool,
 
-	overlayOpacity: PropTypes.number.isRequired,
+	overlayOpacity: PropTypes.number,
 	// Overlay opacity when a slide is open using "float" animation.
 	// This can be used to show a "lighter" overlay when opening slides
 	// using "float" animation, because it results in a more "seamless" user experience.
@@ -54,25 +54,25 @@ export default {
 
 	// How much should a user move a mouse cursor when dragging
 	// in order to activate "pan" mode.
-	dragOffsetThreshold: PropTypes.number.isRequired,
+	dragOffsetThreshold: PropTypes.number,
 	// Emulate pan resistance on slideshow left-most and right-most sides.
 	emulatePanResistanceOnFirstAndLastSlides: PropTypes.bool,
 	// The duration of a "slide in" animation when a user
 	// switches a slide while panning.
-	panSlideInAnimationDuration: PropTypes.number.isRequired,
+	panSlideInAnimationDuration: PropTypes.number,
 	// The minumum duration of a "slide in" animation when a user
 	// switches a slide while panning.
-	panSlideInAnimationDurationMin: PropTypes.number.isRequired,
+	panSlideInAnimationDurationMin: PropTypes.number,
 
 	showControls: PropTypes.bool,
 	highContrastControls: PropTypes.bool,
 
 	showScaleButtons: PropTypes.bool,
 	// Scale multiplier when transitioning from a previous scale step to a next scale step.
-	scaleStep: PropTypes.number.isRequired,
-	scaleAnimationDuration: PropTypes.number.isRequired,
-	minScaledSlideRatio: PropTypes.number.isRequired,
-	mouseWheelScaleFactor: PropTypes.number.isRequired,
+	scaleStep: PropTypes.number,
+	scaleAnimationDuration: PropTypes.number,
+	minScaledSlideRatio: PropTypes.number,
+	mouseWheelScaleFactor: PropTypes.number,
 	//
 	// `minSlideScaleFactorRelativeToThumbnailSize` property controls the mininum size of a slide:
 	// a slide's size can't be less than `minSlideScaleFactorRelativeToThumbnailSize` of its thumbnail size.
@@ -93,29 +93,29 @@ export default {
 	// and if the original image was of the same (or nearly the same) size as the thumbnail
 	// then the user would get confused on whether the slide is already "opened" or not.
 	//
-	minSlideScaleFactorRelativeToThumbnailSize: PropTypes.number.isRequired,
-	minSlideSizeWhenScaledDown: PropTypes.number.isRequired,
+	minSlideScaleFactorRelativeToThumbnailSize: PropTypes.number,
+	minSlideSizeWhenScaledDown: PropTypes.number,
 
 	showPagination: PropTypes.bool,
 	showThumbnails: PropTypes.bool,
 
-	fullScreenFitPrecisionFactor: PropTypes.number.isRequired,
-	margin: PropTypes.number.isRequired,
-	minMargin: PropTypes.number.isRequired,
+	fullScreenFitPrecisionFactor: PropTypes.number,
+	margin: PropTypes.number,
+	minMargin: PropTypes.number,
 
 	headerHeight: PropTypes.number,
 	footerHeight: PropTypes.number,
 
-	useCardsForSlidesMaxOverlayOpacity: PropTypes.number.isRequired,
+	useCardsForSlidesMaxOverlayOpacity: PropTypes.number,
 
-	paginationDotsMaxSlidesCount: PropTypes.number.isRequired,
+	paginationDotsMaxSlidesCount: PropTypes.number,
 
 	goToSource: PropTypes.func,
-	onClose: PropTypes.func.isRequired,
+	onClose: PropTypes.func,
 
 	imageElement: PropTypes.any, // `Element` is not defined on server side. // PropTypes.instanceOf(Element),
 
-	viewers: PropTypes.arrayOf(PluginType).isRequired,
+	viewers: PropTypes.arrayOf(PluginType),
 
 	messages: PropTypes.shape({
 		actions: PropTypes.shape({
@@ -137,7 +137,7 @@ export default {
 		// `undefined` equals to an empty string.
 		scaleValueBefore: PropTypes.string,
 		scaleValueAfter: PropTypes.string
-	}).isRequired,
+	}),
 
 	autoPlay: PropTypes.bool,
 

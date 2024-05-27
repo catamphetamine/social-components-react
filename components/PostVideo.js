@@ -17,7 +17,7 @@ export default function PostVideo({
 	border,
 	expand,
 	expandToTheFullest,
-	align,
+	align = 'center',
 	spoilerLabel,
 	onClick,
 	className
@@ -64,10 +64,6 @@ PostVideo.propTypes = {
 	align: PropTypes.oneOf(['left', 'center', 'right']),
 	spoilerLabel: PropTypes.string,
 	className: PropTypes.string
-}
-
-PostVideo.defaultProps = {
-	align: 'center'
 }
 
 function getMaxWidth(video, maxSize, maxHeight) {

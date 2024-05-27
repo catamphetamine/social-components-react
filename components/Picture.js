@@ -46,29 +46,29 @@ export const BORDER_WIDTH = 1
  */
 function Picture({
 	picture,
-	border,
-	fit,
-	width,
-	height,
-	maxWidth,
-	maxHeight,
-	useSmallestSize,
-	useSmallestSizeExactDimensions,
-	component: Component,
-	componentProps,
-	showLoadingPlaceholder,
-	showLoadingIndicator,
-	loadingIndicatorFadeInDuration,
-	loadingIndicatorFadeOutDuration,
-	deferLoadingUntilVisible,
-	deferLoadingUntilVisibleDistanceHorizontal,
-	deferLoadingUntilVisibleDistanceVertical,
+	border = false,
+	fit = undefined,
+	width = undefined,
+	height = undefined,
+	maxWidth = undefined,
+	maxHeight = undefined,
+	useSmallestSize = false,
+	useSmallestSizeExactDimensions = false,
+	component: Component = 'div',
+	componentProps = undefined,
+	showLoadingPlaceholder = true,
+	showLoadingIndicator = false,
+	loadingIndicatorFadeInDuration = 3000,
+	loadingIndicatorFadeOutDuration = 300,
+	deferLoadingUntilVisible = false,
+	deferLoadingUntilVisibleDistanceHorizontal = '100%',
+	deferLoadingUntilVisibleDistanceVertical = '100%',
 	// pixelRatioMultiplier,
-	blur,
-	style,
-	className,
-	children,
-	imageRef,
+	blur = undefined,
+	style = undefined,
+	className = undefined,
+	children = undefined,
+	imageRef = undefined,
 	ErrorIndicator = XIcon,
 	LoadingIndicator = LoadingEllipsis,
 	// LoadingIndicator = ActivityIndicator,
@@ -661,7 +661,14 @@ function Picture({
 	// So in order for those two to not visibly conflict with one another,
 	// the old `selectedPictureSize` shouldn't be rendered until a new one is chosen.
 	//
-	const doesSelectedPictureSizeBelongToThePicture = selectedPictureSize && (picture.url === selectedPictureSize.url || picture.sizes && picture.sizes.includes(selectedPictureSize))
+	// The comparison is done by URL because there might be situations when `picture` "reference" changes
+	// but `loadAndRenderAppropriatePictureSize()` doesn't get called. For example, that's the case
+	// when the `picture` "reference" has changed but the internal structure of the `picture` object stayed the same:
+	// in that case, `useEffect()` will ignore such change and it won't reload the picture size,
+	// so in such cases `doesSelectedPictureSizeBelongToThePicture` shouldn't be `false` or the component will be "stuck"
+	// showing a blank placeholder instead of the actual picture.
+	//
+	const doesSelectedPictureSizeBelongToThePicture = selectedPictureSize && (picture.url === selectedPictureSize.url || picture.sizes && picture.sizes.find(_ => _.url === selectedPictureSize.url))
 
 	return (
 		<Component
@@ -779,7 +786,7 @@ Picture = React.forwardRef(Picture)
 
 Picture.propTypes = {
 	// Container component. Is `<div/>` by default.
-	component: PropTypes.elementType.isRequired,
+	component: PropTypes.elementType,
 	componentProps: PropTypes.object,
 
 	// When a `<Picture/>` is a preview for a `<Video/>`
@@ -835,8 +842,8 @@ Picture.propTypes = {
 	// and instead show a "loading" indicator.
 	showLoadingIndicator: PropTypes.bool,
 
-	loadingIndicatorFadeInDuration: PropTypes.number.isRequired,
-	loadingIndicatorFadeOutDuration: PropTypes.number.isRequired,
+	loadingIndicatorFadeInDuration: PropTypes.number,
+	loadingIndicatorFadeOutDuration: PropTypes.number,
 
 	// The `deferLoadingUntilVisible` flag controls whether it should show the image
 	// right away or wait until it becomes visible on the screen, saving bandwidth as a result.
@@ -861,23 +868,11 @@ Picture.propTypes = {
 	// Available units are `px` or `%`, where `%` means
 	// "percentage of the scrollable container's width/height".
 	//
-	deferLoadingUntilVisibleDistanceHorizontal: PropTypes.string.isRequired,
-	deferLoadingUntilVisibleDistanceVertical: PropTypes.string.isRequired,
+	deferLoadingUntilVisibleDistanceHorizontal: PropTypes.string,
+	deferLoadingUntilVisibleDistanceVertical: PropTypes.string,
 
 	// Set to `true` to show a border around the image.
 	border: PropTypes.bool
-}
-
-Picture.defaultProps = {
-	component: 'div',
-	// fadeInDuration: 0,
-	showLoadingPlaceholder: true,
-	loadingIndicatorFadeInDuration: 3000,
-	loadingIndicatorFadeOutDuration: 300,
-	deferLoadingUntilVisible: false,
-	deferLoadingUntilVisibleDistanceHorizontal: '100%',
-	deferLoadingUntilVisibleDistanceVertical: '100%'
-	// pixelRatioMultiplier: 1
 }
 
 export default Picture
@@ -1007,6 +1002,7 @@ export function preloadImage(url) {
 			if (event.path && event.path[0]) {
 				console.error(`Image not found: ${event.path[0].src}`)
 			}
+			console.log('@@@@@@@@@@@@@', url)
 			const error = new Error('IMAGE_NOT_FOUND')
 			error.url = url
 			error.event = event
@@ -1108,4 +1104,4 @@ function AspectRatioStretcher({ aspectRatio }) {
 
 AspectRatioStretcher.propTypes = {
 	aspectRatio: PropTypes.number.isRequired
-};
+}

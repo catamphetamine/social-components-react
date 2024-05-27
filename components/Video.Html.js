@@ -49,7 +49,7 @@ function VideoHtml(props, ref) {
 
 	const {
 		video,
-		showPreview,
+		showPreview = true,
 		width,
 		height,
 		tabIndex,
@@ -105,8 +105,4 @@ VideoHtml.propTypes = {
 		PropTypes.string,
 		PropTypes.number
 	])
-}
-
-VideoHtml.defaultProps = {
-	showPreview: true
 }

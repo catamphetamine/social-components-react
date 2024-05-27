@@ -15,7 +15,7 @@ export default function PostPicture({
 	maxHeight,
 	expand,
 	expandToTheFullest,
-	align,
+	align = 'center',
 	border,
 	spoilerLabel,
 	linkToUrl,
@@ -60,10 +60,6 @@ PostPicture.propTypes = {
 	border: PropTypes.bool,
 	spoilerLabel: PropTypes.string,
 	className: PropTypes.string
-}
-
-PostPicture.defaultProps = {
-	align: 'center'
 }
 
 export const EXAMPLE = {

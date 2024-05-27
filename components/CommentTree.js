@@ -38,8 +38,8 @@ export default function CommentTree({
 	initialShowReplies,
 	onShowReply,
 	onDidToggleShowReplies,
-	toggleShowRepliesOnTreeBranchesClick,
-	dialogueTraceStyle,
+	toggleShowRepliesOnTreeBranchesClick = true,
+	dialogueTraceStyle = 'sideways',
 	getState,
 	setState,
 	className
@@ -474,12 +474,7 @@ CommentTree.propTypes = {
 	dialogueTraceStyle: PropTypes.oneOf([
 		'sideways',
 		'straight-through'
-	]).isRequired
-}
-
-CommentTree.defaultProps = {
-	toggleShowRepliesOnTreeBranchesClick: true,
-	dialogueTraceStyle: 'side'
+	])
 }
 
 export function isMiddleDialogueChainLink(comment, parentComment) {

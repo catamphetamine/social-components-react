@@ -310,6 +310,16 @@ PostContent.propTypes = {
 	serviceIcons: PropTypes.objectOf(PropTypes.func),
 	youTubeApiKey: PropTypes.string,
 	attachmentThumbnailSize: PropTypes.number,
+	// `onAttachmentClick()` function will be called with an `attachment` argument
+	// when the user clicks on an attachment, which could be: an attachment thumbnail,
+	// an embedded attachment, a link to an attachment in text, an attachment thumbnail
+	// inside an "in reply to" quote.
+	// The second argument is an optional object:
+	// * When an attachment thumbnail is clicked, there'll be an `imageElement` property
+	//   that can be used to show a "zoom in" attachment animation.
+	// * When an attachment thumbnail is clicked specifically inside an "in reply to" quote,
+	//   there'll be an `attachments` property that's gonna contain all attachments in the
+	//   "in reply to" quote so that a slideshow component could iterate through them exclusively.
 	onAttachmentClick: PropTypes.func,
 	onPostLinkClick: PropTypes.func,
 	isPostLinkClickable: PropTypes.func,
@@ -346,10 +356,6 @@ PostContent.propTypes = {
 	className: PropTypes.string
 }
 
-PostContent.defaultProps = {
-	expandGeneratedPostLinkBlockQuotesWhenNoOtherContent: true
-}
-
 export default PostContent
 
 export function Content({
@@ -381,7 +387,7 @@ Content.propTypes = {
 
 function useShouldExpandGeneratedPostLinkBlockQuotes({
 	expandGeneratedPostLinkBlockQuotes,
-	expandGeneratedPostLinkBlockQuotesWhenNoOtherContent,
+	expandGeneratedPostLinkBlockQuotesWhenNoOtherContent = true,
 	content,
 	attachments
 }) {

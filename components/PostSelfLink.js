@@ -15,7 +15,7 @@ import './PostSelfLink.css'
 export default function PostSelfLink({
 	url,
 	baseUrl,
-	updatePageUrlToPostUrlOnClick,
+	updatePageUrlToPostUrlOnClick = true,
 	navigateToPostUrlOnClick,
 	onClick,
 	className,
@@ -82,10 +82,6 @@ PostSelfLink.propTypes = {
 	onClick: PropTypes.func,
 	className: PropTypes.string,
 	children: PropTypes.node.isRequired
-}
-
-PostSelfLink.defaultProps = {
-	updatePageUrlToPostUrlOnClick: true
 }
 
 // Replaces the current web browser page's URL without reloading the page.

@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import './PostInlineSpoiler.css'
 
 export default function PostInlineSpoiler({
-	hidden,
+	hidden = true,
 	censored,
 	content,
 	children
@@ -68,14 +68,10 @@ export default function PostInlineSpoiler({
 }
 
 PostInlineSpoiler.propTypes = {
-	hidden: PropTypes.bool.isRequired,
+	hidden: PropTypes.bool,
 	censored: PropTypes.bool,
 	content: PropTypes.any,
 	children: PropTypes.node.isRequired
-}
-
-PostInlineSpoiler.defaultProps = {
-	hidden: true
 }
 
 function isClickableTarget(event) {

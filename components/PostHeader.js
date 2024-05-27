@@ -315,7 +315,7 @@ function AccountOptionalLink({
 	account,
 	getAccountUrl,
 	rel,
-	asFallback: AsFallback,
+	asFallback: AsFallback = 'div',
 	className,
 	children
 }) {
@@ -340,11 +340,7 @@ AccountOptionalLink.propTypes = {
 	account: account.isRequired,
 	getAccountUrl: PropTypes.func,
 	rel: PropTypes.string,
-	asFallback: PropTypes.string.isRequired,
+	asFallback: PropTypes.string,
 	className: PropTypes.string.isRequired,
 	children: PropTypes.node.isRequired
-}
-
-AccountOptionalLink.defaultProps = {
-	asFallback: 'div'
 }

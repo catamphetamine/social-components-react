@@ -28,7 +28,7 @@ import { postInlineContent, postInlineContentElement } from './PropTypes.js'
 
 export default function PostInlineContent({
 	children,
-	markFirstQuote,
+	markFirstQuote = false,
 	...rest
 }) {
 	return toArray(children).map((content, i) => (

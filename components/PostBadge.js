@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
-import classNames from 'classnames'
 
 import { post, postBadge } from './PropTypes.js'
 
@@ -10,16 +9,16 @@ export default function PostBadge({
 	post,
 	parameters,
 	badge: {
-		ref,
-		name,
-		icon,
-		getIcon,
-		getIconProps,
-		title,
-		condition,
-		onClick,
-		isPressed,
-		content: Content
+		ref = undefined,
+		name = undefined,
+		icon = undefined,
+		getIcon = undefined,
+		getIconProps = undefined,
+		title = undefined,
+		condition = undefined,
+		onClick = undefined,
+		isPressed = false,
+		content: Content = undefined
 	},
 	className,
 	iconClassName

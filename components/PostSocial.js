@@ -153,8 +153,8 @@ function getProviderUrl(provider) {
 }
 
 function Link({
-	inline,
-	textColor,
+	inline = true,
+	textColor = true,
 	to,
 	clickable,
 	className,
@@ -187,15 +187,10 @@ function Link({
 Link.propTypes = {
 	to: PropTypes.string,
 	clickable: PropTypes.bool,
-	inline: PropTypes.bool.isRequired,
-	textColor: PropTypes.bool.isRequired,
+	inline: PropTypes.bool,
+	textColor: PropTypes.bool,
 	className: PropTypes.string,
 	children: PropTypes.node.isRequired
-}
-
-Link.defaultProps = {
-	inline: true,
-	textColor: true
 }
 
 function SocialDate({ date, locale }) {

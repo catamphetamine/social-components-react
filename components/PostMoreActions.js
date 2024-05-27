@@ -13,7 +13,7 @@ export default function PostMoreActions({
 	upward,
 	alignment,
 	title,
-	toggleComponent: ToggleComponent,
+	toggleComponent: ToggleComponent = Toggle,
 	className,
 	buttonRef,
 	buttonClassName,
@@ -61,15 +61,11 @@ PostMoreActions.propTypes = {
 	title: PropTypes.string,
 	upward: PropTypes.bool,
 	alignment: PropTypes.oneOf(['right']),
-	toggleComponent: PropTypes.elementType.isRequired,
+	toggleComponent: PropTypes.elementType,
 	className: PropTypes.string,
 	buttonRef: PropTypes.object,
 	buttonClassName: PropTypes.string,
 	children: moreActionsType
-}
-
-PostMoreActions.defaultProps = {
-	toggleComponent: Toggle
 }
 
 function Toggle() {

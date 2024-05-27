@@ -126,6 +126,8 @@ export default function PostAttachmentThumbnail({
 	// being shown in a web browser on mouse over, which would be
 	// redundant, pointless and distracting to a user.
 
+	const shouldUseSmallestSizeOfThePicture = expand || expandToTheFullest ? undefined : useSmallestThumbnail
+
 	return (
 		<ButtonLink
 			url={linkToUrl || getAttachmentUrl(attachment)}
@@ -170,15 +172,14 @@ export default function PostAttachmentThumbnail({
 						)
 					)
 				}
-				useSmallestSize={expand || expandToTheFullest ? undefined : useSmallestThumbnail}
-				useSmallestSizeExactDimensions={expand || expandToTheFullest ? undefined : (
-					useSmallestThumbnail
-						? (
-							(maxWidth_ === undefined && maxHeight_ === undefined) &&
-							(width === undefined && height === undefined)
-						)
-						: undefined
-				)}
+				useSmallestSize={shouldUseSmallestSizeOfThePicture}
+				useSmallestSizeExactDimensions={shouldUseSmallestSizeOfThePicture
+					? (
+						(maxWidth_ === undefined && maxHeight_ === undefined) &&
+						(width === undefined && height === undefined)
+					)
+					: undefined
+				}
 				blur={attachment.spoiler && !isRevealed ? BLUR_FACTOR : undefined}>
 				{isLoading &&
 					<FadeInOut show fadeInInitially fadeInDuration={3000} fadeOutDuration={0}>

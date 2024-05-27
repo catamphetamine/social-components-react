@@ -6,8 +6,8 @@ import './PictureStack.css'
 
 function PictureStack({
 	count,
-	inline,
-	className,
+	inline = false,
+	className = undefined,
 	children,
 	...rest
 }, ref) {

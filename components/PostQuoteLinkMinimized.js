@@ -16,8 +16,8 @@ const DocumentMouseMove = {
 export default function PostQuoteLinkMinimized({
 	postLink,
 	onExpand,
-	minimizedComponent: MinimizedComponent,
-	expandTimeout,
+	minimizedComponent: MinimizedComponent = MinimizedQuoteComponent,
+	expandTimeout = 360,
 	...rest
 }) {
 	const container = useRef()
@@ -93,13 +93,8 @@ export default function PostQuoteLinkMinimized({
 PostQuoteLinkMinimized.propTypes = {
 	postLink: postPostLinkShape.isRequired,
 	onExpand: PropTypes.func.isRequired,
-	minimizedComponent: PropTypes.elementType.isRequired,
-	expandTimeout: PropTypes.number.isRequired
-}
-
-PostQuoteLinkMinimized.defaultProps = {
-	minimizedComponent: MinimizedQuoteComponent,
-	expandTimeout: 360
+	minimizedComponent: PropTypes.elementType,
+	expandTimeout: PropTypes.number
 }
 
 function MinimizedQuoteComponent({ postLink }) {

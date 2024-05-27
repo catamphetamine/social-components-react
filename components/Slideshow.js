@@ -38,6 +38,13 @@ const VIEWERS = [
 
 export default function SlideshowWrapper(props) {
 	props = {
+		// It adds default props both to `SlideshowWrapper` and `SlideshowComponent`
+		// because `window.SlideshowProps` are used in `preloadPictureSlide()` in `Slideshow.Picture.js`.
+		...SlideshowDefaultProps,
+		viewers: VIEWERS,
+		...props
+	}
+	props = {
 		...props,
 		// Add `headerHeight` and `footerHeight` properties
 		// that are used both in `<Slideshow/>` and in `SlideshowSize`.
@@ -72,12 +79,12 @@ SlideshowWrapper.propTypes = {
 	footer: PropTypes.any // `Element` is not defined on server side. // PropTypes.instanceOf(Element),
 }
 
-SlideshowWrapper.defaultProps = {
-	...SlideshowDefaultProps,
-	viewers: VIEWERS
-}
-
 function SlideshowComponent(props) {
+	props = {
+		...SlideshowDefaultProps,
+		...props
+	}
+
 	const container = useRef()
 	const slidesRef = useRef()
 	const currentSlideRef = useRef()
@@ -289,8 +296,6 @@ SlideshowComponent.propTypes = {
 	...SlideshowPropTypes,
 	slides: SlideshowPropTypes.slides.isRequired
 }
-
-SlideshowComponent.defaultProps = SlideshowDefaultProps
 
 function Slideshow({
 	slideshow,

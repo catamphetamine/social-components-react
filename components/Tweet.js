@@ -13,7 +13,7 @@ export default function Tweet({
 	darkMode,
 	locale,
 	onLoad,
-	onError,
+	onError = outputErrorToConsole,
 	className,
 	...rest
 }, ref) {
@@ -47,10 +47,10 @@ Tweet.propTypes = {
 	darkMode: PropTypes.bool,
 	locale: PropTypes.string,
 	onLoad: PropTypes.func.isRequired,
-	onError: PropTypes.func.isRequired,
+	onError: PropTypes.func,
 	className: PropTypes.string
 }
 
-Tweet.defaultProps = {
-	onError: error => console.error(error)
+function outputErrorToConsole(error) {
+	console.error(error)
 }

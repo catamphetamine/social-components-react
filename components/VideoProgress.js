@@ -15,9 +15,9 @@ import './VideoProgress.css'
 export default function VideoProgress({
 	provider,
 	onKeyboardSeek,
-	hideDelay,
-	hideDuration,
-	showDuration,
+	hideDelay = 1000,
+	showDuration = 100,
+	hideDuration = 400,
 	getDuration,
 	getCurrentTime
 }) {
@@ -92,15 +92,9 @@ export default function VideoProgress({
 VideoProgress.propTypes = {
 	provider: PropTypes.string.isRequired,
 	onKeyboardSeek: PropTypes.object.isRequired,
-	hideDelay: PropTypes.number.isRequired,
-	hideDuration: PropTypes.number.isRequired,
-	showDuration: PropTypes.number.isRequired,
+	hideDelay: PropTypes.number,
+	hideDuration: PropTypes.number,
+	showDuration: PropTypes.number,
 	getDuration: PropTypes.func.isRequired,
 	getCurrentTime: PropTypes.func.isRequired
-}
-
-VideoProgress.defaultProps = {
-	hideDelay: 1000,
-	showDuration: 100,
-	hideDuration: 400
 }

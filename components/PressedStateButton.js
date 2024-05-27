@@ -7,14 +7,14 @@ import ButtonAsync from './ButtonAsync.js'
 import './PressedStateButton.css'
 
 function PressedStateButton({
-	component: Component,
-	pressed,
-	link,
-	className,
+	component: Component = ButtonAsync,
+	pressed = false,
+	link = undefined,
+	className = undefined,
 	children,
 	...rest
 }, ref) {
-	const isNativeButton = Component === 'button'
+	// const isNativeButton = Component === 'button'
 	return (
 		<Component
 			{...rest}
@@ -33,12 +33,8 @@ PressedStateButton = React.forwardRef(PressedStateButton)
 export default PressedStateButton
 
 PressedStateButton.propTypes = {
-	component: PropTypes.elementType.isRequired,
+	component: PropTypes.elementType,
 	pressed: PropTypes.bool,
 	link: PropTypes.bool,
 	className: PropTypes.string
-}
-
-PressedStateButton.defaultProps = {
-	component: ButtonAsync
 }

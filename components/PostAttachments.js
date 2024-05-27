@@ -58,7 +58,7 @@ const TEST = false
 export default function PostAttachments({
 	post,
 	compact,
-	expandFirstPictureOrVideo,
+	expandFirstPictureOrVideo = false,
 	expandAttachments,
 	showOnlyFirstAttachmentThumbnail,
 	attachmentThumbnailSize,
@@ -67,7 +67,7 @@ export default function PostAttachments({
 	removeAttachmentLabel,
 	onAttachmentClick,
 	onAttachmentRemove,
-	maxAttachmentThumbnails,
+	maxAttachmentThumbnails = 6,
 	showPostThumbnailWhenThereAreMultipleAttachments,
 	showPostThumbnailWhenThereIsNoContent
 }) {
@@ -278,7 +278,7 @@ PostAttachments.propTypes = {
 	compact: PropTypes.bool,
 	onAttachmentClick: PropTypes.func,
 	onAttachmentRemove: PropTypes.func,
-	expandFirstPictureOrVideo: PropTypes.bool.isRequired,
+	expandFirstPictureOrVideo: PropTypes.bool,
 	expandAttachments: PropTypes.bool,
 	// Currently this property only limits the displayed pictures and videos.
 	// Doesn't affect audios, files, links, etc.
@@ -287,18 +287,10 @@ PostAttachments.propTypes = {
 	removeAttachmentLabel: PropTypes.string,
 	attachmentThumbnailSize: PropTypes.number,
 	useSmallestThumbnails: PropTypes.bool,
-	maxAttachmentThumbnails: PropTypes.oneOfType([
-		PropTypes.oneOf([false]),
-		PropTypes.number
-	]).isRequired,
+	maxAttachmentThumbnails: PropTypes.number,
 	showPostThumbnailWhenThereAreMultipleAttachments: PropTypes.bool,
 	showPostThumbnailWhenThereIsNoContent: PropTypes.bool,
 	children: PropTypes.arrayOf(postAttachment)
-}
-
-PostAttachments.defaultProps = {
-	expandFirstPictureOrVideo: false,
-	maxAttachmentThumbnails: 6
 }
 
 const POSITION_ABSOLUTE = {

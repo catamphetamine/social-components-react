@@ -11,7 +11,7 @@ import isRelativeUrl from '../utility/isRelativeUrl.js'
 const ButtonLink = React.forwardRef(function({
 	url,
 	children,
-	panOffsetThreshold,
+	panOffsetThreshold = 5,
 	onClick: _onClick,
 	...rest
 }, ref) {
@@ -56,12 +56,8 @@ const ButtonLink = React.forwardRef(function({
 ButtonLink.propTypes = {
 	onClick: PropTypes.func.isRequired,
 	url: PropTypes.string.isRequired,
-	panOffsetThreshold: PropTypes.number.isRequired,
+	panOffsetThreshold: PropTypes.number,
 	children: PropTypes.node.isRequired
-}
-
-ButtonLink.defaultProps = {
-	panOffsetThreshold: 5
 }
 
 export default ButtonLink
