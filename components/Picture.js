@@ -679,7 +679,8 @@ function Picture({
 			className={classNames(className, 'Picture', {
 				'Picture--withBorder': withBorder,
 				'Picture--nonTransparentBackground': showLoadingPlaceholder && !picture.transparentBackground
-			})}>
+			})}
+			data-src={selectedPictureSize && selectedPictureSize.url}>
 
 			{/* Placeholder must stretch the parent element vertically
 			    for maintaining the aspect ratio of the picture.
