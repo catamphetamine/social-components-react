@@ -47,8 +47,11 @@ export default function PostAttachmentThumbnail({
 }) {
 	const thumbnailElement = useRef()
 	const slideshowOpenRequest = useRef()
-	const [isRevealed, setIsRevealed] = useState(attachment.spoiler ? false : true)
+
 	const isMounted = useIsMounted()
+
+	const [isRevealed, setIsRevealed] = useState(!attachment.spoiler)
+
 	const [loadOnClick, isLoading, setIsLoading] = useLoadOnClick(attachment, fixAttachmentPictureSize, thumbnailElement, isMounted)
 
 	const picture = getPicture(attachment)
@@ -57,6 +60,11 @@ export default function PostAttachmentThumbnail({
 	// because an `async` function results in a React warning
 	// telling that a "synthetic event" has been reused.
 	const onPictureClick = useCallback((event) => {
+		if (!isRevealed) {
+			setIsRevealed(true)
+			event.preventDefault()
+			return
+		}
 		if (window.Slideshow) {
 			slideshowOpenRequest.current = window.Slideshow.willOpen(() => {
 				if (isMounted()) {
@@ -69,9 +77,6 @@ export default function PostAttachmentThumbnail({
 				if (slideshowOpenRequest.current.cancelled) {
 					return
 				}
-			}
-			if (attachment.spoiler) {
-				setIsRevealed(true)
 			}
 			if (onClick) {
 				onClick(event)
@@ -86,6 +91,7 @@ export default function PostAttachmentThumbnail({
 	}, [
 		attachment,
 		loadOnClick,
+		isRevealed,
 		setIsRevealed,
 		onClick
 	])
