@@ -41,6 +41,7 @@ export default function PostAttachmentThumbnailQuote({
 				className="PostQuoteBlock-attachment">
 				<PostAttachmentThumbnail
 					border
+					link={false}
 					attachment={attachments[0]}
 					onClick={onAttachmentClick ? _onAttachmentClick : undefined}
 					useSmallestThumbnail={useSmallestThumbnailsForAttachments}

@@ -137,7 +137,7 @@ function PostInlineContentElement({
 					inline
 					first={markFirstQuote}
 					kind={content.kind}
-					generated={content.generated}>
+					generated={content.contentGenerated}>
 					{contentElement}
 				</PostQuoteBlock>
 			)
@@ -145,7 +145,7 @@ function PostInlineContentElement({
 		return (
 			<PostInlineQuote
 				kind={content.kind}
-				generated={content.generated}>
+				generated={content.contentGenerated}>
 				{contentElement}
 			</PostInlineQuote>
 		)

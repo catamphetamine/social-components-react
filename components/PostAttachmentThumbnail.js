@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FadeInOut, ActivityIndicator } from 'react-responsive-ui'
 
+import Button from './Button.js'
 import ButtonLink from './ButtonLink.js'
 import LoadingEllipsis from './LoadingEllipsis.js'
 import { preloadPictureSlide } from './Slideshow.Picture.js'
@@ -26,6 +27,7 @@ import {
 import './PostAttachmentThumbnail.css'
 
 export default function PostAttachmentThumbnail({
+	link,
 	linkToUrl,
 	onClick,
 	attachment,
@@ -134,9 +136,11 @@ export default function PostAttachmentThumbnail({
 
 	const shouldUseSmallestSizeOfThePicture = expand || expandToTheFullest ? undefined : useSmallestThumbnail
 
+	const Component = link === false ? Button : ButtonLink
+
 	return (
-		<ButtonLink
-			url={linkToUrl || getAttachmentUrl(attachment)}
+		<Component
+			url={link === false ? undefined : linkToUrl || getAttachmentUrl(attachment)}
 			onClick={onClick ? onPictureClick : onPictureClickIgnore}
 			className={classNames(
 				className,
@@ -218,7 +222,7 @@ export default function PostAttachmentThumbnail({
 				}
 				{children}
 			</Picture>
-		</ButtonLink>
+		</Component>
 	)
 }
 
@@ -227,6 +231,10 @@ PostAttachmentThumbnail.propTypes = {
 		pictureAttachment,
 		videoAttachment
 	]).isRequired,
+	// Pass `link: false` to prevent it from rendering an `<a/>` hyperlink element
+	// and render a `<button/>` instead. This could be used when nesting a
+	// `<PostAttachmentThumbnail/>` inside an `<a/>` hyperlink.
+	link: PropTypes.bool,
 	linkToUrl: PropTypes.string,
 	onClick: PropTypes.func,
 	spoilerLabel: PropTypes.string,

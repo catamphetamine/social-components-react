@@ -99,7 +99,7 @@ PostQuoteLinkMinimized.propTypes = {
 
 function MinimizedQuoteComponent({ postLink }) {
 	return '··············'
-	// return `>>${postLink.postId}${postLink.threadId === postLink.postId ? ' (OP)' : ''}`
+	// return `>>${postLink.meta.postId}${postLink.meta.threadId === postLink.meta.postId ? ' (OP)' : ''}`
 }
 
 MinimizedQuoteComponent.propTypes = {

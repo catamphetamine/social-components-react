@@ -38,9 +38,9 @@ export default function PostMoreActions({
 			className={classNames(className, 'PostMoreActions-menu', {
 				'PostMoreActions-menu--right': alignment === 'right'
 			})}>
-			{children.map(({ divider, onClick, label }, i) => (
-				<List.Item key={i} onClick={onClick}>
-					{divider ? <Divider/> : label}
+			{children.map(({ divider, onClick, icon, label, children }, i) => (
+				<List.Item key={i} icon={icon} onClick={onClick}>
+					{divider ? <Divider/> : label || children}
 				</List.Item>
 			))}
 		</ExpandableMenu>
@@ -49,7 +49,12 @@ export default function PostMoreActions({
 
 export const moreActionsType = PropTypes.arrayOf(PropTypes.oneOfType([
 	PropTypes.shape({
+		icon: PropTypes.elementType,
 		label: PropTypes.string.isRequired,
+		onClick: PropTypes.func.isRequired
+	}),
+	PropTypes.shape({
+		children: PropTypes.node.isRequired,
 		onClick: PropTypes.func.isRequired
 	}),
 	PropTypes.shape({

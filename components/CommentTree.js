@@ -30,6 +30,7 @@ export default function CommentTree({
 	flat,
 	comment,
 	parentComment,
+	isLinkedComment,
 	isFirstLevelOfNesting_,
 	component: Component,
 	getComponentProps,
@@ -259,11 +260,16 @@ export default function CommentTree({
 
 	const repliesWithRemovedLeadingPostLink = useMemo(() => {
 		return comment.replies && comment.replies.map((reply) => {
-			return removeLeadingPostLink(reply, comment.id)
+			if (isLinkedComment) {
+				return removeLeadingPostLink(reply, (postLink) => isLinkedComment(comment, postLink))
+			} else {
+				return reply
+			}
 		})
 	}, [
 		comment.id,
-		comment.replies
+		comment.replies,
+		isLinkedComment
 	])
 
 	function getChildCommentTreeProps(i) {
@@ -371,6 +377,10 @@ CommentTree.propTypes = {
 
 	comment: commentType.isRequired,
 	parentComment: commentType,
+
+	// A function of `(comment, postLink)` that tells if
+	// the `comment` is the one that is linked in the `postLink`.
+	isLinkedComment: PropTypes.func,
 
 	// This flag is only used internally by this component.
 	// It's used for correctly styling root-level dialogue chains:
