@@ -179,7 +179,7 @@ function PostInlineContentElement({
 					onClick={onPostLinkClick}
 					disabled={disabled}
 					postLink={content}
-					url={content.url}
+					url={content.url || '#'}
 					className={attachmentsRenderedAsQuoteContent ? 'PostQuoteLink--attachments' : undefined}>
 					{attachmentsRenderedAsQuoteContent ?
 						<PostAttachmentThumbnailQuote
@@ -199,7 +199,7 @@ function PostInlineContentElement({
 		}
 		return (
 			<PostLink
-				url={content.url}
+				url={content.url || '#'}
 				onClick={onPostLinkClick}>
 				{contentElement}
 			</PostLink>

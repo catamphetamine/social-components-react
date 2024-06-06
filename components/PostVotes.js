@@ -18,8 +18,12 @@ export default function PostVotes({
 	onVote,
 	messages
 }) {
+	const upvotes = typeof post.upvotes === 'number' ? post.upvotes : 0
+	const downvotes = typeof post.downvotes === 'number' ? post.downvotes : 0
+
 	const onUpVote = useCallback(() => onVote(true), [onVote])
 	const onDownVote = useCallback(() => onVote(false), [onVote])
+
 	return (
 		<div className="PostVotes">
 			<Padding>
@@ -35,12 +39,12 @@ export default function PostVotes({
 				</PressedStateButton>
 			</Padding>
 			<div className={classNames('PostVotes-count', {
-				'PostVotes-count--neutral': post.upvotes === post.downvotes,
-				'PostVotes-count--positive': post.upvotes > post.downvotes,
-				'PostVotes-count--negative': post.upvotes < post.downvotes
+				'PostVotes-count--neutral': upvotes === downvotes,
+				'PostVotes-count--positive': upvotes > downvotes,
+				'PostVotes-count--negative': upvotes < downvotes
 			})}>
-				{(post.downvotes > post.upvotes) && '−'}
-				{Math.abs(post.upvotes - post.downvotes)}
+				{(downvotes > upvotes) && '−'}
+				{Math.abs(upvotes - downvotes)}
 			</div>
 			<PressedStateButton
 				title={messages && vote !== undefined ? messages.alreadyVoted : messages.upvote}

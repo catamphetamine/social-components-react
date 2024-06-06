@@ -111,7 +111,7 @@ export default function PostQuoteLink({
 }
 
 PostQuoteLink.propTypes = {
-	url: PropTypes.string,
+	url: PropTypes.string.isRequired,
 	onClick: PropTypes.func,
 	disabled: PropTypes.bool,
 	postLink: postPostLinkShape.isRequired,
