@@ -1,5 +1,4 @@
 .PostCode {
-	/*border-radius: var(--border-radius);*/
 	border: var(--PostCode-borderWidth) solid var(--SocialComponents-color-200);
 	border-left-width: var(--PostCode-borderLeftWidth);
 	border-right-width: var(--PostCode-borderRightWidth);
@@ -13,6 +12,7 @@
 .PostCode--block {
 	--PostCode-paddingLeft: var(--PostQuoteBlock-paddingLeft);
 	--PostCode-paddingRight: var(--PostQuoteBlock-paddingRight);
+
 	line-height: var(--SocialComponents-lineHeight);
 	/* `width` and `margin` are synchronized with `width` and `margin` on `post-link` quotes
 	   so that `<code/>` blocks appearance matches that of `post-link` quote blocks. */
@@ -24,6 +24,8 @@
 	margin-top: calc(-1 * var(--PostCode-borderWidth));
 	margin-bottom: calc(-1 * var(--PostCode-borderWidth));
 
+	border-radius: var(--PostCode-borderRadius--block);
+
 	/* Set Tab width to an equivalent of 2 spaces. */
 	tab-size: 2;
 }
@@ -31,6 +33,8 @@
 .PostCode--inline {
 	padding-left: var(--PostCode-paddingLeft--inline);
 	padding-right: var(--PostCode-paddingLeft--inline);
+
+	border-radius: var(--PostCode-borderRadius--inline);
 }
 
 .PostCode--block {
