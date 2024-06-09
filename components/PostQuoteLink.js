@@ -132,13 +132,7 @@ function getInitiallyExpanded(postLink, minimized, isExpanded) {
 		return true
 	}
 	if (isExpanded) {
-		// `postLink._id`s are set in `enumeratePostLinks()`
-		// in `captchan/src/api/utility/addCommentProps.js`.
-		// They're used instead of simply `postLink.meta.postId`
-		// because, for example, a comment could have several
-		// `post-link`s to the same post, consequtive or
-		// in different parts of its content.
-		if (isExpanded(postLink._id)) {
+		if (isExpanded(postLink)) {
 			return true
 		}
 	}

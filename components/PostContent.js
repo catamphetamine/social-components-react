@@ -22,6 +22,7 @@ function PostContent({
 	initialExpandContent,
 	onExpandContentChange,
 	initialExpandPostLinkQuotes,
+	isPostLinkQuoteExpanded,
 	onRenderedContentDidChange,
 	onPostContentChange,
 	onPostContentRendered,
@@ -82,9 +83,14 @@ function PostContent({
 		}
 	}, [showPreview])
 
-	const isPostLinkQuoteExpanded = useCallback((_id) => {
-		return initialExpandPostLinkQuotes && initialExpandPostLinkQuotes[_id]
-	}, [initialExpandPostLinkQuotes])
+	const isPostLinkQuoteExpanded_ = useCallback((postLink) => {
+		if (isPostLinkQuoteExpanded) {
+			return isPostLinkQuoteExpanded(postLink, initialExpandPostLinkQuotes)
+		}
+	}, [
+		isPostLinkQuoteExpanded,
+		initialExpandPostLinkQuotes
+	])
 
 	const onPostLinkQuoteExpanded_ = useCallback((...args) => {
 		if (onPostLinkQuoteExpanded) {
@@ -274,7 +280,7 @@ function PostContent({
 					expandGeneratedPostLinkBlockQuotes={shouldExpandGeneratedPostLinkBlockQuotes}
 					postLinkQuoteMinimizedComponent={postLinkQuoteMinimizedComponent}
 					postLinkQuoteExpandTimeout={postLinkQuoteMinimizedComponent}
-					isPostLinkQuoteExpanded={isPostLinkQuoteExpanded}
+					isPostLinkQuoteExpanded={isPostLinkQuoteExpanded_}
 					onPostLinkQuoteExpanded={onPostLinkQuoteExpanded_}
 					isSocialClickable={isSocialClickable}
 					onSocialClick={onSocialClick}
@@ -335,6 +341,7 @@ PostContent.propTypes = {
 	initialExpandContent: PropTypes.bool,
 	onExpandContentChange: PropTypes.func,
 	initialExpandPostLinkQuotes: PropTypes.objectOf(PropTypes.bool),
+	isPostLinkQuoteExpanded: PropTypes.func,
 	onRenderedContentDidChange: PropTypes.func,
 	onPostContentChange: PropTypes.func,
 	onPostContentRendered: PropTypes.func,

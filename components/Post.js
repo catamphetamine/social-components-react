@@ -27,6 +27,7 @@ function Post({
 	initialExpandContent,
 	onExpandContentChange,
 	initialExpandPostLinkQuotes,
+	isPostLinkQuoteExpanded,
 	onRenderedContentDidChange,
 	youTubeApiKey,
 	contentMaxLength,
@@ -105,6 +106,7 @@ function Post({
 				initialExpandContent={initialExpandContent}
 				onExpandContentChange={onExpandContentChange}
 				initialExpandPostLinkQuotes={initialExpandPostLinkQuotes}
+				isPostLinkQuoteExpanded={isPostLinkQuoteExpanded}
 				onRenderedContentDidChange={onRenderedContentDidChange}
 				youTubeApiKey={youTubeApiKey}
 				contentMaxLength={contentMaxLength}
@@ -207,6 +209,7 @@ Post.propTypes = {
 	initialExpandContent: PropTypes.bool,
 	onExpandContentChange: PropTypes.func,
 	initialExpandPostLinkQuotes: PropType.objectOf(PropTypes.bool),
+	isPostLinkQuoteExpanded: PropTypes.func,
 	onRenderedContentDidChange: PropTypes.func,
 	// `lynxchan` doesn't provide `width` and `height`
 	// neither for the picture not for the thumbnail

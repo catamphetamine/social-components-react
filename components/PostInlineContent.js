@@ -175,7 +175,7 @@ function PostInlineContentElement({
 					minimizedComponent={postLinkQuoteMinimizedComponent}
 					expandTimeout={postLinkQuoteExpandTimeout}
 					isExpanded={isPostLinkQuoteExpanded}
-					onDidExpand={() => onPostLinkQuoteExpanded({ postLink: content })}
+					onDidExpand={() => onPostLinkQuoteExpanded(content)}
 					onClick={onPostLinkClick}
 					disabled={disabled}
 					postLink={content}
